@@ -1,0 +1,63 @@
+<!DOCTYPE html>
+<html>
+<head>
+	<title>Pe</title>
+	<style> 
+		@font-face {
+		    font-family: "Musicaf";
+		    src: url('./Musica.ttf') format("truetype");
+		}
+		html, body {
+			height: 100%;
+			padding: 2px;
+			font-family: "Musicaf";
+		}
+		canvas.principal {
+			z-index: 1;
+
+		}
+		canvas.save {
+			z-index: 0;
+			position: fixed;
+			display: none;
+		}
+	</style>
+	<meta http-equiv="content-type" content="text/html; charset=utf-8" />
+	<!-- polyfill -->
+	<script src="../inc/shim/Base64.js" type="text/javascript"></script>
+	<script src="../inc/shim/Base64binary.js" type="text/javascript"></script>
+	<script src="../inc/shim/WebAudioAPI.js" type="text/javascript"></script>
+	<!-- midi.js package -->
+	<script src="../js/midi/audioDetect.js" type="text/javascript"></script>
+	<script src="../js/midi/gm.js" type="text/javascript"></script>
+	<script src="../js/midi/loader.js" type="text/javascript"></script>
+	<script src="../js/midi/plugin.audiotag.js" type="text/javascript"></script>
+	<script src="../js/midi/plugin.webaudio.js" type="text/javascript"></script>
+	<script src="../js/midi/plugin.webmidi.js" type="text/javascript"></script>
+	<!-- utils -->
+	<script src="../js/util/dom_request_xhr.js" type="text/javascript"></script>
+	<script src="../js/util/dom_request_script.js" type="text/javascript"></script>
+</head>
+<body style="font-family: Musicaf;">
+	♯ 
+	<canvas class="save" id="save">
+
+	</canvas>
+	<canvas width="1000" height="900" id="principal" class="principal">
+	
+	</canvas>
+
+	<script type="text/javascript" src="lines.js"></script>
+	<script type="text/javascript" src="draw.js"></script>
+	<script type="text/javascript" src="controls.js"></script>
+	<script type="text/javascript" src="notes.js"></script>
+	<script type="text/javascript" src="bars.js"></script>
+	<script type="text/javascript" src="general.js"></script>
+	<script type="text/javascript" src="generate.js"></script>
+	<script type="text/javascript" src="main.js"></script>
+	<script type="text/javascript" src="/javascripts/play.js"></script>
+	
+
+
+</body>
+</html>
