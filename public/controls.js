@@ -89,11 +89,16 @@ document.addEventListener('keydown', function(event) {
 				changeDuration(curNote, curDuration);
 				break;
 			case 'KeyK':
-				playingBar = 0;
-				playingNote = 0;
-				playingTime = 0;
-				clearTimeout(time)
-				play();
+				if(ctrlPress) {
+					changeKeyPop(curBar)
+				}else {
+					playingBar = 0;
+					playingNote = 0;
+					playingTime = 0;
+					clearTimeout(time)
+					play();
+				}
+				
 				break;
 			case 'KeyT':
 				if(ctrlPress) {
