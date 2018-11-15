@@ -137,27 +137,27 @@ function changeKeyPop(bar) {
 
 	option = document.createElement('option');	
 	option.innerHTML = "A (###)";
-	option.value="3:-1";
+	option.value="3:1";
 	keySel.appendChild(option);
 
 	option = document.createElement('option');	
 	option.innerHTML = "E (####)";
-	option.value="4:-1";
+	option.value="4:1";
 	keySel.appendChild(option);
 
 	option = document.createElement('option');	
 	option.innerHTML = "B (#####)";
-	option.value="5:-1";
+	option.value="5:1";
 	keySel.appendChild(option);
 
 	option = document.createElement('option');	
 	option.innerHTML = "F# (######)";
-	option.value="6:-1";
+	option.value="6:1";
 	keySel.appendChild(option);
 
 	option = document.createElement('option');	
 	option.innerHTML = "C# (#######)";
-	option.value="7:-1";
+	option.value="7:1";
 	keySel.appendChild(option)
 
 	formDiv.appendChild(keySel);
@@ -169,7 +169,13 @@ function changeKeyPop(bar) {
 	submitButton.classList.add("btn-primary");
 	submitButton.value = "Confirm";
 	submitButton.addEventListener("click", function() {
-		
+		var index = document.getElementById("keySel").selectedIndex;
+		var options = document.getElementById("keySel").options;
+		var value = options[index].value;
+		var accidentals = parseInt(value.substring(0, 1));
+		var sharpOrFlat = parseInt(value.substring(2));
+
+		changeKey(accidentals, sharpOrFlat, bar);
 
 		var dc = document.getElementById("dialogContainer");
 		dc.removeChild(dc.childNodes[0]);
