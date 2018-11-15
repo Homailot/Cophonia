@@ -236,7 +236,8 @@ function drawBar(bar, color) {
 		if(bar.firstAcc || bar.changedAcc) drawAccidental(timePos+(i-1)*18, bar.sharpOrFlat, acc, bar.line);
 	}
 
-	timePos+=(accidentalSum) * 18 + 4;
+	if(bar.firstAcc || bar.changedAcc) timePos+=(accidentalSum) * 18;
+	timePos+=10;
 	if(bar.changedTimeSig) {
 		ctx.font = "48px Calibri";
 		texto = bar.upperSig;

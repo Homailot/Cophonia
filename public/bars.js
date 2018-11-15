@@ -53,3 +53,35 @@ function newBar(upperSig, lowerSig, cS, clef, cC, xPos, line, cA) {
 	
 	return xPos;
 }
+
+function changeTimeSig(upperSig, lowerSig, bar) {
+	for(var ibar = bar+1; ibar<bars.length; ibar++) {
+		if(bars[ibar].upperSig == bars[bar].upperSig && bars[ibar].lowerSig == bars[bar].lowerSig) {
+			bars[ibar].changedTimeSig=true; 
+			moveWith(35, 0, ibar);
+		} else if(bars[ibar].upperSig == upperSig && bars[ibar].lowerSig == lowerSig) {
+			bars[ibar].changedTimeSig=false; 
+			moveWith(-35, 0, ibar);
+		}
+	}
+
+	bars[bar].upperSig = upperSig;
+	bars[bar].lowerSig = lowerSig;
+	if(bar!=0 && (bars[bar-1].upperSig!=bars[bar].upperSig || bars[bar].lowerSig != bars[bar-1].lowerSig)) {
+		if(!bars[bar].changedTimeSig) {
+			Marker.xPos+=35;
+			//bars[bar].xPos+= 35;
+			bars[bar].changedTimeSig=true; 
+			moveWith(35, 0, bar);
+		}
+	} else if(bar!=0 && (bars[bar-1].upperSig==bars[bar].upperSig && bars[bar].lowerSig == bars[bar-1].lowerSig)) {
+		if(bars[bar].changedTimeSig) {
+			Marker.xPos-=35;
+			//bars[bar].xPos-= 35;
+			bars[bar].changedTimeSig=false; 
+			moveWith(-35, 0, bar);
+		}
+	}
+
+	generateAll();
+}

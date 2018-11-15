@@ -97,7 +97,7 @@ document.addEventListener('keydown', function(event) {
 				break;
 			case 'KeyT':
 				if(ctrlPress) {
-					changeTimeSig(curBar);
+					changeTimeSigPop(curBar);
 				}
 
 				break;
