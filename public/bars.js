@@ -119,6 +119,7 @@ function changeKey(accidentals, sharpOrFlat, bar) {
 			moveWith(accidentals*18,0,bar);
 			//var naturals = 7 - bars[bar-1].accidentals;
 		} else {
+			moveWith(-(bars[bar].accidentals+bars[bar].naturals)*18, 0, bar);
 			bars[bar].changedAcc=true;
 			moveWith(accidentals*18,0,bar);
 		}
