@@ -189,7 +189,7 @@ function drawMarker(y) {
 		if(bars[curBar].changedTimeSig) Marker.xPos +=35
 		if(bars[curBar].changedOrFirstClef) Marker.xPos += 45
 		if(bars[curBar].changedAcc || bars[curBar].firstAcc) {
-			Marker.xPos += (bars[curBar].accidentals) * 18;
+			Marker.xPos += (bars[curBar].accidentals+bars[curBar].naturals.length)*18;
 		}
 
 	}
@@ -230,10 +230,15 @@ function drawBar(bar, color) {
 		timePos += 45;
 	}
 	var accidentalSum = bar.accidentals;
+	for(var i = 0; i<bar.naturals.length; i++) {
+		var acc = bar.naturals[i]-1;
+		if(bar.firstAcc || bar.changedAcc) drawAccidental(timePos+(i)*18, bar.naturalOrder, acc, bar.line, 0);
+	}
+	if(bar.firstAcc || bar.changedAcc) timePos+=(bar.naturals.length) * 18
 	for(var i = 1; i<=accidentalSum; i++) {
 		var acc = i-1;
 		if(bar.sharpOrFlat==-1) acc = 7-i
-		if(bar.firstAcc || bar.changedAcc) drawAccidental(timePos+(i-1)*18, bar.sharpOrFlat, acc, bar.line);
+		if(bar.firstAcc || bar.changedAcc) drawAccidental(timePos+(i-1)*18, bar.sharpOrFlat, acc, bar.line, bar.sharpOrFlat);
 	}
 
 	if(bar.firstAcc || bar.changedAcc) timePos+=(accidentalSum) * 18;
@@ -256,7 +261,7 @@ function drawBar(bar, color) {
 	ctx.stroke();
 }
 
-function drawAccidental(pos, acc, note, line) {
+function drawAccidental(pos, acc, note, line, sof) {
 	var text = "";
 	var offset;
 	switch(note) {
@@ -286,12 +291,15 @@ function drawAccidental(pos, acc, note, line) {
 
 	}
 
-	switch(acc) {
+	switch(sof) {
 		case 1:
 			text = "\u266F"; break;
 		case -1:
 			text = "\u266D";
 			offset -= 6;
+			break;
+		case 0:
+			text = "\u266E";
 			break;
 		default:
 			text = ""; break;

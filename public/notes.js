@@ -58,14 +58,12 @@ function placeNote(duration, line, pos, isSpace, newGroup) {
 }
 
 NoteGroup.prototype.updateAccidental = function(bar) {
-	console.log(this.noteValue);
+	this.accidental = 0;
 	for(var i = 1; i<=bars[bar].accidentals; i++) {
 		var value = i-1;
 		if(bars[bar].sharpOrFlat==-1) value = 7-i;
-		console.log(value)
 
 		if(this.scalePos == accidentalOrder[value]) {
-			console.log("helo")
 			this.accidental = bars[bar].sharpOrFlat;
 			break;
 		}

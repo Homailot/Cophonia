@@ -15,7 +15,8 @@ function Bar(upperSig, lowerSig, changedTimeSig, clef, changedOrFirstClef, xPos,
 	this.notes = new Array();
 	this.sharpOrFlat = sof;
 	this.accidentals = acc;
-	this.naturals = 0;
+	this.naturals = [];
+	this.naturalOrder=0;
 	this.firstAcc;
 	this.changedAcc = cA;
 }
@@ -90,42 +91,51 @@ function changeTimeSig(upperSig, lowerSig, bar) {
 }
 
 function changeKey(accidentals, sharpOrFlat, bar) {
-	if(bars[bar].accidentals!=accidentals && bars[bar].sharpOrFlat!=sharpOrFlat) {
+	if(bars[bar].accidentals!=accidentals || bars[bar].sharpOrFlat!=sharpOrFlat) {
 		for(var ibar=bar+1; ibar<bars.length; ibar++) {
+			bars[ibar].naturals = setNaturals(accidentals, sharpOrFlat, bars[ibar].accidentals);
+			bars[ibar].naturalOrder = sharpOrFlat;
+
 			if(bars[ibar].accidentals == bars[bar].accidentals && bars[ibar].sharpOrFlat == bars[bar].sharpOrFlat) {
 				bars[ibar].changedAcc=true;
-				moveWith(bars[ibar].accidentals*18, 0, ibar);
+				moveWith((bars[ibar].accidentals+bars[ibar].naturals.length)*18, 0, ibar);
 				//bars[ibar].naturals= bars[bar].accidentals-bars[ibar].accidentals;
-				break;
 			} else if(bars[ibar].accidentals == accidentals && bars[ibar].sharpOrFlat == sharpOrFlat) {
 				bars[ibar].changedAcc=false;
 				moveWith(-bars[ibar].accidentals*18, 0, ibar);
 				//bars[ibar].naturals=0;
-				break;
-			}
+			} 
+
+			break;
 		}
+
+		var naturals = []
+		if(bar!=0) {
+			var naturals = setNaturals(bars[bar-1].accidentals, bars[bar-1].sharpOrFlat, accidentals);
+			bars[bar].naturalOrder = bars[bar-1].sharpOrFlat;
+		} 
 
 		if(bar!=0 && (bars[bar-1].accidentals==accidentals && bars[bar-1].sharpOrFlat == sharpOrFlat)) {
 			if(bars[bar].changedAcc) {
 				bars[bar].changedAcc=false;
-				//var naturals = 0;
-				moveWith(-(bars[bar].accidentals+bars[bar].naturals)*18, 0, bar);
+				moveWith(-(bars[bar].accidentals+bars[bar].naturals.length)*18, 0, bar);
 			}
 		} else if(bar!=0 && (bars[bar-1].accidentals!=accidentals || bars[bar-1].sharpOrFlat != sharpOrFlat)) {
 			if(bars[bar].changedAcc) {
-				moveWith(-(bars[bar].accidentals+bars[bar].naturals)*18, 0, bar);
+				moveWith(-(bars[bar].accidentals+bars[bar].naturals.length)*18, 0, bar);
 			}
 			bars[bar].changedAcc=true;
-			moveWith(accidentals*18,0,bar);
-			//var naturals = 7 - bars[bar-1].accidentals;
+			moveWith((accidentals+naturals.length)*18,0,bar);
 		} else {
-			moveWith(-(bars[bar].accidentals+bars[bar].naturals)*18, 0, bar);
+			moveWith(-(bars[bar].accidentals+bars[bar].naturals.length)*18, 0, bar);
 			bars[bar].changedAcc=true;
-			moveWith(accidentals*18,0,bar);
+			moveWith((accidentals+naturals.length)*18,0,bar);
 		}
 
 		bars[bar].accidentals = accidentals;
 		bars[bar].sharpOrFlat = sharpOrFlat;
+		bars[bar].naturals = naturals;
+		
 
 		for(var note = 0; note<bars[bar].notes.length; note++) {
 			for(var noteG=0; noteG<bars[bar].notes[note].noteGroups.length; noteG++) {
@@ -136,4 +146,20 @@ function changeKey(accidentals, sharpOrFlat, bar) {
 	
 
 	generateAll();
+}
+
+function setNaturals(oldAcc, oldSof, newBarAcc) {
+	var naturals=[]
+
+	for(var i = 1; i<=oldAcc; i++) {
+		var order = i;
+		if(oldSof==-1) order = 8-i;
+		console.log(order);
+
+		if(order>newBarAcc) {
+			naturals.push(order);
+		}
+	}
+
+	return naturals;
 }
