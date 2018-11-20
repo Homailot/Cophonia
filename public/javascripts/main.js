@@ -44,7 +44,7 @@ var accidentalOrder = [4, 1, 5, 2, 6, 3, 7]
 
 function start() {
 	lines.push(new Line());
-	newBar(4, 4, true, 0, false, lastPos, 0, false);
+	newBar(4, 4, true, 0, false, lastPos, 0, false, 0, 0);
 	//+10 que initPos
 	//35 + 45 + 10
 	//Marker.xPos = bars[curBar].initPos + 90;

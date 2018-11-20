@@ -16,7 +16,7 @@ function generateAll() {
 			}
 			if(!bars[bar].changedAcc && !bars[bar].firstAcc) {
 				bars[bar].firstAcc = true;
-				accSum+=bars[bar].accidentals*18;
+				accSum+=(bars[bar].accidentals+bars[bar].naturals.length)*18;
 				moveWith(accSum+10, 0, bar);
 			}
 			
@@ -27,7 +27,7 @@ function generateAll() {
 			}
 			if(bars[bar].firstAcc && !bars[bar].changedAcc) {
 				bars[bar].firstAcc = false;
-				accSum+=bars[bar].accidentals*18;
+				accSum+=(bars[bar].accidentals+bars[bar].naturals.length)*18;
 				moveWith(-accSum, 0, bar);
 			}
 		} 
@@ -260,7 +260,6 @@ function stretchBars() {
 	for(line = 0; line<lines.length; line++) {
 		//this is the unstretch block of the code
 		if(lines[line].changedComplete) {
-			console.log("ee");
 			lines[line].changedComplete = false;
 			var startPos;
 			if(line == 0) startPos = 180;
@@ -274,7 +273,7 @@ function stretchBars() {
 					if(bars[bar].changedTimeSig) startPos+=35
 					if(bars[bar].changedOrFirstClef) startPos+=45
 					if(bars[bar].firstAcc || bars[bar].changedAcc) {
-						startPos+=bars[bar].accidentals*18
+						startPos+=(bars[bar].accidentals+bars[bar].naturals.length)*18
 					}
 				
 					if(bars[bar].notes.length>0) {
@@ -342,8 +341,8 @@ function stretchBars() {
 								size -=45; add+=45;
 							} 
 							if(bars[bar].changedAcc || bars[bar].firstAcc) {
-								bars[bar].notes[note].xPos+=bars[bar].accidentals*18;
-								size-=bars[bar].accidentals*18; add+=bars[bar].accidentals*18;
+								bars[bar].notes[note].xPos+=(bars[bar].accidentals+bars[bar].naturals.length)*18;
+								size-=(bars[bar].accidentals+bars[bar].naturals.length)*18; add+=(bars[bar].accidentals+bars[bar].naturals.length)*18;
 							}
 							
 							continue;

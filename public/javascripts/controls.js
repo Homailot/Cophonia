@@ -3,6 +3,8 @@ var ctrlPress = false;
 document.addEventListener('keydown', function(event) {
 	//simple code that checks what key was pressed and executes a function
 	if(!playing) {
+		var dc = document.getElementById("dialogContainer");
+		if(dc.childNodes.length>0) dc.removeChild(dc.childNodes[0]);
 		switch(event.code) {
 			case 'Enter':
 				newGroup = false;
@@ -89,15 +91,21 @@ document.addEventListener('keydown', function(event) {
 				changeDuration(curNote, curDuration);
 				break;
 			case 'KeyK':
-				playingBar = 0;
-				playingNote = 0;
-				playingTime = 0;
-				clearTimeout(time)
-				play();
+				if(ctrlPress) {
+					changeKeyPop(curBar)
+				}else {
+					playingBar = 0;
+					playingNote = 0;
+					playingTime = 0;
+
+					clearTimeout(time)
+					play();
+				}
+				
 				break;
 			case 'KeyT':
 				if(ctrlPress) {
-					changeTimeSig(curBar);
+					changeTimeSigPop(curBar);
 				}
 
 				break;
@@ -111,6 +119,10 @@ document.addEventListener('keydown', function(event) {
 			case 'KeyK':
 				clearTimeout(time);
 				restoreCanvas(); playing=false;
+				break;
+			case 'ShiftLeft':
+			case 'ShiftRight':
+				ctrlPress = true;
 				break;
 		}
 	}
@@ -261,9 +273,11 @@ function moveLeft() {
 }
 
 function moveRight() {
-	upperSig = bars[curBar].upperSig;
-	lowerSig = bars[curBar].lowerSig;
-	sum = getSum(curBar);
+	var upperSig = bars[curBar].upperSig;
+	var lowerSig = bars[curBar].lowerSig;
+	var acc = bars[curBar].accidentals;
+	var sof = bars[curBar].sharpOrFlat;
+	var sum = getSum(curBar);
 	var gen = false;
 
 	//if we've reached the end, meaning the bar was extended or when the sum of the duration of the notes matches the time signature
@@ -281,7 +295,7 @@ function moveRight() {
 		curNote = 0;
 
 		if(curBar == bars.length){
-			newBar(upperSig, lowerSig, false, 0, false, bars[curBar-1].xPos, curLine, false); gen = true;
+			newBar(upperSig, lowerSig, false, 0, false, bars[curBar-1].xPos, curLine, false, acc, sof); gen = true;
 		} 
 
 		//finally, it sets the marker at the start of the next bar

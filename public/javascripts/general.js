@@ -85,36 +85,3 @@ function restoreCanvas() {
 	ctx.clearRect(0, 0, c.width, 100000)
 	ctx.drawImage(savedCanvas, -0.5, -0.5+scrollValue);
 }
-
-function changeTimeSig() {
-	openHTMLDialog([])
-}
-
-function openHTMLDialog(contents) {
-	if(document.getElementById("dialog")) {
-		var dc = document.getElementById("dialogContainer");
-		dc.removeChild(dc.childNodes[0]);
-		return;
-	} 
-	var dialog = document.createElement('div');
-	var height = 0;
-	var minHeight = 200;
-	dialog.style.width= '600px';
-	dialog.style.minHeight = '200px';
-
-	for(content = 0; content < contents.length; content++) {
-		height += content.style.height;
-	}
-
-	if(height<minHeight) height = minHeight;
-	dialog.style.height = height + 'px';
-	dialog.style.zIndex = 5;
-	dialog.style.position = 'absolute';
-	dialog.style.border = "1px solid black"
-	dialog.className = "rounded-top"
-	dialog.id = "dialog";
-	dialog.style.top = (window.innerHeight/2 - height/2-50) + 'px';
-	dialog.style.left = (window.innerWidth/2- 300) + 'px';
-
-	document.getElementById("dialogContainer").appendChild(dialog);
-}

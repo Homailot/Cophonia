@@ -2,7 +2,7 @@ function Note(xPos, yPos, line, duration, pos, noteValue, isSpace, scalePos, acc
 	this.xPos = xPos;
 	this.noteGroups = new Array();
 	this.noteGroups.push(new NoteGroup(yPos, pos, noteValue, scalePos, acc));
-	this.line = line
+	this.line = line;
 	this.duration = duration;
 	this.pos = pos;
 	this.isSpace = isSpace;
@@ -55,5 +55,17 @@ function placeNote(duration, line, pos, isSpace, newGroup) {
 	} else {
 		bars[curBar].notes[curNote].noteGroups.push(new NoteGroup(realPosition, pos, noteValue, sP, acc));
 	}
-	
+}
+
+NoteGroup.prototype.updateAccidental = function(bar) {
+	this.accidental = 0;
+	for(var i = 1; i<=bars[bar].accidentals; i++) {
+		var value = i-1;
+		if(bars[bar].sharpOrFlat==-1) value = 7-i;
+
+		if(this.scalePos == accidentalOrder[value]) {
+			this.accidental = bars[bar].sharpOrFlat;
+			break;
+		}
+	}
 }
