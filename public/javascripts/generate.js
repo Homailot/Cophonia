@@ -326,8 +326,8 @@ function stretchBars() {
 							objectWidth+=bars[bar].notes[note].width;
 
 							nObjects++;
-						}
-					}
+						}	
+					}	
 
 					if(bar == curBar && extended) {
 						objectsWidth.push(40);
@@ -372,7 +372,6 @@ function stretchBars() {
 					bars[bar].xPos = thisPos;
 				}
 			}
-
 		}
 	}
 }
