@@ -3,11 +3,6 @@ function generateAll() {
 	var accSum = 0;
 	lineChange = -1;
 	for(bar = 0; bar<bars.length; bar++) {
-		if(bars[bar].xPos >= c.width) {
-			lines[bars[bar].line].overflown = true;
-		} else {
-			lines[bars[bar].line].overflown = false;
-		}
 		if(bars[bar].line != lineChange) {
 			lineChange++;
 			if(!bars[bar].changedOrFirstClef) {
@@ -30,7 +25,20 @@ function generateAll() {
 				accSum+=(bars[bar].accidentals+bars[bar].naturals.length)*18;
 				moveWith(-accSum, 0, bar);
 			}
-		} 
+		}
+		
+		if(lines[bars[bar].line].bars==4 || (lines[bars[bar].line].bars==3 && bars[bar].line == 0)) {
+			lines[bars[bar].line].complete=true;
+		}
+		
+		else if(bars[bar].xPos >= c.width) {
+			lines[bars[bar].line].overflown = true;
+		} else {
+			if(lines[bars[bar].line].overflown) {
+				lines[bars[bar].line].changedComplete=true;
+			} 
+			lines[bars[bar].line].overflown = false;	
+		}
 	}
 
 	//this function will define the x positions of the streched bars
@@ -286,6 +294,10 @@ function stretchBars() {
 					}
 					startPos+=40
 					bars[bar].xPos = startPos
+
+					if(bars[bar].xPos >= c.width) {
+						lines[bars[bar].line].overflown = true;
+					} 
 				}
 			}
 
