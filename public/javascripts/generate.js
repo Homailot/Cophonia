@@ -327,8 +327,6 @@ function stretchBars() {
 
 							nObjects++;
 						}
-					} else {
-						
 					}
 
 					if(bar == curBar && extended) {
@@ -360,8 +358,6 @@ function stretchBars() {
 							thisPos+=objectsWidth[objectIndex];
 							objectIndex++;
 						}
-					} else {
-						
 					}
 
 					if(bar==curBar && extended) {
