@@ -293,71 +293,83 @@ function stretchBars() {
 		}
 		//we only stretch if the line is complete or if it overflows the canvas
 		if(((lines[line].complete || (bars[curBar].xPos > c.width && curLine == line)) && !lines[line].changedComplete) || lines[line].overflown) {
-			firstBar = true;
-
-			//size is the total xSize of the line, add is how much to the right the line is offset, spaces is the number of things to be stretched
-			n=0;
-			if(line == 0) {
-				size = (c.width-190);
-				add = 190;
-				spaces = lines[line].bars;
-			} 
-			else {
-				spaces = lines[line].bars;
-				add = 10;
-				size = c.width-10;
+			var fullSpaceWidth, spaces, spaceWidth;
+			var totalWidth = c.width-8;
+			var objectsWidth = [];
+			var objectWidth = 0;
+			var nObjects = 0;
+			var thisPos = 8;
+			var firstBar = true;
+			if(line==0) {
+				totalWidth -= 172; thisPos = 180;
 			}
 
-			//if the bar is extended then we have one more thing to stretch
-			if(curLine == line && extended) spaces +=1
-			
-			//foreach bar in that line.
-			for(bar = 0; bar < bars.length; bar++) {
+			for(var bar = 0; bar<bars.length; bar++) {
 				if(bars[bar].line == line) {
-					//we add a space per note in the bar.
-					if(bars[bar].notes.length>1) spaces+=bars[bar].notes.length-1;
-					if(bar+1<bars.length && bars[bar+1].line != line) break;
+					var startWidth = 10;
+					if(bars[bar].changedAcc || bars[bar].firstAcc) startWidth+=(bars[bar].accidentals+bars[bar].naturals.length)*18
+					if(bars[bar].changedOrFirstClef || bars[bar].changedClef) startWidth+=45;
+					if(bars[bar].changedTimeSig) startWidth+=35;
+					if(bars[bar].notes.length==0) startWidth+=40;
+
+					objectsWidth.push(startWidth);
+					objectWidth+=startWidth;
+					if(!firstBar) nObjects++;
+					firstBar = false;
+
+					if(bars[bar].notes.length>0) {
+						objectsWidth.push(bars[bar].notes[0].width);
+						objectWidth+=bars[bar].notes[0].width;
+
+						for(var note = 1; note<bars[bar].notes.length; note++) {
+							objectsWidth.push(bars[bar].notes[note].width);
+							objectWidth+=bars[bar].notes[note].width;
+
+							nObjects++;
+						}	
+					}	
+
+					if(bar == curBar && extended) {
+						objectsWidth.push(40);
+						objectWidth+=40;
+						nObjects++;
+					}
 				}
 			}
+			spaces=nObjects+1;
+			fullSpaceWidth=totalWidth-objectWidth;
+			spaceWidth = fullSpaceWidth/spaces;
 
-			//foreach bar in the line
-			for(bar = 0; bar<bars.length; bar++)  {
+			var objectIndex = 0;
+			for(var bar = 0; bar<bars.length; bar++) {
 				if(bars[bar].line == line) {
-					//we only change the init position if the bar is not the first of the line.
-					if(n!=0)bars[bar].initPos = (n)/spaces * size + add;
-					n++;	
+					bars[bar].initPos=thisPos;
+					thisPos+=objectsWidth[objectIndex];
+					objectIndex++;
 
-					for(note = 0; note< bars[bar].notes.length; note++) {
-						//the first note is just simply put a bit ahead the initial position of the bar, the rest are stretched.
-						if(note == 0) {
-							bars[bar].notes[note].xPos = bars[bar].initPos + 10;
-							size -=10; add+=10;
-							if(bars[bar].changedTimeSig) {
-								bars[bar].notes[note].xPos+=35
-								size -=35; add+=35;
-							} 
-							if(bars[bar].changedOrFirstClef){
-								bars[bar].notes[note].xPos+= 45
-								size -=45; add+=45;
-							} 
-							if(bars[bar].changedAcc || bars[bar].firstAcc) {
-								bars[bar].notes[note].xPos+=(bars[bar].accidentals+bars[bar].naturals.length)*18;
-								size-=(bars[bar].accidentals+bars[bar].naturals.length)*18; add+=(bars[bar].accidentals+bars[bar].naturals.length)*18;
-							}
-							
-							continue;
+					if(bars[bar].notes.length>0) {
+						bars[bar].notes[0].xPos = thisPos;
+						thisPos+=objectsWidth[objectIndex];
+						objectIndex++;
+
+						for(var note = 1; note<bars[bar].notes.length; note++) {
+							thisPos+=spaceWidth;
+							bars[bar].notes[note].xPos = thisPos
+							thisPos+=objectsWidth[objectIndex];
+							objectIndex++;
 						}
-						bars[bar].notes[note].xPos = n/(spaces) * size + add;
-						n++;
 					}
-					//we also stretch the marker's position
-					if(bar == curBar && extended) {
-						Marker.xPos = n/spaces * size + add;
-						n++;
+
+					if(bar==curBar && extended) {
+						thisPos+=spaceWidth;
+						Marker.xPos = thisPos;
+						thisPos+=objectsWidth[objectIndex];
+						objectIndex++;
 					}
 
 
-					bars[bar].xPos = n/spaces * size + add;
+					thisPos+=spaceWidth;
+					bars[bar].xPos = thisPos;
 				}
 			}
 		}

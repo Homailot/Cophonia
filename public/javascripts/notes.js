@@ -6,6 +6,7 @@ function Note(xPos, yPos, line, duration, pos, noteValue, isSpace, scalePos, acc
 	this.duration = duration;
 	this.pos = pos;
 	this.isSpace = isSpace;
+	this.width = 40;
 }
 
 function NoteGroup(yPos, pos, noteValue, scalePos, acc) {
