@@ -93,6 +93,7 @@ function drawFigure(note) {
 		}
 
 		if(text!= "") ctx.fillText(text, 0, 0)
+		
 
 		ctx.restore();
 	} else {
@@ -119,11 +120,42 @@ function drawFigure(note) {
 			default: text = "\uD834\uDD5F"; break;
 		}
 
-		ctx.fillText(text, 0, 0)
+		ctx.fillText(text, 0, 0);
+
+		drawNoteAccidental(note.noteGroups[0])
+
+		
 
 		ctx.restore();	
 	}
 	
+}
+
+function drawNoteAccidental(n) {
+	console.log(n.hideAcc)
+		if(n.hideAcc==false) {
+			ctx.translate(-18, 0);
+			var offset=10;
+			
+			switch(n.accidental) {
+				case 1:
+					text = "\u266F";
+					break;
+				case -1:
+					text = "\u266D";
+					offset -= 6;
+					break;
+				case 0:
+					text = "\u266E";
+					break;
+				default:
+					text = ""; break;
+			}
+			
+			console.log(text);
+			ctx.font = "80px Musicaf";
+			ctx.fillText(text, 0, offset);
+		}
 }
 
 function drawStem(note, height, inverse, noteGroup) {
@@ -168,6 +200,9 @@ function drawHead(note, inverse) {
 		if(note.duration<=0.25) ctx.fillText("\uD834\uDD58", 0, 0);
 		else if(note.duration == 0.5) ctx.fillText("\uD834\uDD57", 0, 0);
 		else if(note.duration == 1) ctx.fillText("\uD834\uDD5D", 0, 0);
+		
+		drawNoteAccidental(note.noteGroups[n]);
+		
 		ctx.restore();
 	}
 }

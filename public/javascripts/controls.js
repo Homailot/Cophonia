@@ -5,6 +5,18 @@ document.addEventListener('keydown', function(event) {
 	if(!playing) {
 		var dc = document.getElementById("dialogContainer");
 		if(dc.childNodes.length>0) dc.removeChild(dc.childNodes[0]);
+		switch(event.key) {
+			case '+':
+				changeAccidental(bars[curBar], bars[curBar].notes[curNote], y, 1, curNote);
+
+				generateAll();
+				break;
+			case '-':
+				changeAccidental(bars[curBar], bars[curBar].notes[curNote], y, -1, curNote);
+
+				generateAll();
+				break;
+		}
 		switch(event.code) {
 			case 'Enter':
 				newGroup = false;
@@ -377,4 +389,47 @@ function setMarker(isSpace, newGroup) {
 	placeNote(curDuration, curLine, y+2, isSpace, newGroup);
 
 	generateAll();
+}
+
+function changeAccidental(bar, note, y, value, j) {
+	var n = null;
+
+	for(var noteGroup=0; noteGroup<note.noteGroups.length; noteGroup++) {
+		if(note.noteGroups[noteGroup].pos==y+2) {
+			
+			n=note.noteGroups[noteGroup];
+			break;
+		}
+	}
+
+	if(n!=null) {
+		
+		n.accidental += value;
+		if(n.accidental>1) n.accidental=1;
+		else if(n.accidental<-1) n.accidental=-1;
+		else {
+			
+			if(n.hideAcc==true) note.width+=18
+			n.hideAcc=false;
+			for(var i = 1; i<=bar.accidentals; i++) {
+				var value = i-1;
+				if(bar.sharpOrFlat==-1) value = 7-i;
+		
+				if(n.scalePos == accidentalOrder[value] && n.accidental==bar.sharpOrFlat) {
+					n.hideAcc=true;
+					note.width-=18;
+					break;
+				}
+			}
+
+			for(var note = j+1; note<bar.notes.length; note++) {
+				for(var noteGroup=0; noteGroup<bar.notes[note].noteGroups.length; noteGroup++) {
+					if(n.pos == bar.notes[note].noteGroups[noteGroup].pos) {
+						bar.notes[note].noteGroups[noteGroup].hideAcc=true;
+						bar.notes[note].noteGroups[noteGroup].accidental=n.accidental;
+					}
+				}
+			}
+		}
+	}
 }

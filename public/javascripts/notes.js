@@ -15,6 +15,7 @@ function NoteGroup(yPos, pos, noteValue, scalePos, acc) {
 	this.noteValue = noteValue;
 	this.scalePos = scalePos;
 	this.accidental = acc;
+	this.hideAcc = true;
 }
 
 function placeNote(duration, line, pos, isSpace, newGroup) {
@@ -66,6 +67,8 @@ NoteGroup.prototype.updateAccidental = function(bar) {
 
 		if(this.scalePos == accidentalOrder[value]) {
 			this.accidental = bars[bar].sharpOrFlat;
+			if(this.hideAcc==false) this.width-=18;
+			this.hideAcc=true;
 			break;
 		}
 	}
