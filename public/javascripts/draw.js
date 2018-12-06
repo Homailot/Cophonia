@@ -132,30 +132,29 @@ function drawFigure(note) {
 }
 
 function drawNoteAccidental(n) {
-	console.log(n.hideAcc)
-		if(n.hideAcc==false) {
-			ctx.translate(-18, 0);
-			var offset=10;
-			
-			switch(n.accidental) {
-				case 1:
-					text = "\u266F";
-					break;
-				case -1:
-					text = "\u266D";
-					offset -= 6;
-					break;
-				case 0:
-					text = "\u266E";
-					break;
-				default:
-					text = ""; break;
-			}
-			
-			console.log(text);
-			ctx.font = "80px Musicaf";
-			ctx.fillText(text, 0, offset);
+	if(n.hideAcc==false) {
+		ctx.translate(-18, 0);
+		var offset=10;
+		
+		switch(n.accidental) {
+			case 1:
+				text = "\u266F";
+				break;
+			case -1:
+				text = "\u266D";
+				offset -= 6;
+				break;
+			case 0:
+				text = "\u266E";
+				break;
+			default:
+				text = ""; break;
 		}
+		
+		console.log(text);
+		ctx.font = "80px Musicaf";
+		ctx.fillText(text, 0, offset);
+	}
 }
 
 function drawStem(note, height, inverse, noteGroup) {

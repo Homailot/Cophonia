@@ -425,6 +425,7 @@ function changeAccidental(bar, note, y, value, j) {
 			for(var note = j+1; note<bar.notes.length; note++) {
 				for(var noteGroup=0; noteGroup<bar.notes[note].noteGroups.length; noteGroup++) {
 					if(n.pos == bar.notes[note].noteGroups[noteGroup].pos) {
+						if(bar.notes[note].noteGroups[noteGroup].hideAcc==false)bar.notes[note].width-=18;
 						bar.notes[note].noteGroups[noteGroup].hideAcc=true;
 						bar.notes[note].noteGroups[noteGroup].accidental=n.accidental;
 					}
