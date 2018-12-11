@@ -6,7 +6,7 @@ function Note(xPos, yPos, line, duration, pos, noteValue, isSpace, scalePos, acc
 	this.duration = duration;
 	this.pos = pos;
 	this.isSpace = isSpace;
-	this.width = 40;
+	this.width = 30;
 }
 
 function NoteGroup(yPos, pos, noteValue, scalePos, acc) {
@@ -40,7 +40,6 @@ function placeNote(duration, line, pos, isSpace, newGroup) {
 		if(desc && (sP==7 || sP==3)) noteValue++;
 		else if(!desc && (sP==1 || sP==4)) noteValue--;
 	}
-
 	for(var i = 1; i<=bars[curBar].accidentals; i++) {
 		var value = i-1;
 		if(bars[curBar].sharpOrFlat==-1) value = 7-i;
@@ -51,6 +50,17 @@ function placeNote(duration, line, pos, isSpace, newGroup) {
 		}
 	}
 
+	for(var i = 0; i<bars[curBar].notes.length; i++) {
+		var n=bars[curBar];
+		for(var note=0; note<n.notes[i].noteGroups.length; note++) {
+			if(pos == n.notes[i].noteGroups[note].pos) {
+				acc=n.notes[i].noteGroups[note].accidental;
+
+			}
+		}
+	}
+	
+
 	if(!newGroup) {
 		var note = new Note(xPos, realPosition, line, duration, pos, noteValue, isSpace, sP, acc);
 		bars[curBar].notes.splice(curNote, 0, note); 
@@ -59,15 +69,13 @@ function placeNote(duration, line, pos, isSpace, newGroup) {
 	}
 }
 
-NoteGroup.prototype.updateAccidental = function(bar) {
-	this.accidental = 0;
+NoteGroup.prototype.updateAccidental = function(bar, n) {
 	for(var i = 1; i<=bars[bar].accidentals; i++) {
 		var value = i-1;
 		if(bars[bar].sharpOrFlat==-1) value = 7-i;
 
-		if(this.scalePos == accidentalOrder[value]) {
-			this.accidental = bars[bar].sharpOrFlat;
-			if(this.hideAcc==false) this.width-=18;
+		if(this.scalePos == accidentalOrder[value] && this.accidental==bars[bar].sharpOrFlat) {
+			if(this.hideAcc==false) n.width-=18;
 			this.hideAcc=true;
 			break;
 		}

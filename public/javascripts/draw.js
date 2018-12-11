@@ -150,8 +150,7 @@ function drawNoteAccidental(n) {
 			default:
 				text = ""; break;
 		}
-		
-		console.log(text);
+
 		ctx.font = "80px Musicaf";
 		ctx.fillText(text, 0, offset);
 	}
@@ -224,6 +223,9 @@ function drawMarker(y) {
 		if(bars[curBar].changedOrFirstClef) Marker.xPos += 45
 		if(bars[curBar].changedAcc || bars[curBar].firstAcc) {
 			Marker.xPos += (bars[curBar].accidentals+bars[curBar].naturals.length)*18;
+		}
+		if(bars[curBar].notes.length>0) {
+			Marker.xPos=(bars[curBar].notes[0].xPos);
 		}
 
 	}

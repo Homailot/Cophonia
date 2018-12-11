@@ -318,7 +318,7 @@ function stretchBars() {
 
 			for(var bar = 0; bar<bars.length; bar++) {
 				if(bars[bar].line == line) {
-					var startWidth = 10;
+					var startWidth = 5;
 					if(bars[bar].changedAcc || bars[bar].firstAcc) startWidth+=(bars[bar].accidentals+bars[bar].naturals.length)*18
 					if(bars[bar].changedOrFirstClef || bars[bar].changedClef) startWidth+=45;
 					if(bars[bar].changedTimeSig) startWidth+=35;
@@ -342,13 +342,14 @@ function stretchBars() {
 					}	
 
 					if(bar == curBar && extended) {
-						objectsWidth.push(40);
-						objectWidth+=40;
+						objectsWidth.push(30);
+						objectWidth+=30;
 						nObjects++;
 					}
 				}
 			}
 			spaces=nObjects+1;
+			console.log(totalWidth+" "+objectWidth)
 			fullSpaceWidth=totalWidth-objectWidth;
 			spaceWidth = fullSpaceWidth/spaces;
 
@@ -356,17 +357,19 @@ function stretchBars() {
 			for(var bar = 0; bar<bars.length; bar++) {
 				if(bars[bar].line == line) {
 					bars[bar].initPos=thisPos;
+					if(spaceWidth<0) thisPos+=2*spaceWidth;
 					thisPos+=objectsWidth[objectIndex];
 					objectIndex++;
 
 					if(bars[bar].notes.length>0) {
-						bars[bar].notes[0].xPos = thisPos;
+						bars[bar].notes[0].xPos = (thisPos+objectsWidth[objectIndex]/2);
 						thisPos+=objectsWidth[objectIndex];
 						objectIndex++;
 
 						for(var note = 1; note<bars[bar].notes.length; note++) {
 							thisPos+=spaceWidth;
-							bars[bar].notes[note].xPos = thisPos
+							bars[bar].notes[note].xPos = (thisPos+objectsWidth[objectIndex]/2)
+							
 							thisPos+=objectsWidth[objectIndex];
 							objectIndex++;
 						}
@@ -374,14 +377,15 @@ function stretchBars() {
 
 					if(bar==curBar && extended) {
 						thisPos+=spaceWidth;
-						Marker.xPos = thisPos;
+						Marker.xPos = thisPos+objectsWidth[objectIndex]/2;
 						thisPos+=objectsWidth[objectIndex];
 						objectIndex++;
 					}
 
-
-					thisPos+=spaceWidth;
+					if(spaceWidth<0) thisPos-=spaceWidth;
+					else  thisPos+=spaceWidth;
 					bars[bar].xPos = thisPos;
+					
 				}
 			}
 		}

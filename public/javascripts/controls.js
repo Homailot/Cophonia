@@ -411,23 +411,55 @@ function changeAccidental(bar, note, y, value, j) {
 			
 			if(n.hideAcc==true) note.width+=18
 			n.hideAcc=false;
+			if(bar.accidentals==0 && n.accidental==0) {
+				if(n.hideAcc==false)note.width-=18;
+				n.hideAcc=true;
+			}
 			for(var i = 1; i<=bar.accidentals; i++) {
 				var value = i-1;
 				if(bar.sharpOrFlat==-1) value = 7-i;
 		
-				if(n.scalePos == accidentalOrder[value] && n.accidental==bar.sharpOrFlat) {
+				if((n.scalePos == accidentalOrder[value] && n.accidental==bar.sharpOrFlat)) {
+					if(n.hideAcc==false)note.width-=18;
 					n.hideAcc=true;
-					note.width-=18;
+					break;
+				} else if(n.scalePos == accidentalOrder[value] && n.accidental!=bar.sharpOrFlat) {
+					if(n.hideAcc==true)note.width+=18;
+					n.hideAcc=false;
 					break;
 				}
+
+				if(n.accidental!=0) {
+					if(n.hideAcc==true)note.width+=18;
+					n.hideAcc=false;
+				} else {
+					if(n.hideAcc==false)note.width-=18;
+					n.hideAcc=true;
+				}
+				
 			}
 
-			for(var note = j+1; note<bar.notes.length; note++) {
-				for(var noteGroup=0; noteGroup<bar.notes[note].noteGroups.length; noteGroup++) {
-					if(n.pos == bar.notes[note].noteGroups[noteGroup].pos) {
-						if(bar.notes[note].noteGroups[noteGroup].hideAcc==false)bar.notes[note].width-=18;
-						bar.notes[note].noteGroups[noteGroup].hideAcc=true;
-						bar.notes[note].noteGroups[noteGroup].accidental=n.accidental;
+			for(var i = 0; i<bar.notes.length; i++) {
+				for(var noteGroup=0; noteGroup<bar.notes[i].noteGroups.length; noteGroup++) {
+					if(i > j) {
+						var subject = bar.notes[i];
+						var subjectPlace = bar.notes[i].noteGroups[noteGroup];
+					}
+					else if(i < j) {
+						var subject = note;
+						var subjectPlace = n;
+					} 
+					else continue;
+
+					if(n.pos == bar.notes[i].noteGroups[noteGroup].pos) {
+						if(bar.notes[i].noteGroups[noteGroup].accidental!=n.accidental) {
+							if(subjectPlace.hideAcc==true)subject.width+=18;
+							subjectPlace.hideAcc=false;
+							if(i>j) n=bar.notes[i].noteGroups[noteGroup];
+						} else {
+							if(subjectPlace.hideAcc==false)subject.width-=18;
+							subjectPlace.hideAcc=true;
+						}
 					}
 				}
 			}
