@@ -1,7 +1,7 @@
 var playingBar = 0;
 var playingNote = 0;
 var playingTime = 0;
-var tempo = 2;
+var tempo = 120;
 var savedCanvas = document.getElementById("save");
 var playing = false;
 
@@ -13,8 +13,9 @@ function play() {
 var chord;
 
 function playNotes() {
-	MIDI.setVolume(0, 127);
 	if(bars.length>0) {
+		
+
 		restoreCanvas();
 		if(playingBar == bars.length){
 			drawMarker(y); playing=false; return;
@@ -51,14 +52,14 @@ function playNotes() {
 			chord.push(bars[playingBar].notes[playingNote].noteGroups[n].noteValue + bars[playingBar].notes[playingNote].noteGroups[n].accidental);
 		}
 
-		velocity = bars[playingBar].notes[playingNote].duration * tempo
+		var duration = 1/(bars[playingBar].notes[playingNote].duration * ((tempo/60)*4));
 		if(!bars[playingBar].notes[playingNote].isSpace) {
-			MIDI.chordOn(0, chord, 127, 0);
-			MIDI.chordOff(0, chord, velocity);
+			player.cancelQueue(audioContext);
+			player.queueChord(audioContext, audioContext.destination, _tone_0000_FluidR3_GM_sf2_file, 0, chord, duration);
 		}
 
 		playingNote++
-		time = setTimeout(playNotes, velocity*1000);
+		time = setTimeout(playNotes, duration*1000);
 		
 	}
 }
