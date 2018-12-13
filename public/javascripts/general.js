@@ -1,5 +1,5 @@
 function getSum(bar) {
-	sum = 0;
+	var sum = 0;
 
 	for(note = 0; note < bars[bar].notes.length; note++) {
 		sum += bars[bar].notes[note].duration;
@@ -9,7 +9,7 @@ function getSum(bar) {
 }
 
 function moveWith(offset, note, bar) {
-	lockedLine = bars[bar].line
+	var lockedLine = bars[bar].line
 	if(bars[bar].line == lockedLine) bars[bar].xPos += offset;
 
 	for(note; note < bars[bar].notes.length; note++) {

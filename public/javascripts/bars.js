@@ -139,7 +139,7 @@ function changeKey(accidentals, sharpOrFlat, bar) {
 
 		for(var note = 0; note<bars[bar].notes.length; note++) {
 			for(var noteG=0; noteG<bars[bar].notes[note].noteGroups.length; noteG++) {
-				bars[bar].notes[note].noteGroups[noteG].updateAccidental(bar);
+				bars[bar].notes[note].noteGroups[noteG].updateAccidental(bar, bars[bar].notes[note]);
 			}
 		}
 	}

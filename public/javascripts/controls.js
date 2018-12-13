@@ -5,6 +5,18 @@ document.addEventListener('keydown', function(event) {
 	if(!playing) {
 		var dc = document.getElementById("dialogContainer");
 		if(dc.childNodes.length>0) dc.removeChild(dc.childNodes[0]);
+		switch(event.key) {
+			case '+':
+				changeAccidental(bars[curBar], bars[curBar].notes[curNote], y, 1, curNote);
+
+				generateAll();
+				break;
+			case '-':
+				changeAccidental(bars[curBar], bars[curBar].notes[curNote], y, -1, curNote);
+
+				generateAll();
+				break;
+		}
 		switch(event.code) {
 			case 'Enter':
 				newGroup = false;
