@@ -33,4 +33,8 @@ Open up the browser on localhost port 3000, and evereything should be up and run
 
 ## License
 
-This project is licensed under the GNU GENERAL PUBLIC LICENSE v3.0 - see the [LICENSE.md](LICENSE.md) file for details
+This project is licensed under the GNU GENERAL PUBLIC LICENSE v3.0 - see the [LICENSE.md](LICENSE.md) file for details.
+
+## Keeping up to date
+
+I suggest you keep up to date with the feature, develop and release branches if you want the most updated (and bleeding) content.
