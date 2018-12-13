@@ -1,23 +1,22 @@
-window.onload = function () {
-	var instrumentName= "acoustic_grand_piano"
+var instr=null;
+var AudioContextFunc = window.AudioContext || window.webkitAudioContext;
+var audioContext = new AudioContextFunc();
+var player=new WebAudioFontPlayer();
 
-	MIDI.loadPlugin({
-		soundfontUrl: '/FluidR3_GM/',
-		instrument: instrumentName,
-		onprogress: function(state, progress) {
-			console.log(state, progress);
-		},
-		onsuccess: function() {
-			var delay = 0; // play one note every quarter second
-			var note = 70; // the MIDI note
-			var velocity = 127; // how hard the note hits
-			MIDI.programChange(0, MIDI.GM.byName[instrumentName].number);
-
-		}
+function changeInstrument(path,name){
+	player.loader.startLoad(audioContext, path, name);
+	player.loader.waitLoad(function () {
+		instr=window[name];
 	});
+}
+
+window.onload = function () {
+	changeInstrument('https://surikov.github.io/webaudiofontdata/sound/0000_FluidR3_GM_sf2_file.js','_tone_0000_FluidR3_GM_sf2_file');
 
 	setTimeout(start,200);
 };
+
+
 
 var c = document.getElementById("principal");
 var ctx = c.getContext("2d");

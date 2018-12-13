@@ -69,18 +69,16 @@ function placeNote(duration, line, pos, isSpace, newGroup) {
 	}
 }
 
-NoteGroup.prototype.updateAccidental = function(bar, n) {
+NoteGroup.prototype.updateAccidental = function(bar, n, j) {
 	for(var i = 1; i<=bars[bar].accidentals; i++) {
 		var value = i-1;
 		if(bars[bar].sharpOrFlat==-1) value = 7-i;
 
 		if(this.scalePos == accidentalOrder[value] && this.accidental==bars[bar].sharpOrFlat) {
-			if(this.hideAcc==false) n.width-=18;
-			this.hideAcc=true;
+			hideAccidental(n, this, true, j);
 			break;
 		} else if(this.scalePos == accidentalOrder[value]) {
-			if(this.hideAcc==true) n.width+=18;
-			this.hideAcc=false;
+			hideAccidental(n, this, false, j);
 			break;
 		}
 	}
