@@ -27,9 +27,9 @@ Open up the browser on localhost port 3000, and evereything should be up and run
 
 ## Built with
 
-* [Node.js] (https://nodejs.org/en/) - Server Language used
-* [Handlebars.js] (https://handlebarsjs.com/) - View Engine used
-* [webaudiofont] (https://github.com/surikov/webaudiofont) - Used for real-time music playback
+* [Node.js](https://nodejs.org/en/) - Server Language used
+* [Handlebars.js](https://handlebarsjs.com/) - View Engine used
+* [webaudiofont](https://github.com/surikov/webaudiofont) - Used for real-time music playback
 
 ## License
 
