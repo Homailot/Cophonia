@@ -257,8 +257,6 @@ function generateAll() {
 	drawMarker(y);
 }
 
-//problema remove note!
-
 //this function will stretch the completed bars
 function stretchBars() {
 	for(line = 0; line<lines.length; line++) {
@@ -359,7 +357,6 @@ function stretchBars() {
 				}
 			}
 			spaces=nObjects+1;
-			console.log(totalWidth+" "+objectWidth)
 			fullSpaceWidth=totalWidth-objectWidth;
 			spaceWidth = fullSpaceWidth/spaces;
 
