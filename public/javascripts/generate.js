@@ -7,23 +7,19 @@ function generateAll() {
 			lineChange++;
 			if(!bars[bar].changedOrFirstClef) {
 				bars[bar].changedOrFirstClef = true;
-				moveWith(45, 0, bar);
 			}
 			if(!bars[bar].changedAcc && !bars[bar].firstAcc) {
 				bars[bar].firstAcc = true;
 				accSum+=(bars[bar].accidentals+bars[bar].naturals.length)*18;
-				moveWith(accSum+10, 0, bar);
 			}
 			
 		} else {
 			if(bars[bar].changedOrFirstClef && !bars[bar].changedClef) {
 				bars[bar].changedOrFirstClef = false;
-				moveWith(-45, 0, bar);
 			}
 			if(bars[bar].firstAcc && !bars[bar].changedAcc) {
 				bars[bar].firstAcc = false;
 				accSum+=(bars[bar].accidentals+bars[bar].naturals.length)*18;
-				moveWith(-accSum, 0, bar);
 			}
 		}
 		
@@ -269,40 +265,54 @@ function stretchBars() {
 		//this is the unstretch block of the code
 		if(lines[line].changedComplete) {
 			lines[line].changedComplete = false;
-			var startPos;
-			if(line == 0) startPos = 180;
-			else startPos = 8;
-
-			for(bar = 0; bar<bars.length; bar++) {
-				if(bars[bar].line == line){
-					bars[bar].initPos = startPos;
-					startPos += 10;
-
-					if(bars[bar].changedTimeSig) startPos+=35
-					if(bars[bar].changedOrFirstClef) startPos+=45
-					if(bars[bar].firstAcc || bars[bar].changedAcc) {
-						startPos+=(bars[bar].accidentals+bars[bar].naturals.length)*18
-					}
-				
-					if(bars[bar].notes.length>0) {
-						bars[bar].notes[0].xPos = startPos;				 
-
-						for(note = 1; note<bars[bar].notes.length; note++) {
-							bars[bar].notes[note].xPos = bars[bar].notes[note-1].xPos + 40;
-							startPos+=40;
-						}
-					}
-					startPos+=40
-					bars[bar].xPos = startPos
-
-					if(bars[bar].xPos >= c.width) {
-						lines[bars[bar].line].overflown = true;
-					} 
-				}
-			}
-
-			lines[line].complete = false;
+			lines[line].complete=false;
 		}
+			
+		var startPos;
+		if(line == 0) startPos = 180;
+		else startPos = 8;
+
+		for(bar = 0; bar<bars.length; bar++) {
+			if(bars[bar].line == line){
+				bars[bar].initPos = startPos;
+				startPos += 10;
+
+				if(bars[bar].changedTimeSig) startPos+=35
+				if(bars[bar].changedOrFirstClef) startPos+=45
+				if(bars[bar].firstAcc || bars[bar].changedAcc) {
+					startPos+=(bars[bar].accidentals+bars[bar].naturals.length)*18
+				}
+				var maxDots;
+				var hasAcc;
+				if(bars[bar].notes.length>0) {
+					for(note = 0; note<bars[bar].notes.length; note++) {
+						maxDots=0;
+						hasAcc=false;
+
+						for(nG=0; nG<bars[bar].notes[note].noteGroups.length; nG++) {
+							objNG = bars[bar].notes[note].noteGroups[nG];
+							if(objNG.hideAcc==false) {
+								hasAcc=true;
+							}
+							if(objNG.dots>maxDots) {
+								maxDots=objNG.dots;
+							}
+						}
+						if(hasAcc) startPos+=18;
+						bars[bar].notes[note].xPos = startPos;
+						
+						startPos+=40+maxDots*10;
+					}
+					if(curBar==bar && extended) startPos+=40;
+				} else startPos+=40;
+				bars[bar].xPos = startPos
+
+				if(bars[bar].xPos >= c.width) {
+					lines[bars[bar].line].overflown = true;
+				} 
+			}
+		}
+		
 		//we only stretch if the line is complete or if it overflows the canvas
 		if(((lines[line].complete || (bars[curBar].xPos > c.width && curLine == line)) && !lines[line].changedComplete) || lines[line].overflown) {
 			var fullSpaceWidth, spaces, spaceWidth;

@@ -16,6 +16,7 @@ function NoteGroup(yPos, pos, noteValue, scalePos, acc) {
 	this.scalePos = scalePos;
 	this.accidental = acc;
 	this.hideAcc = true;
+	this.dots=0;
 }
 
 function placeNote(duration, line, pos, isSpace, newGroup) {
@@ -88,13 +89,11 @@ function hideAccidental(note, nG, hide, j) {
 	if(hide) {
 		if(nG.hideAcc==false) {
 			note.width-=18;
-			moveWith(-18, j, curBar);
 		} 
 		nG.hideAcc=true;
 	} else {
 		if(nG.hideAcc==true) {
 			note.width+=18;
-			moveWith(+18, j, curBar);
 		} 
 		nG.hideAcc=false;
 	}
@@ -168,6 +167,22 @@ function changeAccidental(bar, note, y, value, j) {
 						}
 					}
 				}
+			}
+		}
+	}
+}
+
+function augment(bar, note, pos, value) {
+	var objNote = bars[bar].notes[note]
+	for(var n=0; n<objNote.noteGroups.length; n++) {
+		if(objNote.noteGroups[n].pos==pos+2) {
+			objNote.noteGroups[n].dots+=value;
+			if(objNote.noteGroups[n].dots<0) objNote.noteGroups[n].dots=0;
+			if(value>0) {
+				objNote.width+=10;
+			}
+			else {
+				objNote.width-=10;
 			}
 		}
 	}

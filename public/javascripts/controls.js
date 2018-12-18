@@ -16,6 +16,12 @@ document.addEventListener('keydown', function(event) {
 
 				generateAll();
 				break;
+			case '.':
+				if(ctrlPress) augment(curBar, curNote, y, -1);
+				else augment(curBar, curNote, y, 1);
+
+				generateAll();
+				break;
 		}
 		switch(event.code) {
 			case 'Enter':
@@ -183,7 +189,6 @@ function deleteNote() {
 			//if it was a pause, it moves everything back by 40 px.
 			if(curNote != 0) {
 				diff-=bars[curBar].notes[curNote-1].xPos;
-				moveWith(-diff, curNote, curBar)
 				Marker.xPos = bars[curBar].notes[curNote-1].xPos;
 				curNote--;
 			} 
@@ -253,7 +258,6 @@ function moveLeft() {
 
 		//if the bar was extended, it de-extends it.
 		if(extended) {
-			moveWith(-40, curNote+1, curBar);
 
 			extended = false;
 			generateAll();
@@ -296,7 +300,6 @@ function moveRight() {
 	if(curNote==bars[curBar].notes.length || (sum == bars[curBar].upperSig/bars[curBar].lowerSig && curNote+1==bars[curBar].notes.length)) {
 		//if it was extended, it de-extends
 		if(extended) {
-			moveWith(-40, curNote+1, curBar);
 
 			extended = false;
 			gen = true;
@@ -327,9 +330,14 @@ function moveRight() {
 		if(curNote+1==bars[curBar].notes.length) {
 			//this moves the marker right, effectively when the line isn't complete
 			Marker.xPos += 40;
+			var maxDots=0;
+			for(var n=0; n<bars[curBar].notes[curNote].noteGroups.length; n++) {
+				if(bars[curBar].notes[curNote].noteGroups[n].dots>maxDots) maxDots=bars[curBar].notes[curNote].noteGroups[n].dots;
+			}
+			Marker.xPos+=(maxDots*10);
 			
 			//this extends the bar, in other words, it pushes everything forward so the marker can be placed
-			if(!lines[curLine].complete)moveWith(40, curNote+1, curBar);
+			
 			extended = true;
 
 			curNote++
@@ -353,7 +361,6 @@ function insertBeat() {
 		//if we aren't at the first note of the bar or if we aren't at the last note, the markers moves forward and everything with it
 		if((curNote!=0 || curNote < bars[curBar].notes.length)) {
 			Marker.xPos += 40;
-			moveWith(40, curNote+1, curBar);
 			curNote++;
 		}
 		

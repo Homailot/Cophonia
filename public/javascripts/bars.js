@@ -59,12 +59,10 @@ function newBar(upperSig, lowerSig, cS, clef, cC, xPos, line, cA, acc, sof) {
 function changeTimeSig(upperSig, lowerSig, bar) {
 	for(var ibar = bar+1; ibar<bars.length; ibar++) {
 		if(bars[ibar].upperSig == bars[bar].upperSig && bars[ibar].lowerSig == bars[bar].lowerSig) {
-			bars[ibar].changedTimeSig=true; 
-			moveWith(35, 0, ibar);
+			bars[ibar].changedTimeSig=true;
 			break;
 		} else if(bars[ibar].upperSig == upperSig && bars[ibar].lowerSig == lowerSig) {
-			bars[ibar].changedTimeSig=false; 
-			moveWith(-35, 0, ibar);
+			bars[ibar].changedTimeSig=false;
 			break;
 		}
 	}
@@ -75,15 +73,13 @@ function changeTimeSig(upperSig, lowerSig, bar) {
 		if(!bars[bar].changedTimeSig) {
 			Marker.xPos+=35;
 			//bars[bar].xPos+= 35;
-			bars[bar].changedTimeSig=true; 
-			moveWith(35, 0, bar);
+			bars[bar].changedTimeSig=true;
 		}
 	} else if(bar!=0 && (bars[bar-1].upperSig==bars[bar].upperSig && bars[bar].lowerSig == bars[bar-1].lowerSig)) {
 		if(bars[bar].changedTimeSig) {
 			Marker.xPos-=35;
 			//bars[bar].xPos-= 35;
-			bars[bar].changedTimeSig=false; 
-			moveWith(-35, 0, bar);
+			bars[bar].changedTimeSig=false;
 		}
 	}
 
@@ -98,11 +94,9 @@ function changeKey(accidentals, sharpOrFlat, bar) {
 
 			if(bars[ibar].accidentals == bars[bar].accidentals && bars[ibar].sharpOrFlat == bars[bar].sharpOrFlat) {
 				bars[ibar].changedAcc=true;
-				moveWith((bars[ibar].accidentals+bars[ibar].naturals.length)*18, 0, ibar);
 				//bars[ibar].naturals= bars[bar].accidentals-bars[ibar].accidentals;
 			} else if(bars[ibar].accidentals == accidentals && bars[ibar].sharpOrFlat == sharpOrFlat) {
 				bars[ibar].changedAcc=false;
-				moveWith(-bars[ibar].accidentals*18, 0, ibar);
 				//bars[ibar].naturals=0;
 			} 
 
@@ -118,18 +112,15 @@ function changeKey(accidentals, sharpOrFlat, bar) {
 		if(bar!=0 && (bars[bar-1].accidentals==accidentals && bars[bar-1].sharpOrFlat == sharpOrFlat)) {
 			if(bars[bar].changedAcc) {
 				bars[bar].changedAcc=false;
-				moveWith(-(bars[bar].accidentals+bars[bar].naturals.length)*18, 0, bar);
 			}
 		} else if(bar!=0 && (bars[bar-1].accidentals!=accidentals || bars[bar-1].sharpOrFlat != sharpOrFlat)) {
 			if(bars[bar].changedAcc) {
-				moveWith(-(bars[bar].accidentals+bars[bar].naturals.length)*18, 0, bar);
+				
 			}
 			bars[bar].changedAcc=true;
-			moveWith((accidentals+naturals.length)*18,0,bar);
+			
 		} else {
-			moveWith(-(bars[bar].accidentals+bars[bar].naturals.length)*18, 0, bar);
 			bars[bar].changedAcc=true;
-			moveWith((accidentals+naturals.length)*18,0,bar);
 		}
 
 		bars[bar].accidentals = accidentals;
