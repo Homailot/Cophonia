@@ -284,7 +284,7 @@ function stretchBars() {
 				var hasAcc;
 				if(bars[bar].notes.length>0) {
 					for(note = 0; note<bars[bar].notes.length; note++) {
-						maxDots=0;
+						maxDots=bars[bar].notes[note].dots;
 						hasAcc=false;
 
 						for(nG=0; nG<bars[bar].notes[note].noteGroups.length; nG++) {
@@ -292,9 +292,7 @@ function stretchBars() {
 							if(objNG.hideAcc==false) {
 								hasAcc=true;
 							}
-							if(objNG.dots>maxDots) {
-								maxDots=objNG.dots;
-							}
+							
 						}
 						if(hasAcc) startPos+=18;
 						bars[bar].notes[note].xPos = startPos;

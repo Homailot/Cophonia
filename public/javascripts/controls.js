@@ -5,6 +5,7 @@ document.addEventListener('keydown', function(event) {
 	if(!playing) {
 		var dc = document.getElementById("dialogContainer");
 		if(dc.childNodes.length>0) dc.removeChild(dc.childNodes[0]);
+		console.log(event.key)
 		switch(event.key) {
 			case '+':
 				changeAccidental(bars[curBar], bars[curBar].notes[curNote], y, 1, curNote);
@@ -16,14 +17,15 @@ document.addEventListener('keydown', function(event) {
 
 				generateAll();
 				break;
-			case '.':
-				if(ctrlPress) augment(curBar, curNote, y, -1);
+			
+		}
+		switch(event.code) {
+			case 'Period':
+			if(ctrlPress) augment(curBar, curNote, y, -1);
 				else augment(curBar, curNote, y, 1);
 
 				generateAll();
 				break;
-		}
-		switch(event.code) {
 			case 'Enter':
 				newGroup = false;
 
@@ -129,6 +131,7 @@ document.addEventListener('keydown', function(event) {
 				break;
 			case 'ShiftLeft':
 			case 'ShiftRight':
+				event.preventDefault();
 				ctrlPress = true;
 				break;
 		}

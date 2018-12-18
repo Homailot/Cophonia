@@ -46,13 +46,13 @@ function playNotes() {
 		}
 	
 		drawHeader(bars[playingBar].notes[playingNote].xPos, bars[playingBar].line);
-		playingTime+=bars[playingBar].notes[playingNote].duration;
+		playingTime+=getNoteDuration(bars[playingBar].notes[playingNote]);
 		chord = new Array();
 		for(n=0; n<bars[playingBar].notes[playingNote].noteGroups.length; n++) {
 			chord.push(bars[playingBar].notes[playingNote].noteGroups[n].noteValue + bars[playingBar].notes[playingNote].noteGroups[n].accidental);
 		}
 
-		var duration = bars[playingBar].notes[playingNote].duration * (1/((tempo/60))*4);
+		var duration = getNoteDuration(bars[playingBar].notes[playingNote]) * (1/((tempo/60))*4);
 		if(!bars[playingBar].notes[playingNote].isSpace) {
 			player.cancelQueue(audioContext);
 			player.queueChord(audioContext, audioContext.destination, _tone_0000_FluidR3_GM_sf2_file, 0, chord, duration);
