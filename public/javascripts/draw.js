@@ -215,6 +215,7 @@ function drawDot(note, inv) {
 		}
 		ctx.restore();
 	}
+	ctx.restore();
 }
 
 function drawNoteAccidental(n) {

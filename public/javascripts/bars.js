@@ -145,7 +145,6 @@ function setNaturals(oldAcc, oldSof, newBarAcc) {
 	for(var i = 1; i<=oldAcc; i++) {
 		var order = i;
 		if(oldSof==-1) order = 8-i;
-		console.log(order);
 
 		if(order>newBarAcc) {
 			naturals.push(order);
