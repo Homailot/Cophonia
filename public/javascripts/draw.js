@@ -132,7 +132,14 @@ function drawFigure(note) {
 }
 
 function drawNoteAccidental(n) {
+	ctx.save();
 	if(n.hideAcc==false) {
+		
+		if(n.pos<-3) {
+			ctx.translate(+20, +15);
+			ctx.rotate(Math.PI);
+		}
+
 		ctx.translate(-18, 0);
 		var offset=10;
 		
@@ -154,6 +161,7 @@ function drawNoteAccidental(n) {
 		ctx.font = "80px Musicaf";
 		ctx.fillText(text, 0, offset);
 	}
+	ctx.restore();
 }
 
 function drawStem(note, height, inverse, noteGroup) {
