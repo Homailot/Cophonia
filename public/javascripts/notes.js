@@ -22,6 +22,7 @@ function NoteGroup(yPos, pos, noteValue, scalePos, acc) {
 
 function placeNote(duration, line, pos, isSpace, newGroup) {
 	realPosition = ((line+1) * 144 - 2 ) + pos * 8;
+	if(isSpace) realPosition=((line+1) * 144) - 48;
 	xPos = Marker.xPos
 	var noteValue = 71;
 	var scalePos = (pos+3)*-1+7;

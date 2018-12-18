@@ -51,6 +51,7 @@ function drawFigure(note) {
 		ctx.font = "69px Musicaf";
 		ctx.fillText(text, note.xPos, ((note.line+1)*144)-8-26 );
 
+		drawDot(note, false);
 		return;
 	}
 	if(note.noteGroups.length>1) {
@@ -135,85 +136,92 @@ function drawFigure(note) {
 
 function drawDot(note, inv) {
 	if(note.dots>0) {
-		var noteGroupOrder=[];
-		var firstN=true;
-		for(n=0; n<note.noteGroups.length; n++) {
-			var objN = note.noteGroups[n];
-
-			if(firstN) {
-				noteGroupOrder.push(objN);
-				firstN=false;
-				continue;
-				
-			}
-			for(ngo=0; ngo<noteGroupOrder.length; ngo++) {
-				if(noteGroupOrder[ngo].pos<objN.pos) {
-					noteGroupOrder.splice(ngo, 0, objN);
-					break;
-				}
-
-				if(ngo==noteGroupOrder.length-1) {
+		if(note.isSpace) {
+			ctx.save();
+			ctx.translate(note.xPos+25, note.noteGroups[0].yPos);
+			ctx.font = "80px Musicaf";
+			ctx.fillText("\uD834\uDD6D", 0, 0);
+		}else{
+			var noteGroupOrder=[];
+			var firstN=true;
+			for(n=0; n<note.noteGroups.length; n++) {
+				var objN = note.noteGroups[n];
+	
+				if(firstN) {
 					noteGroupOrder.push(objN);
-					break;
+					firstN=false;
+					continue;
+					
 				}
-			}
-		}
-
-		var allocatedSpaces=[];
-		ctx.save();
-		for(ngo=0; ngo<noteGroupOrder.length ; ngo++) {
-			var isSpace, space, occupied=false;
-			//positions that are divided by 2 are on spaces
-			if(noteGroupOrder[ngo].pos%2==0) isSpace=true;
-			else isSpace=false;
-
-			if(isSpace) {
-				space = noteGroupOrder[ngo].pos/2;
-			} else {
-				if(inv) space = (noteGroupOrder[ngo].pos-1)/2;
-				else space = (noteGroupOrder[ngo].pos+1)/2;
-			}
-			for(s=0; s<allocatedSpaces.length; s++) {
-				if(space==allocatedSpaces[s]) {
-					occupied=true;
-				}
-				if(occupied) {
-					if(space==allocatedSpaces[s]) {
-						space-=1;
-					} else {
+				for(ngo=0; ngo<noteGroupOrder.length; ngo++) {
+					if(noteGroupOrder[ngo].pos<objN.pos) {
+						noteGroupOrder.splice(ngo, 0, objN);
 						break;
 					}
-				} 
-			}
-			if(ngo!=0 && occupied) {
-				for(dot=0; dot<note.dots; dot++) {
-					ctx.font = "80px Musicaf";
-					ctx.fillText("\uD834\uDD6D", 0, 0);
-					ctx.translate(10, 0);
+	
+					if(ngo==noteGroupOrder.length-1) {
+						noteGroupOrder.push(objN);
+						break;
+					}
 				}
-
-				ctx.translate(-note.dots*10, -16);
-			} else {
-				ctx.restore();
-				ctx.save();
-
-				ctx.translate(note.xPos+25, noteGroupOrder[ngo].yPos)
-				if(!isSpace) {
-					if(inv) ctx.translate(0, -8);
-					else ctx.translate(0, +8);
-				} 
-
-				for(dot=0; dot<note.dots; dot++) {
-					ctx.font = "80px Musicaf";
-					ctx.fillText("\uD834\uDD6D", 0, 0);
-					ctx.translate(10, 0);
-				}
-
-				ctx.translate(-note.dots*10, -16);
 			}
-			allocatedSpaces.push(space);
+	
+			var allocatedSpaces=[];
+			ctx.save();
+			for(ngo=0; ngo<noteGroupOrder.length ; ngo++) {
+				var isSpace, space, occupied=false;
+				//positions that are divided by 2 are on spaces
+				if(noteGroupOrder[ngo].pos%2==0) isSpace=true;
+				else isSpace=false;
+	
+				if(isSpace) {
+					space = noteGroupOrder[ngo].pos/2;
+				} else {
+					if(inv) space = (noteGroupOrder[ngo].pos-1)/2;
+					else space = (noteGroupOrder[ngo].pos+1)/2;
+				}
+				for(s=0; s<allocatedSpaces.length; s++) {
+					if(space==allocatedSpaces[s]) {
+						occupied=true;
+					}
+					if(occupied) {
+						if(space==allocatedSpaces[s]) {
+							space-=1;
+						} else {
+							break;
+						}
+					} 
+				}
+				if(ngo!=0 && occupied) {
+					for(dot=0; dot<note.dots; dot++) {
+						ctx.font = "80px Musicaf";
+						ctx.fillText("\uD834\uDD6D", 0, 0);
+						ctx.translate(10, 0);
+					}
+	
+					ctx.translate(-note.dots*10, -16);
+				} else {
+					ctx.restore();
+					ctx.save();
+	
+					ctx.translate(note.xPos+25, noteGroupOrder[ngo].yPos)
+					if(!isSpace) {
+						if(inv) ctx.translate(0, -8);
+						else ctx.translate(0, +8);
+					} 
+	
+					for(dot=0; dot<note.dots; dot++) {
+						ctx.font = "80px Musicaf";
+						ctx.fillText("\uD834\uDD6D", 0, 0);
+						ctx.translate(10, 0);
+					}
+	
+					ctx.translate(-note.dots*10, -16);
+				}
+				allocatedSpaces.push(space);
+			}
+			ctx.restore();
 		}
-		ctx.restore();
 	}
 	ctx.restore();
 }
