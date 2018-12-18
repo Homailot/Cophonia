@@ -7,6 +7,7 @@ function Note(xPos, yPos, line, duration, pos, noteValue, isSpace, scalePos, acc
 	this.pos = pos;
 	this.isSpace = isSpace;
 	this.width = 30;
+	this.dots=0;
 }
 
 function NoteGroup(yPos, pos, noteValue, scalePos, acc) {
@@ -16,10 +17,12 @@ function NoteGroup(yPos, pos, noteValue, scalePos, acc) {
 	this.scalePos = scalePos;
 	this.accidental = acc;
 	this.hideAcc = true;
+	
 }
 
 function placeNote(duration, line, pos, isSpace, newGroup) {
 	realPosition = ((line+1) * 144 - 2 ) + pos * 8;
+	if(isSpace) realPosition=((line+1) * 144) - 48;
 	xPos = Marker.xPos
 	var noteValue = 71;
 	var scalePos = (pos+3)*-1+7;
@@ -88,13 +91,11 @@ function hideAccidental(note, nG, hide, j) {
 	if(hide) {
 		if(nG.hideAcc==false) {
 			note.width-=18;
-			moveWith(-18, j, curBar);
 		} 
 		nG.hideAcc=true;
 	} else {
 		if(nG.hideAcc==true) {
 			note.width+=18;
-			moveWith(+18, j, curBar);
 		} 
 		nG.hideAcc=false;
 	}
@@ -171,4 +172,28 @@ function changeAccidental(bar, note, y, value, j) {
 			}
 		}
 	}
+}
+
+function augment(bar, note, pos, value) {
+	var objNote = bars[bar].notes[note]
+	objNote.dots+=value;
+	if(objNote.dots<0) objNote.dots=0;
+	else if(objNote.dots>3) objNote.dots=3;
+	if(value>0) {
+		objNote.width+=10;
+	}
+	else {
+		objNote.width-=10;
+	}
+}
+
+function getNoteDuration(note) {
+	var duration = note.duration;
+	var lastDuration = duration;
+	for(dot=0; dot<note.dots; dot++) {
+		lastDuration=lastDuration*1/2
+		duration+=lastDuration;
+	}
+
+	return duration;
 }

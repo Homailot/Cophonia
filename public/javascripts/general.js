@@ -2,7 +2,7 @@ function getSum(bar) {
 	var sum = 0;
 
 	for(note = 0; note < bars[bar].notes.length; note++) {
-		sum += bars[bar].notes[note].duration;
+		sum += getNoteDuration(bars[bar].notes[note]);
 	}
 
 	return sum;
