@@ -324,7 +324,10 @@ function stretchBars() {
 						
 						startPos+=40+maxDots*10;
 					}
-					if(curBar==bar && extended) startPos+=40;
+					if(curBar==bar && extended) {
+						Marker.xPos=startPos;
+						startPos+=40;
+					} 
 				} else startPos+=40;
 				bars[bar].xPos = startPos
 
