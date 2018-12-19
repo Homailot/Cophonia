@@ -140,7 +140,13 @@ function drawDot(note, inv) {
 			ctx.save();
 			ctx.translate(note.xPos+25, note.noteGroups[0].yPos);
 			ctx.font = "80px Musicaf";
-			ctx.fillText("\uD834\uDD6D", 0, 0);
+
+			for(var dot=0; dot<note.dots; dot++) {
+				ctx.fillText("\uD834\uDD6D", 0, 0);
+				ctx.translate(10, 0);
+			}
+			
+			
 		}else{
 			var noteGroupOrder=[];
 			var firstN=true;
