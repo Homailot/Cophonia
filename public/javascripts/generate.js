@@ -1,6 +1,6 @@
 //this function will stretch the completed bars
 function stretchBars() {
-	for(line = 0; line<lines.length; line++) {
+	for(var line = 0; line<lines.length; line++) {
 		//this is the unstretch block of the code
 		if(lines[line].changedComplete) {
 			lines[line].changedComplete = false;
@@ -8,18 +8,26 @@ function stretchBars() {
 		}
 			
 		var startPos;
-		if(line === 0) startPos = 180;
-		else startPos = 8;
+		if(line === 0) {
+			startPos = 180;
+		} 
+		else {
+			startPos = 8;
+		}
 
 		for(var bar = 0; bar<bars.length; bar++) {
 			if(bars[bar].line === line){
 				bars[bar].initPos = startPos;
 				startPos += 10;
 
-				if(bars[bar].changedTimeSig) startPos+=35
-				if(bars[bar].changedOrFirstClef) startPos+=45
+				if(bars[bar].changedTimeSig) {
+					startPos+=35;
+				} 
+				if(bars[bar].changedOrFirstClef) {
+					startPos+=45;
+				} 
 				if(bars[bar].firstAcc || bars[bar].changedAcc) {
-					startPos+=(bars[bar].accidentals+bars[bar].naturals.length)*18
+					startPos+=(bars[bar].accidentals+bars[bar].naturals.length)*18;
 				}
 				var maxDots;
 				var hasAcc;
@@ -196,7 +204,7 @@ function generateAll() {
 		sum = getSum(bar);
 
 		//sets the color to red if the sum is wrong
-		var color;
+		var color="";
 		if(curBar!==bar && sum!==bars[curBar].upperSig/bars[curBar].lowerSig) {
 			color = "#FF0000";
 		}

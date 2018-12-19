@@ -71,13 +71,13 @@ function changeTimeSig(upperSig, lowerSig, bar) {
 
 	bars[bar].upperSig = upperSig;
 	bars[bar].lowerSig = lowerSig;
-	if(bar!=0 && (bars[bar-1].upperSig!==bars[bar].upperSig || bars[bar].lowerSig !== bars[bar-1].lowerSig)) {
+	if(bar!==0 && (bars[bar-1].upperSig!==bars[bar].upperSig || bars[bar].lowerSig !== bars[bar-1].lowerSig)) {
 		if(!bars[bar].changedTimeSig) {
 			Marker.xPos+=35;
 			//bars[bar].xPos+= 35;
 			bars[bar].changedTimeSig=true;
 		}
-	} else if(bar!=0 && (bars[bar-1].upperSig===bars[bar].upperSig && bars[bar].lowerSig === bars[bar-1].lowerSig)) {
+	} else if(bar!==0 && (bars[bar-1].upperSig===bars[bar].upperSig && bars[bar].lowerSig === bars[bar-1].lowerSig)) {
 		if(bars[bar].changedTimeSig) {
 			Marker.xPos-=35;
 			//bars[bar].xPos-= 35;
@@ -111,11 +111,11 @@ function changeKey(accidentals, sharpOrFlat, bar) {
 			bars[bar].naturalOrder = bars[bar-1].sharpOrFlat;
 		} 
 
-		if(bar!=0 && (bars[bar-1].accidentals===accidentals && bars[bar-1].sharpOrFlat === sharpOrFlat)) {
+		if(bar!==0 && (bars[bar-1].accidentals===accidentals && bars[bar-1].sharpOrFlat === sharpOrFlat)) {
 			if(bars[bar].changedAcc) {
 				bars[bar].changedAcc=false;
 			}
-		} else if(bar!=0 && (bars[bar-1].accidentals!=accidentals || bars[bar-1].sharpOrFlat != sharpOrFlat)) {
+		} else if(bar!==0 && (bars[bar-1].accidentals!==accidentals || bars[bar-1].sharpOrFlat !== sharpOrFlat)) {
 			if(bars[bar].changedAcc) {
 				
 			}
