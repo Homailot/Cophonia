@@ -89,7 +89,7 @@ function changeTimeSig(upperSig, lowerSig, bar) {
 function changeKey(accidentals, sharpOrFlat, bar) {
 	if(bars[bar].accidentals!=accidentals || bars[bar].sharpOrFlat!=sharpOrFlat) {
 		for(var ibar=bar+1; ibar<bars.length; ibar++) {
-			bars[ibar].naturals = setNaturals(accidentals, sharpOrFlat, bars[ibar].accidentals);
+			bars[ibar].naturals = setNaturals(accidentals, sharpOrFlat, bars[ibar].accidentals, bars[ibar].sharpOrFlat);
 			bars[ibar].naturalOrder = sharpOrFlat;
 
 			if(bars[ibar].accidentals == bars[bar].accidentals && bars[ibar].sharpOrFlat == bars[bar].sharpOrFlat) {
@@ -105,7 +105,7 @@ function changeKey(accidentals, sharpOrFlat, bar) {
 
 		var naturals = []
 		if(bar!=0) {
-			var naturals = setNaturals(bars[bar-1].accidentals, bars[bar-1].sharpOrFlat, accidentals);
+			var naturals = setNaturals(bars[bar-1].accidentals, bars[bar-1].sharpOrFlat, accidentals, sharpOrFlat);
 			bars[bar].naturalOrder = bars[bar-1].sharpOrFlat;
 		} 
 
@@ -139,14 +139,14 @@ function changeKey(accidentals, sharpOrFlat, bar) {
 	generateAll();
 }
 
-function setNaturals(oldAcc, oldSof, newBarAcc) {
+function setNaturals(oldAcc, oldSof, newBarAcc, newSof) {
 	var naturals=[]
 
 	for(var i = 1; i<=oldAcc; i++) {
 		var order = i;
 		if(oldSof==-1) order = 8-i;
 
-		if(order>newBarAcc) {
+		if((order<(8-newBarAcc) && newSof==-1) || (order>newBarAcc && newSof==1) || newSof==0) {
 			naturals.push(order);
 		}
 	}
