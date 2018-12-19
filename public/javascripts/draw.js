@@ -109,10 +109,12 @@ function drawFigure(note) {
 		ctx.translate(note.xPos, note.noteGroups[0].yPos);
 		ctx.font = "69px Musicaf";
 
+		var m=1;
 		if(note.noteGroups[0].pos<-3) {
 			ctx.rotate(Math.PI);
 			ctx.translate(-20, -15);
 			turned=true;
+			m=-1;
 		}
 
 		switch(note.duration) {
@@ -127,7 +129,7 @@ function drawFigure(note) {
 
 		ctx.fillText(text, 0, 0);
 
-		drawNoteAccidental(note.noteGroups[0])
+		drawNoteAccidental(note.noteGroups[0], m)
 
 		ctx.restore();	
 		drawDot(note, turned);
@@ -148,29 +150,7 @@ function drawDot(note, inv) {
 			
 			
 		}else{
-			var noteGroupOrder=[];
-			var firstN=true;
-			for(n=0; n<note.noteGroups.length; n++) {
-				var objN = note.noteGroups[n];
-	
-				if(firstN) {
-					noteGroupOrder.push(objN);
-					firstN=false;
-					continue;
-					
-				}
-				for(ngo=0; ngo<noteGroupOrder.length; ngo++) {
-					if(noteGroupOrder[ngo].pos<objN.pos) {
-						noteGroupOrder.splice(ngo, 0, objN);
-						break;
-					}
-	
-					if(ngo==noteGroupOrder.length-1) {
-						noteGroupOrder.push(objN);
-						break;
-					}
-				}
-			}
+			var noteGroupOrder=orderNoteGroup(note);
 	
 			var allocatedSpaces=[];
 			ctx.save();
@@ -232,11 +212,39 @@ function drawDot(note, inv) {
 	ctx.restore();
 }
 
-function drawNoteAccidental(n) {
+function orderNoteGroup(note) {
+	var noteGroupOrder=[];
+	var firstN=true;
+	for(n=0; n<note.noteGroups.length; n++) {
+		var objN = note.noteGroups[n];
+
+		if(firstN) {
+			noteGroupOrder.push(objN);
+			firstN=false;
+			continue;
+			
+		}
+		for(ngo=0; ngo<noteGroupOrder.length; ngo++) {
+			if(noteGroupOrder[ngo].pos<objN.pos) {
+				noteGroupOrder.splice(ngo, 0, objN);
+				break;
+			}
+
+			if(ngo==noteGroupOrder.length-1) {
+				noteGroupOrder.push(objN);
+				break;
+			}
+		}
+	}
+
+	return noteGroupOrder;
+}
+
+function drawNoteAccidental(n, m) {
 	ctx.save();
 	if(n.hideAcc==false) {
 		
-		if(n.pos<-3) {
+		if(m==-1) {
 			ctx.translate(+20, +15);
 			ctx.rotate(Math.PI);
 		}
@@ -291,7 +299,11 @@ function drawStem(note, height, inverse, noteGroup) {
 }
 
 function drawHead(note, inverse) {
-	for(n = 0; n<note.noteGroups.length; n++) {
+	var noteGroupOrder=orderNoteGroup(note);
+	var faceRight=false;
+	var adjacent=false;
+	for(n = 0; n<noteGroupOrder.length; n++) {
+		
 		drawExtraStaff(note.xPos, note.noteGroups[n].pos-2, note.line);
 		note.noteGroups[n].yPos = ((note.line+1) * 144 - 2 ) + note.noteGroups[n].pos * 8 - 14;
 
@@ -299,19 +311,63 @@ function drawHead(note, inverse) {
 		ctx.translate(note.xPos, note.noteGroups[n].yPos);
 		ctx.font = "69px Musicaf";
 
+		var m=1;
 		if(inverse<-3) {
 			ctx.rotate(Math.PI);
 			ctx.translate(-20, -15);
+			m=-1
+		}
+
+		drawNoteAccidental(note.noteGroups[n], m);
+		
+		if(n+1<noteGroupOrder.length) {
+			if(noteGroupOrder[n+1].pos-noteGroupOrder[n].pos==-1) {
+				if(!adjacent) {
+					faceRight=false;
+					adjacent=true;
+				}
+
+				faceRight=arrangeNote(faceRight, m);
+			} else {
+				if(adjacent) {
+					arrangeNote(faceRight, m);
+
+					adjacent=false;
+					faceRight=false;
+				}
+			}
+		} else {
+			if(adjacent) {
+				arrangeNote(faceRight, m);
+
+				adjacent=false;
+				faceRight=false;
+			}
 		}
 
 		if(note.duration<=0.25) ctx.fillText("\uD834\uDD58", 0, 0);
 		else if(note.duration == 0.5) ctx.fillText("\uD834\uDD57", 0, 0);
 		else if(note.duration == 1) ctx.fillText("\uD834\uDD5D", 0, 0);
 		
-		drawNoteAccidental(note.noteGroups[n]);
 		
 		ctx.restore();
 	}
+}
+
+function arrangeNote(faceRight, m) {
+	if(m==-1) {
+		ctx.translate(3, 0);
+	}
+
+	if(!faceRight) {
+		ctx.translate(-2, 0);
+		faceRight=true;
+	} else {
+		ctx.translate(12, 0);
+		faceRight=false;
+	}
+
+	return faceRight;
 }
 
 function drawBeam(xStart, yStart, xEnd, yEnd) {

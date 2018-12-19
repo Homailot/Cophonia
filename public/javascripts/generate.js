@@ -319,6 +319,7 @@ function stretchBars() {
 							}
 							
 						}
+						startPos+=5;
 						if(hasAcc) startPos+=18;
 						bars[bar].notes[note].xPos = startPos;
 						
