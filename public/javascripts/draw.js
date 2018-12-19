@@ -304,11 +304,11 @@ function drawHead(note, inverse) {
 	var adjacent=false;
 	for(n = 0; n<noteGroupOrder.length; n++) {
 		
-		drawExtraStaff(note.xPos, note.noteGroups[n].pos-2, note.line);
-		note.noteGroups[n].yPos = ((note.line+1) * 144 - 2 ) + note.noteGroups[n].pos * 8 - 14;
+		drawExtraStaff(note.xPos, noteGroupOrder[n].pos-2, note.line);
+		noteGroupOrder[n].yPos = ((note.line+1) * 144 - 2 ) +  noteGroupOrder[n].pos * 8 - 14;
 
 		ctx.save();
-		ctx.translate(note.xPos, note.noteGroups[n].yPos);
+		ctx.translate(note.xPos,  noteGroupOrder[n].yPos);
 		ctx.font = "69px Musicaf";
 
 		var m=1;
@@ -318,10 +318,12 @@ function drawHead(note, inverse) {
 			m=-1
 		}
 
-		drawNoteAccidental(note.noteGroups[n], m);
+		drawNoteAccidental( noteGroupOrder[n], m);
 		
 		if(n+1<noteGroupOrder.length) {
+			console.log(noteGroupOrder[n].pos);
 			if(noteGroupOrder[n+1].pos-noteGroupOrder[n].pos===-1) {
+				console.log("passed")
 				if(!adjacent) {
 					faceRight=false;
 					adjacent=true;
@@ -330,6 +332,7 @@ function drawHead(note, inverse) {
 				faceRight=arrangeNote(faceRight, m);
 			} else {
 				if(adjacent) {
+					console.log("pass")
 					arrangeNote(faceRight, m);
 
 					adjacent=false;
