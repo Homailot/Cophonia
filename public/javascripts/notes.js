@@ -102,70 +102,72 @@ function hideAccidental(note, nG, hide, j) {
 }
 
 function changeAccidental(bar, note, y, value, j) {
-	var n = null;
+	if(j<bar.notes.length && !note.isSpace) {
+		var n = null;
 
-	//see if we are on a note, and selects the note if we are on one.
-	for(var noteGroup=0; noteGroup<note.noteGroups.length; noteGroup++) {
-		if(note.noteGroups[noteGroup].pos==y+2) {
-			
-			n=note.noteGroups[noteGroup];
-			break;
-		}
-	}
-
-	//if we found a note then
-	if(n!=null) {
-		
-		//we change it's value
-		n.accidental += value;
-		if(n.accidental>1) n.accidental=1;
-		else if(n.accidental<-1) n.accidental=-1;
-		else {
-			//if the value was changed then we need to verify if we have to show the accidental figure or not
-			hideAccidental(note, n, false, j);
-			//first we check based on the bar's accidentals
-			if(bar.accidentals==0 && n.accidental==0) {
-				hideAccidental(note, n, true, j);
-			}
-			for(var i = 1; i<=bar.accidentals; i++) {
-				var value = i-1;
-				if(bar.sharpOrFlat==-1) value = 7-i;
-		
-				if((n.scalePos == accidentalOrder[value] && n.accidental==bar.sharpOrFlat)) {
-					hideAccidental(note, n, true, j);
-					break;
-				} else if(n.scalePos == accidentalOrder[value] && n.accidental!=bar.sharpOrFlat) {
-					hideAccidental(note, n, false, j);
-					break;
-				}
-
-				if(n.accidental!=0) {
-					hideAccidental(note, n, false, j);
-				} else {
-					hideAccidental(note, n, true, j);
-				}
+		//see if we are on a note, and selects the note if we are on one.
+		for(var noteGroup=0; noteGroup<note.noteGroups.length; noteGroup++) {
+			if(note.noteGroups[noteGroup].pos==y+2) {
 				
+				n=note.noteGroups[noteGroup];
+				break;
 			}
+		}
 
-			//then, we verify for the notes before. Afterwards, we check the notes after it, and change them accordingly.
-			for(var i = 0; i<bar.notes.length; i++) {
-				for(var noteGroup=0; noteGroup<bar.notes[i].noteGroups.length; noteGroup++) {
-					if(i > j) {
-						var subject = bar.notes[i];
-						var subjectPlace = bar.notes[i].noteGroups[noteGroup];
+		//if we found a note then
+		if(n!=null) {
+			
+			//we change it's value
+			n.accidental += value;
+			if(n.accidental>1) n.accidental=1;
+			else if(n.accidental<-1) n.accidental=-1;
+			else {
+				//if the value was changed then we need to verify if we have to show the accidental figure or not
+				hideAccidental(note, n, false, j);
+				//first we check based on the bar's accidentals
+				if(bar.accidentals==0 && n.accidental==0) {
+					hideAccidental(note, n, true, j);
+				}
+				for(var i = 1; i<=bar.accidentals; i++) {
+					var value = i-1;
+					if(bar.sharpOrFlat==-1) value = 7-i;
+			
+					if((n.scalePos == accidentalOrder[value] && n.accidental==bar.sharpOrFlat)) {
+						hideAccidental(note, n, true, j);
+						break;
+					} else if(n.scalePos == accidentalOrder[value] && n.accidental!=bar.sharpOrFlat) {
+						hideAccidental(note, n, false, j);
+						break;
 					}
-					else if(i < j) {
-						var subject = note;
-						var subjectPlace = n;
-					} 
-					else continue;
 
-					if(n.pos == bar.notes[i].noteGroups[noteGroup].pos) {
-						if(bar.notes[i].noteGroups[noteGroup].accidental!=n.accidental) {
-							hideAccidental(subject, subjectPlace, false, i);
-							if(i>j) n=bar.notes[i].noteGroups[noteGroup];
-						} else {
-							hideAccidental(subject, subjectPlace, true, i);
+					if(n.accidental!=0) {
+						hideAccidental(note, n, false, j);
+					} else {
+						hideAccidental(note, n, true, j);
+					}
+					
+				}
+
+				//then, we verify for the notes before. Afterwards, we check the notes after it, and change them accordingly.
+				for(var i = 0; i<bar.notes.length; i++) {
+					for(var noteGroup=0; noteGroup<bar.notes[i].noteGroups.length; noteGroup++) {
+						if(i > j) {
+							var subject = bar.notes[i];
+							var subjectPlace = bar.notes[i].noteGroups[noteGroup];
+						}
+						else if(i < j) {
+							var subject = note;
+							var subjectPlace = n;
+						} 
+						else continue;
+
+						if(n.pos == bar.notes[i].noteGroups[noteGroup].pos) {
+							if(bar.notes[i].noteGroups[noteGroup].accidental!=n.accidental) {
+								hideAccidental(subject, subjectPlace, false, i);
+								if(i>j) n=bar.notes[i].noteGroups[noteGroup];
+							} else {
+								hideAccidental(subject, subjectPlace, true, i);
+							}
 						}
 					}
 				}
@@ -175,15 +177,17 @@ function changeAccidental(bar, note, y, value, j) {
 }
 
 function augment(bar, note, pos, value) {
-	var objNote = bars[bar].notes[note]
-	objNote.dots+=value;
-	if(objNote.dots<0) objNote.dots=0;
-	else if(objNote.dots>3) objNote.dots=3;
-	if(value>0) {
-		objNote.width+=10;
-	}
-	else {
-		objNote.width-=10;
+	if(note<bars[bar].notes.length) {
+		var objNote = bars[bar].notes[note]
+		objNote.dots+=value;
+		if(objNote.dots<0) objNote.dots=0;
+		else if(objNote.dots>3) objNote.dots=3;
+		if(value>0) {
+			objNote.width+=10;
+		}
+		else {
+			objNote.width-=10;
+		}
 	}
 }
 
