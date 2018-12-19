@@ -71,7 +71,7 @@ function drawFigure(note) {
 			note.noteGroups[n].yPos = ((note.line+1) * 144 - 2 ) + note.noteGroups[n].pos * 8 -14;
 			drawExtraStaff(note.xPos, note.noteGroups[n].pos-2, note.line);
 			var height = Math.abs(note.noteGroups[n].yPos - farthest.yPos) + 4;
-			if(note.noteGroups[n].pos != farthest.pos) drawStem(note, height+2, inv.pos, n);
+			if(note.noteGroups[n].pos !== farthest.pos) drawStem(note, height+2, inv.pos, n);
 			else  drawStem(note, 32, inv.pos, n)
 		}
 
@@ -95,7 +95,7 @@ function drawFigure(note) {
 			default: text = ""; break;
 		}
 
-		if(text!= "") ctx.fillText(text, 0, 0)
+		if(text!== "") ctx.fillText(text, 0, 0)
 		
 
 		ctx.restore();
@@ -157,7 +157,7 @@ function drawDot(note, inv) {
 			for(ngo=0; ngo<noteGroupOrder.length ; ngo++) {
 				var isSpace, space, occupied=false;
 				//positions that are divided by 2 are on spaces
-				if(noteGroupOrder[ngo].pos%2==0) isSpace=true;
+				if(noteGroupOrder[ngo].pos%2===0) isSpace=true;
 				else isSpace=false;
 	
 				if(isSpace) {
@@ -167,18 +167,18 @@ function drawDot(note, inv) {
 					else space = (noteGroupOrder[ngo].pos+1)/2;
 				}
 				for(s=0; s<allocatedSpaces.length; s++) {
-					if(space==allocatedSpaces[s]) {
+					if(space===allocatedSpaces[s]) {
 						occupied=true;
 					}
 					if(occupied) {
-						if(space==allocatedSpaces[s]) {
+						if(space===allocatedSpaces[s]) {
 							space-=1;
 						} else {
 							break;
 						}
 					} 
 				}
-				if(ngo!=0 && occupied) {
+				if(ngo!==0 && occupied) {
 					for(dot=0; dot<note.dots; dot++) {
 						ctx.font = "80px Musicaf";
 						ctx.fillText("\uD834\uDD6D", 0, 0);
@@ -230,7 +230,7 @@ function orderNoteGroup(note) {
 				break;
 			}
 
-			if(ngo==noteGroupOrder.length-1) {
+			if(ngo===noteGroupOrder.length-1) {
 				noteGroupOrder.push(objN);
 				break;
 			}
@@ -242,9 +242,9 @@ function orderNoteGroup(note) {
 
 function drawNoteAccidental(n, m) {
 	ctx.save();
-	if(n.hideAcc==false) {
+	if(n.hideAcc===false) {
 		
-		if(m==-1) {
+		if(m===-1) {
 			ctx.translate(+20, +15);
 			ctx.rotate(Math.PI);
 		}
@@ -321,7 +321,7 @@ function drawHead(note, inverse) {
 		drawNoteAccidental(note.noteGroups[n], m);
 		
 		if(n+1<noteGroupOrder.length) {
-			if(noteGroupOrder[n+1].pos-noteGroupOrder[n].pos==-1) {
+			if(noteGroupOrder[n+1].pos-noteGroupOrder[n].pos===-1) {
 				if(!adjacent) {
 					faceRight=false;
 					adjacent=true;
@@ -346,8 +346,8 @@ function drawHead(note, inverse) {
 		}
 
 		if(note.duration<=0.25) ctx.fillText("\uD834\uDD58", 0, 0);
-		else if(note.duration == 0.5) ctx.fillText("\uD834\uDD57", 0, 0);
-		else if(note.duration == 1) ctx.fillText("\uD834\uDD5D", 0, 0);
+		else if(note.duration === 0.5) ctx.fillText("\uD834\uDD57", 0, 0);
+		else if(note.duration === 1) ctx.fillText("\uD834\uDD5D", 0, 0);
 		
 		
 		ctx.restore();
@@ -355,7 +355,7 @@ function drawHead(note, inverse) {
 }
 
 function arrangeNote(faceRight, m) {
-	if(m==-1) {
+	if(m===-1) {
 		ctx.translate(3, 0);
 	}
 
@@ -381,7 +381,7 @@ function drawBeam(xStart, yStart, xEnd, yEnd) {
 }
 
 function drawMarker(y) {
-	if(curNote == 0) {
+	if(curNote === 0) {
 		Marker.xPos = bars[curBar].initPos+10;
 
 		if(bars[curBar].changedTimeSig) Marker.xPos +=35
@@ -438,7 +438,7 @@ function drawBar(bar, color) {
 	if(bar.firstAcc || bar.changedAcc) timePos+=(bar.naturals.length) * 18
 	for(var i = 1; i<=accidentalSum; i++) {
 		var acc = i-1;
-		if(bar.sharpOrFlat==-1) acc = 7-i
+		if(bar.sharpOrFlat===-1) acc = 7-i
 		if(bar.firstAcc || bar.changedAcc) drawAccidental(timePos+(i-1)*18, bar.sharpOrFlat, acc, bar.line, bar.sharpOrFlat);
 	}
 
@@ -467,14 +467,14 @@ function drawAccidental(pos, acc, note, line, sof) {
 	var offset;
 	switch(note) {
 		case 0:
-			if(acc==-1) offset = 136;
+			if(acc===-1) offset = 136;
 			else offset = 80;
 			break;
 		case 1:
 			offset = 104;
 			break;
 		case 2:
-			if(acc == -1) offset = 128;
+			if(acc === -1) offset = 128;
 			else offset = 72;
 			break; 
 		case 3:

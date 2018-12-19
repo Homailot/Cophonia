@@ -29,7 +29,7 @@ function placeNote(duration, line, pos, isSpace, newGroup) {
 	var sP = 7;
 	var desc = false;
 	var acc = 0;
-	for(iPos = 7; iPos!=scalePos;) {
+	for(iPos = 7; iPos!==scalePos;) {
 		if(scalePos<iPos) {
 			iPos--; sP--; noteValue-=2; desc = true;
 		} 
@@ -40,14 +40,14 @@ function placeNote(duration, line, pos, isSpace, newGroup) {
 		if(sP>7) sP-=7;
 		else if(sP<1) sP+=7;
 		
-		if(desc && (sP==7 || sP==3)) noteValue++;
-		else if(!desc && (sP==1 || sP==4)) noteValue--;
+		if(desc && (sP===7 || sP===3)) noteValue++;
+		else if(!desc && (sP===1 || sP===4)) noteValue--;
 	}
 	for(var i = 1; i<=bars[curBar].accidentals; i++) {
 		var value = i-1;
-		if(bars[curBar].sharpOrFlat==-1) value = 7-i;
+		if(bars[curBar].sharpOrFlat===-1) value = 7-i;
 
-		if(sP == accidentalOrder[value]) {
+		if(sP === accidentalOrder[value]) {
 			acc = bars[curBar].sharpOrFlat;
 			break;
 		}
@@ -56,7 +56,7 @@ function placeNote(duration, line, pos, isSpace, newGroup) {
 	for(var i = 0; i<bars[curBar].notes.length; i++) {
 		var n=bars[curBar];
 		for(var note=0; note<n.notes[i].noteGroups.length; note++) {
-			if(pos == n.notes[i].noteGroups[note].pos) {
+			if(pos === n.notes[i].noteGroups[note].pos) {
 				acc=n.notes[i].noteGroups[note].accidental;
 
 			}
@@ -75,12 +75,12 @@ function placeNote(duration, line, pos, isSpace, newGroup) {
 NoteGroup.prototype.updateAccidental = function(bar, n, j) {
 	for(var i = 1; i<=bars[bar].accidentals; i++) {
 		var value = i-1;
-		if(bars[bar].sharpOrFlat==-1) value = 7-i;
+		if(bars[bar].sharpOrFlat===-1) value = 7-i;
 
-		if(this.scalePos == accidentalOrder[value] && this.accidental==bars[bar].sharpOrFlat) {
+		if(this.scalePos === accidentalOrder[value] && this.accidental===bars[bar].sharpOrFlat) {
 			hideAccidental(n, this, true, j);
 			break;
-		} else if(this.scalePos == accidentalOrder[value]) {
+		} else if(this.scalePos === accidentalOrder[value]) {
 			hideAccidental(n, this, false, j);
 			break;
 		}
@@ -89,12 +89,12 @@ NoteGroup.prototype.updateAccidental = function(bar, n, j) {
 
 function hideAccidental(note, nG, hide, j) {
 	if(hide) {
-		if(nG.hideAcc==false) {
+		if(nG.hideAcc===false) {
 			note.width-=18;
 		} 
 		nG.hideAcc=true;
 	} else {
-		if(nG.hideAcc==true) {
+		if(nG.hideAcc===true) {
 			note.width+=18;
 		} 
 		nG.hideAcc=false;
@@ -107,7 +107,7 @@ function changeAccidental(bar, note, y, value, j) {
 
 		//see if we are on a note, and selects the note if we are on one.
 		for(var noteGroup=0; noteGroup<note.noteGroups.length; noteGroup++) {
-			if(note.noteGroups[noteGroup].pos==y+2) {
+			if(note.noteGroups[noteGroup].pos===y+2) {
 				
 				n=note.noteGroups[noteGroup];
 				break;
@@ -115,7 +115,7 @@ function changeAccidental(bar, note, y, value, j) {
 		}
 
 		//if we found a note then
-		if(n!=null) {
+		if(n!==null) {
 			
 			//we change it's value
 			n.accidental += value;
@@ -125,22 +125,22 @@ function changeAccidental(bar, note, y, value, j) {
 				//if the value was changed then we need to verify if we have to show the accidental figure or not
 				hideAccidental(note, n, false, j);
 				//first we check based on the bar's accidentals
-				if(bar.accidentals==0 && n.accidental==0) {
+				if(bar.accidentals===0 && n.accidental===0) {
 					hideAccidental(note, n, true, j);
 				}
 				for(var i = 1; i<=bar.accidentals; i++) {
 					var value = i-1;
-					if(bar.sharpOrFlat==-1) value = 7-i;
+					if(bar.sharpOrFlat===-1) value = 7-i;
 			
-					if((n.scalePos == accidentalOrder[value] && n.accidental==bar.sharpOrFlat)) {
+					if((n.scalePos === accidentalOrder[value] && n.accidental===bar.sharpOrFlat)) {
 						hideAccidental(note, n, true, j);
 						break;
-					} else if(n.scalePos == accidentalOrder[value] && n.accidental!=bar.sharpOrFlat) {
+					} else if(n.scalePos === accidentalOrder[value] && n.accidental!==bar.sharpOrFlat) {
 						hideAccidental(note, n, false, j);
 						break;
 					}
 
-					if(n.accidental!=0) {
+					if(n.accidental!==0) {
 						hideAccidental(note, n, false, j);
 					} else {
 						hideAccidental(note, n, true, j);
@@ -161,8 +161,8 @@ function changeAccidental(bar, note, y, value, j) {
 						} 
 						else continue;
 
-						if(n.pos == bar.notes[i].noteGroups[noteGroup].pos) {
-							if(bar.notes[i].noteGroups[noteGroup].accidental!=n.accidental) {
+						if(n.pos === bar.notes[i].noteGroups[noteGroup].pos) {
+							if(bar.notes[i].noteGroups[noteGroup].accidental!==n.accidental) {
 								hideAccidental(subject, subjectPlace, false, i);
 								if(i>j) n=bar.notes[i].noteGroups[noteGroup];
 							} else {

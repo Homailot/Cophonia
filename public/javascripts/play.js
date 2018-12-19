@@ -17,20 +17,20 @@ function playNotes() {
 		
 
 		restoreCanvas();
-		if(playingBar == bars.length){
+		if(playingBar === bars.length){
 			drawMarker(y); playing=false; return;
 		}
 		var totalTime = bars[playingBar].upperSig/bars[playingBar].lowerSig;
 		
-		if((playingNote == bars[playingBar].notes.length && playingTime==totalTime)||playingTime>totalTime) {
+		if((playingNote === bars[playingBar].notes.length && playingTime===totalTime)||playingTime>totalTime) {
 			playingNote = 0; playingBar++; playingTime=0;
 		} 
 
-		if(playingBar == bars.length){
+		if(playingBar === bars.length){
 			drawMarker(y); playing=false; return;
 		}
 
-		if(playingNote == bars[playingBar].notes.length && playingTime!=totalTime) {
+		if(playingNote === bars[playingBar].notes.length && playingTime!==totalTime) {
 			velocity = (totalTime-playingTime) * (1/((tempo/60))*4);
 			playingTime=0;
 

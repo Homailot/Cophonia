@@ -32,7 +32,7 @@ document.addEventListener('keydown', function(event) {
 				if(curNote < bars[curBar].notes.length) {
 					if(!bars[curBar].notes[curNote].isSpace) {
 						for(n = 0; n<bars[curBar].notes[curNote].noteGroups.length; n++) {
-							if(bars[curBar].notes[curNote].noteGroups[n].pos == y+2) return;
+							if(bars[curBar].notes[curNote].noteGroups[n].pos === y+2) return;
 						}
 						
 						setMarker(false, true);
@@ -189,7 +189,7 @@ function deleteNote() {
 			setMarker(true, false);
 		} else {
 			//if it was a pause, it moves everything back by 40 px.
-			if(curNote != 0) {
+			if(curNote !== 0) {
 				diff-=bars[curBar].notes[curNote-1].xPos;
 				Marker.xPos = bars[curBar].notes[curNote-1].xPos;
 				curNote--;
@@ -198,7 +198,7 @@ function deleteNote() {
 			var lastBar = 0;
 			for(line = 0; line<lines.length; line++)  {
 				lastBar+=lines[line].bars;
-				if(line == curLine) break;
+				if(line === curLine) break;
 			}
 
 			if(lines[curLine].overflown && bars[lastBar-1].xPos<c.width) {
@@ -237,14 +237,14 @@ function deleteBar() {
 		moveBars(curBar, false, line);
 
 		lines[curLine].bars -=1
-		if(lines[curLine].bars==0) lines.splice(curLine, 1);
+		if(lines[curLine].bars===0) lines.splice(curLine, 1);
 		
 		if(lines[lines.length-1].complete || lines[lines.length-1].overflown) {
 			lines[lines.length-1].changedComplete = true;
 		} 
 
 		//if the bar before is not in the curentLine then the current line is decreased.
-		if(bars[curBar].line != curLine) {
+		if(bars[curBar].line !== curLine) {
 			curLine--;
 		} 
 	}
@@ -268,12 +268,12 @@ function moveLeft() {
 	//if it was the first and the current bar also isn't
 	else if(curBar-1 >= 0) {
 		//moves back the current line if the bar before is on a different line.
-		if(bars[curBar-1].line!=curLine) curLine--;
+		if(bars[curBar-1].line!==curLine) curLine--;
 		
 		notes = bars[curBar-1].notes.length
 
 		//if the bar before has no notes, then the marker is placed at the start of the bar.
-		if(notes == 0) {
+		if(notes === 0) {
 			Marker.xPos = bars[curBar-1].initPos+10;
 			if(bars[curBar-1].changedTimeSig) Marker.xPos +=35
 			if(bars[curBar-1].changedOrFirstClef) Marker.xPos += 45
@@ -299,7 +299,7 @@ function moveRight() {
 	var gen = false;
 
 	//if we've reached the end, meaning the bar was extended or when the sum of the duration of the notes matches the time signature
-	if(curNote==bars[curBar].notes.length || (sum == bars[curBar].upperSig/bars[curBar].lowerSig && curNote+1==bars[curBar].notes.length)) {
+	if(curNote===bars[curBar].notes.length || (sum === bars[curBar].upperSig/bars[curBar].lowerSig && curNote+1===bars[curBar].notes.length)) {
 		//if it was extended, it de-extends
 		if(extended) {
 
@@ -311,7 +311,7 @@ function moveRight() {
 		curBar++;
 		curNote = 0;
 
-		if(curBar == bars.length){
+		if(curBar === bars.length){
 			newBar(upperSig, lowerSig, false, 0, false, bars[curBar-1].xPos, curLine, false, acc, sof); gen = true;
 		} 
 
@@ -321,7 +321,7 @@ function moveRight() {
 		if(bars[curBar].changedOrFirstClef) Marker.xPos += 35
 
 		//changes the current line if the current bar is in another line
-		if(bars[curBar].line != curLine) curLine++;	
+		if(bars[curBar].line !== curLine) curLine++;	
 		if(gen) generateAll();
 		else {
 			restoreCanvas();
@@ -329,7 +329,7 @@ function moveRight() {
 		}
 	} else {
 		//if we are at the last note, we extend the bar before we move on to the next bar
-		if(curNote+1==bars[curBar].notes.length) {
+		if(curNote+1===bars[curBar].notes.length) {
 			//this moves the marker right, effectively when the line isn't complete
 			Marker.xPos += 40;
 			var maxDots=0;
@@ -361,7 +361,7 @@ function insertBeat() {
 	//so that we don't place a beat after we have extended, we check if the bar is extended
 	if(!extended) {
 		//if we aren't at the first note of the bar or if we aren't at the last note, the markers moves forward and everything with it
-		if((curNote!=0 || curNote < bars[curBar].notes.length)) {
+		if((curNote!==0 || curNote < bars[curBar].notes.length)) {
 			Marker.xPos += 40;
 			curNote++;
 		}

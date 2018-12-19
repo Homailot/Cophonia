@@ -1,9 +1,153 @@
+//this function will stretch the completed bars
+function stretchBars() {
+	for(line = 0; line<lines.length; line++) {
+		//this is the unstretch block of the code
+		if(lines[line].changedComplete) {
+			lines[line].changedComplete = false;
+			lines[line].complete=false;
+		}
+			
+		var startPos;
+		if(line === 0) startPos = 180;
+		else startPos = 8;
+
+		for(var bar = 0; bar<bars.length; bar++) {
+			if(bars[bar].line === line){
+				bars[bar].initPos = startPos;
+				startPos += 10;
+
+				if(bars[bar].changedTimeSig) startPos+=35
+				if(bars[bar].changedOrFirstClef) startPos+=45
+				if(bars[bar].firstAcc || bars[bar].changedAcc) {
+					startPos+=(bars[bar].accidentals+bars[bar].naturals.length)*18
+				}
+				var maxDots;
+				var hasAcc;
+				if(bars[bar].notes.length>0) {
+					for(note = 0; note<bars[bar].notes.length; note++) {
+						maxDots=bars[bar].notes[note].dots;
+						hasAcc=false;
+
+						for(nG=0; nG<bars[bar].notes[note].noteGroups.length; nG++) {
+							objNG = bars[bar].notes[note].noteGroups[nG];
+							if(objNG.hideAcc===false) {
+								hasAcc=true;
+							}
+							
+						}
+						startPos+=5;
+						if(hasAcc) startPos+=18;
+						bars[bar].notes[note].xPos = startPos;
+						
+						startPos+=40+maxDots*10;
+					}
+					if(curBar===bar && extended) {
+						Marker.xPos=startPos;
+						startPos+=40;
+					} 
+				} else startPos+=40;
+				bars[bar].xPos = startPos
+
+				if(bars[bar].xPos >= c.width) {
+					lines[bars[bar].line].overflown = true;
+				} 
+			}
+		}
+		
+		//we only stretch if the line is complete or if it overflows the canvas
+		if(((lines[line].complete || (bars[curBar].xPos > c.width && curLine === line)) && !lines[line].changedComplete) || lines[line].overflown) {
+			var fullSpaceWidth, spaces, spaceWidth;
+			var totalWidth = c.width-8;
+			var objectsWidth = [];
+			var objectWidth = 0;
+			var nObjects = 0;
+			var thisPos = 8;
+			var firstBar = true;
+			if(line===0) {
+				totalWidth -= 172; thisPos = 180;
+			}
+
+			for(var bar = 0; bar<bars.length; bar++) {
+				if(bars[bar].line === line) {
+					var startWidth = 5;
+					if(bars[bar].changedAcc || bars[bar].firstAcc) startWidth+=(bars[bar].accidentals+bars[bar].naturals.length)*18
+					if(bars[bar].changedOrFirstClef || bars[bar].changedClef) startWidth+=45;
+					if(bars[bar].changedTimeSig) startWidth+=35;
+					if(bars[bar].notes.length===0) startWidth+=40;
+
+					objectsWidth.push(startWidth);
+					objectWidth+=startWidth;
+					if(!firstBar) nObjects++;
+					firstBar = false;
+
+					if(bars[bar].notes.length>0) {
+						objectsWidth.push(bars[bar].notes[0].width);
+						objectWidth+=bars[bar].notes[0].width;
+
+						for(var note = 1; note<bars[bar].notes.length; note++) {
+							objectsWidth.push(bars[bar].notes[note].width);
+							objectWidth+=bars[bar].notes[note].width;
+
+							nObjects++;
+						}	
+					}	
+
+					if(bar === curBar && extended) {
+						objectsWidth.push(30);
+						objectWidth+=30;
+						nObjects++;
+					}
+				}
+			}
+			spaces=nObjects+1;
+			fullSpaceWidth=totalWidth-objectWidth;
+			spaceWidth = fullSpaceWidth/spaces;
+
+			var objectIndex = 0;
+			for(var bar = 0; bar<bars.length; bar++) {
+				if(bars[bar].line === line) {
+					bars[bar].initPos=thisPos;
+					if(spaceWidth<0) thisPos+=2*spaceWidth;
+					thisPos+=objectsWidth[objectIndex];
+					objectIndex++;
+
+					if(bars[bar].notes.length>0) {
+						bars[bar].notes[0].xPos = (thisPos+objectsWidth[objectIndex]/2);
+						thisPos+=objectsWidth[objectIndex];
+						objectIndex++;
+
+						for(var note = 1; note<bars[bar].notes.length; note++) {
+							thisPos+=spaceWidth;
+							bars[bar].notes[note].xPos = (thisPos+objectsWidth[objectIndex]/2)
+							
+							thisPos+=objectsWidth[objectIndex];
+							objectIndex++;
+						}
+					}
+
+					if(bar===curBar && extended) {
+						thisPos+=spaceWidth;
+						Marker.xPos = thisPos+objectsWidth[objectIndex]/2;
+						thisPos+=objectsWidth[objectIndex];
+						objectIndex++;
+					}
+
+					if(spaceWidth<0) thisPos-=spaceWidth;
+					else  thisPos+=spaceWidth;
+					bars[bar].xPos = thisPos;
+					
+				}
+			}
+		}
+	}
+}
+
 //this is the main update function
 function generateAll() {
 	var accSum = 0;
-	lineChange = -1;
-	for(bar = 0; bar<bars.length; bar++) {
-		if(bars[bar].line != lineChange) {
+	var lineChange = -1;
+	for(var bar = 0; bar<bars.length; bar++) {
+		if(bars[bar].line !== lineChange) {
 			lineChange++;
 			if(!bars[bar].changedOrFirstClef) {
 				bars[bar].changedOrFirstClef = true;
@@ -23,7 +167,7 @@ function generateAll() {
 			}
 		}
 		
-		if(lines[bars[bar].line].bars==4 || (lines[bars[bar].line].bars==3 && bars[bar].line == 0)) {
+		if(lines[bars[bar].line].bars===4 || (lines[bars[bar].line].bars===3 && bars[bar].line === 0)) {
 			lines[bars[bar].line].complete=true;
 		}
 		
@@ -42,31 +186,36 @@ function generateAll() {
 
 	//this will clear everything on the canvas
 	ctx.clearRect(0, 0, c.width, 100000);
-	groupChange = false;
+	var groupChange = false;
 	
-	for(bar = 0; bar < bars.length; bar++) {
+	for(var bar = 0; bar < bars.length; bar++) {
 		//the beamGroups define the groups of eigth plus notes to be grouped with beams
-		beamGroups = new Array();
+		var beamGroups = new Array();
 		//we just say we are going to create a new group so that we don't create unecessary groups
-		newGroup = true;
+		var newGroup = true;
 		sum = getSum(bar);
 
 		//sets the color to red if the sum is wrong
-		if(curBar!=bar && sum!=bars[curBar].upperSig/bars[curBar].lowerSig) color = "#FF0000";
-		else color = "#000000"
+		var color;
+		if(curBar!==bar && sum!==bars[curBar].upperSig/bars[curBar].lowerSig) {
+			color = "#FF0000";
+		}
+		else {
+			color = "#000000";
+		} 
 		
 		//draws the staff for this bar, and then the bar itself
 		drawStaff(bars[bar].line, bars[bar].initPos, bars[bar].xPos, color);
 		drawBar(bars[bar], color);
 
 		//sigSum is the sum of each group, each group has a consistent duration, so we need to know the sum
-		sigSum = 0;
-		for(note = 0; note< bars[bar].notes.length; note++) { 
+		var sigSum = 0;
+		for(var note = 0; note< bars[bar].notes.length; note++) { 
 			//add to the sum
 			sigSum+=getNoteDuration(bars[bar].notes[note]);
 			//if the bar is compound it makes the bar duration 3 times the lower signature
 			mult = 1;
-			if(bars[bar].upperSig == 6 || bars[bar].upperSig == 9 || bars[bar].upperSig == 12) mult = 3;
+			if(bars[bar].upperSig === 6 || bars[bar].upperSig === 9 || bars[bar].upperSig === 12) mult = 3;
 
 		
 
@@ -96,25 +245,26 @@ function generateAll() {
 		}
 
 		//finally we go through each group to draw the beams
-		for(group = 0; group < beamGroups.length; group++) {
-			notes = beamGroups[group].length;
-			asc = false;
-			desc = false;
+		for(var group = 0; group < beamGroups.length; group++) {
+			var notes = beamGroups[group].length;
+			var asc = false;
+			var desc = false;
 
 			//we only draw a beam if there are more than one note
 			if(notes>=2) {
 				//this loop checks which note is the farthest from the center line. that note will define if the beam is upside down
-				for(note = 0; note < notes; note++) {
+				for(var note = 0; note < notes; note++) {
 					
-
-					for(n=0; n<beamGroups[group][note].noteGroups.length; n++) {
-						if(note==0 && n==0) inverse = beamGroups[group][note].pos;
+					var inverse;
+					for(var n=0; n<beamGroups[group][note].noteGroups.length; n++) {
+						if(note===0 && n===0) inverse = beamGroups[group][note].pos;
 						else if(Math.abs(beamGroups[group][note].noteGroups[n].pos - (-3)) > Math.abs(inverse - (-3))) {
 							inverse = beamGroups[group][note].noteGroups[n].pos;
 						}
 					}
 
-					if(note == 0) shortest =beamGroups[group][note].duration
+					var shortest;
+					if(note === 0) shortest =beamGroups[group][note].duration
 					else if(beamGroups[group][note].duration < shortest) shortest = beamGroups[group][note].duration
 
 					
@@ -133,7 +283,7 @@ function generateAll() {
 						big = false;
 
 						interval = Math.abs(beamGroups[group][0].noteGroups[n].pos - beamGroups[group][notes-1].noteGroups[n2].pos);
-						if(n==0 && n2 == 0) big=true;
+						if(n===0 && n2 === 0) big=true;
 						else if(interval > biggestInterval) big=true;
 
 						if(big) {
@@ -167,8 +317,8 @@ function generateAll() {
 						proceed = false;
 
 						if(inverse<-3) {
-							if((note == 0 && n==0) || beamGroups[group][note].noteGroups[n].yPos+beamOffset >= yStart ) proceed = true;
-						} else if((note == 0 && n==0)|| beamGroups[group][note].noteGroups[n].yPos+beamOffset <= yStart ) proceed = true;
+							if((note === 0 && n===0) || beamGroups[group][note].noteGroups[n].yPos+beamOffset >= yStart ) proceed = true;
+						} else if((note === 0 && n===0)|| beamGroups[group][note].noteGroups[n].yPos+beamOffset <= yStart ) proceed = true;
 						if(proceed) {
 							yStart = beamGroups[group][note].noteGroups[n].yPos+beamOffset;
 							switch(shortest){
@@ -210,67 +360,45 @@ function generateAll() {
 					}
 
 					if(beamGroups[group][note].duration <= 0.0625) {
-						if(startBeam[0] == -1) startBeam[0] = beamGroups[group][note].xPos+15
-						if(startBeam[0] != -1 && note+1<beamGroups[group].length && beamGroups[group][note+1].duration > 0.0625) endBeam[0] = beamGroups[group][note].xPos+15
+						if(startBeam[0] === -1) startBeam[0] = beamGroups[group][note].xPos+15
+						if(startBeam[0] !== -1 && note+1<beamGroups[group].length && beamGroups[group][note+1].duration > 0.0625) endBeam[0] = beamGroups[group][note].xPos+15
 					}
-					if(beamGroups[group][note].duration == 0.03125) {
-						if(startBeam[1] == -1) startBeam[1] = beamGroups[group][note].xPos+15;
-						if(startBeam[1] != -1 && note+1<beamGroups[group].length && beamGroups[group][note+1].duration > 0.03125) endBeam[1] = beamGroups[group][note].xPos+15
-					}
-
-					if(note==beamGroups[group].length-1) {
-						if(startBeam[1]!=-1) endBeam[1] = beamGroups[group][note].xPos+15;
-						if(startBeam[0]!=-1)  endBeam[0] = beamGroups[group][note].xPos+15;
+					if(beamGroups[group][note].duration === 0.03125) {
+						if(startBeam[1] === -1) startBeam[1] = beamGroups[group][note].xPos+15;
+						if(startBeam[1] !== -1 && note+1<beamGroups[group].length && beamGroups[group][note+1].duration > 0.03125) endBeam[1] = beamGroups[group][note].xPos+15
 					}
 
-					if(endBeam[0]!=-1) {
-						if(startBeam[0] == endBeam[0]) {
-							if(note!=0 && note+1<beamGroups[group].length) {
-								if(beamGroups[group][note+1].duration<=beamGroups[group][note-1].duration) endBeam[0] = (beamGroups[group][note+1].xPos - beamGroups[group][note].xPos)/2 + beamGroups[group][note].xPos + 15
-								else if (beamGroups[group][note+1].duration>beamGroups[group][note-1].duration) endBeam[0] = (beamGroups[group][note].xPos - beamGroups[group][note-1].xPos)/2 + beamGroups[group][note-1].xPos +15	
-							} 
-							else if(note==0){
-								 endBeam[0] = (beamGroups[group][note+1].xPos - beamGroups[group][note].xPos)/2 + beamGroups[group][note].xPos + 15
+					if(note===beamGroups[group].length-1) {
+						if(startBeam[1]!==-1) endBeam[1] = beamGroups[group][note].xPos+15;
+						if(startBeam[0]!==-1)  endBeam[0] = beamGroups[group][note].xPos+15;
+					}
+
+					for(var beam = 0; beam<2; beam++) {
+						if(endBeam[beam]!==-1) {
+							if(startBeam[beam] === endBeam[beam]) {
+								if(note!==0 && note+1<beamGroups[group].length) {
+									if(beamGroups[group][note+1].duration<=beamGroups[group][note-1].duration) endBeam[beam] = (beamGroups[group][note+1].xPos - beamGroups[group][note].xPos)/2 + beamGroups[group][note].xPos + 15
+									else if (beamGroups[group][note+1].duration>beamGroups[group][note-1].duration) endBeam[beam] = (beamGroups[group][note].xPos - beamGroups[group][note-1].xPos)/2 + beamGroups[group][note-1].xPos +15	
+								} 
+								else if(note===0){
+									endBeam[beam] = (beamGroups[group][note+1].xPos - beamGroups[group][note].xPos)/2 + beamGroups[group][note].xPos + 15
+								}
+								else endBeam[beam] = (beamGroups[group][note].xPos - beamGroups[group][note-1].xPos)/2 + beamGroups[group][note-1].xPos +15		
 							}
-							else endBeam[0] = (beamGroups[group][note].xPos - beamGroups[group][note-1].xPos)/2 + beamGroups[group][note-1].xPos +15		
-						}
-
-						m=1
-						if(inverse < -3) {
-							startBeam[0]-=10;
-							endBeam[0] -=10;
-							m = -1
-						}
-
-						yStart = getYFromX(line.m, line.b+10*m, startBeam[0]);
-						yEnd = getYFromX(line.m, line.b+10*m, endBeam[0]);
-
-						drawBeam(startBeam[0], yStart, endBeam[0], yEnd);
-						startBeam[0] =-1; endBeam[0] = -1;
-					}
-					if(endBeam[1]!=-1) {
-						if(startBeam[1] == endBeam[1]) {
-							if(note!=0 && note+1<beamGroups[group].length) {
-								if(beamGroups[group][note+1].duration<=beamGroups[group][note-1].duration) endBeam[1] = (beamGroups[group][note+1].xPos - beamGroups[group][note].xPos)/2 + beamGroups[group][note].xPos + 15
-								else if (beamGroups[group][note+1].duration>beamGroups[group][note-1].duration) endBeam[1] = (beamGroups[group][note].xPos - beamGroups[group][note-1].xPos)/2 + beamGroups[group][note-1].xPos +15	
-							} 
-							else if(note==0){
-								 endBeam[1] = (beamGroups[group][note+1].xPos - beamGroups[group][note].xPos)/2 + beamGroups[group][note].xPos + 15
-							}
-							else endBeam[1] = (beamGroups[group][note].xPos - beamGroups[group][note-1].xPos)/2 + beamGroups[group][note-1].xPos +15		
-						}
 
 							m=1
-						if(inverse < -3) {
-							startBeam[1]-=10;
-							endBeam[1] -=10;
-							m = -1
-						}
-						yStart = getYFromX(line.m, line.b+20*m, startBeam[1]);
-						yEnd = getYFromX(line.m, line.b+20*m, endBeam[1]);
+							if(inverse < -3) {
+								startBeam[beam]-=10;
+								endBeam[beam] -=10;
+								m = -1
+							}
 
-						drawBeam(startBeam[1], yStart, endBeam[1], yEnd);
-						startBeam[1]=-1; endBeam[1] = -1;
+							yStart = getYFromX(line.m, line.b+10*(beam+1)*m, startBeam[beam]);
+							yEnd = getYFromX(line.m, line.b+10*(beam+1)*m, endBeam[beam]);
+
+							drawBeam(startBeam[beam], yStart, endBeam[beam], yEnd);
+							startBeam[beam] =-1; endBeam[beam] = -1;
+						}
 					}
 					
 				}
@@ -280,148 +408,4 @@ function generateAll() {
 
 	saveCanvas();
 	drawMarker(y);
-}
-
-//this function will stretch the completed bars
-function stretchBars() {
-	for(line = 0; line<lines.length; line++) {
-		//this is the unstretch block of the code
-		if(lines[line].changedComplete) {
-			lines[line].changedComplete = false;
-			lines[line].complete=false;
-		}
-			
-		var startPos;
-		if(line == 0) startPos = 180;
-		else startPos = 8;
-
-		for(bar = 0; bar<bars.length; bar++) {
-			if(bars[bar].line == line){
-				bars[bar].initPos = startPos;
-				startPos += 10;
-
-				if(bars[bar].changedTimeSig) startPos+=35
-				if(bars[bar].changedOrFirstClef) startPos+=45
-				if(bars[bar].firstAcc || bars[bar].changedAcc) {
-					startPos+=(bars[bar].accidentals+bars[bar].naturals.length)*18
-				}
-				var maxDots;
-				var hasAcc;
-				if(bars[bar].notes.length>0) {
-					for(note = 0; note<bars[bar].notes.length; note++) {
-						maxDots=bars[bar].notes[note].dots;
-						hasAcc=false;
-
-						for(nG=0; nG<bars[bar].notes[note].noteGroups.length; nG++) {
-							objNG = bars[bar].notes[note].noteGroups[nG];
-							if(objNG.hideAcc==false) {
-								hasAcc=true;
-							}
-							
-						}
-						startPos+=5;
-						if(hasAcc) startPos+=18;
-						bars[bar].notes[note].xPos = startPos;
-						
-						startPos+=40+maxDots*10;
-					}
-					if(curBar==bar && extended) {
-						Marker.xPos=startPos;
-						startPos+=40;
-					} 
-				} else startPos+=40;
-				bars[bar].xPos = startPos
-
-				if(bars[bar].xPos >= c.width) {
-					lines[bars[bar].line].overflown = true;
-				} 
-			}
-		}
-		
-		//we only stretch if the line is complete or if it overflows the canvas
-		if(((lines[line].complete || (bars[curBar].xPos > c.width && curLine == line)) && !lines[line].changedComplete) || lines[line].overflown) {
-			var fullSpaceWidth, spaces, spaceWidth;
-			var totalWidth = c.width-8;
-			var objectsWidth = [];
-			var objectWidth = 0;
-			var nObjects = 0;
-			var thisPos = 8;
-			var firstBar = true;
-			if(line==0) {
-				totalWidth -= 172; thisPos = 180;
-			}
-
-			for(var bar = 0; bar<bars.length; bar++) {
-				if(bars[bar].line == line) {
-					var startWidth = 5;
-					if(bars[bar].changedAcc || bars[bar].firstAcc) startWidth+=(bars[bar].accidentals+bars[bar].naturals.length)*18
-					if(bars[bar].changedOrFirstClef || bars[bar].changedClef) startWidth+=45;
-					if(bars[bar].changedTimeSig) startWidth+=35;
-					if(bars[bar].notes.length==0) startWidth+=40;
-
-					objectsWidth.push(startWidth);
-					objectWidth+=startWidth;
-					if(!firstBar) nObjects++;
-					firstBar = false;
-
-					if(bars[bar].notes.length>0) {
-						objectsWidth.push(bars[bar].notes[0].width);
-						objectWidth+=bars[bar].notes[0].width;
-
-						for(var note = 1; note<bars[bar].notes.length; note++) {
-							objectsWidth.push(bars[bar].notes[note].width);
-							objectWidth+=bars[bar].notes[note].width;
-
-							nObjects++;
-						}	
-					}	
-
-					if(bar == curBar && extended) {
-						objectsWidth.push(30);
-						objectWidth+=30;
-						nObjects++;
-					}
-				}
-			}
-			spaces=nObjects+1;
-			fullSpaceWidth=totalWidth-objectWidth;
-			spaceWidth = fullSpaceWidth/spaces;
-
-			var objectIndex = 0;
-			for(var bar = 0; bar<bars.length; bar++) {
-				if(bars[bar].line == line) {
-					bars[bar].initPos=thisPos;
-					if(spaceWidth<0) thisPos+=2*spaceWidth;
-					thisPos+=objectsWidth[objectIndex];
-					objectIndex++;
-
-					if(bars[bar].notes.length>0) {
-						bars[bar].notes[0].xPos = (thisPos+objectsWidth[objectIndex]/2);
-						thisPos+=objectsWidth[objectIndex];
-						objectIndex++;
-
-						for(var note = 1; note<bars[bar].notes.length; note++) {
-							thisPos+=spaceWidth;
-							bars[bar].notes[note].xPos = (thisPos+objectsWidth[objectIndex]/2)
-							
-							thisPos+=objectsWidth[objectIndex];
-							objectIndex++;
-						}
-					}
-
-					if(bar==curBar && extended) {
-						thisPos+=spaceWidth;
-						Marker.xPos = thisPos+objectsWidth[objectIndex]/2;
-						thisPos+=objectsWidth[objectIndex];
-						objectIndex++;
-					}
-
-					if(spaceWidth<0) thisPos-=spaceWidth;
-					else  thisPos+=spaceWidth;
-					bars[bar].xPos = thisPos;
-					
-				}
-			}
-		}
-	}
 }
