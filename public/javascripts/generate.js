@@ -34,14 +34,14 @@ function unStretch(line) {
 					hasAcc=false;
 
 					for(nG=0; nG<bars[bar].notes[note].noteGroups.length; nG++) {
-						objNG = bars[bar].notes[note].noteGroups[nG];
+						var objNG = bars[bar].notes[note].noteGroups[nG];
 						if(objNG.hideAcc===false) {
 							hasAcc=true;
 						}
 						
 					}
 					startPos+=5;
-					if(hasAcc) startPos+=18;
+					if(hasAcc) startPos+=bars[bar].notes[note].accWidth;
 					bars[bar].notes[note].xPos = startPos;
 					
 					startPos+=40+maxDots*10;

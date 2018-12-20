@@ -150,7 +150,7 @@ function drawDot(note, inv) {
 			
 			
 		}else{
-			var noteGroupOrder=orderNoteGroup(note);
+			var noteGroupOrder=note.noteGroups;
 	
 			var allocatedSpaces=[];
 			ctx.save();
@@ -244,6 +244,7 @@ function drawNoteAccidental(n, m) {
 	ctx.save();
 	if(n.hideAcc===false) {
 		
+
 		if(m===-1) {
 			ctx.translate(+20, +15);
 			ctx.rotate(Math.PI);
@@ -299,7 +300,7 @@ function drawStem(note, height, inverse, noteGroup) {
 }
 
 function drawHead(note, inverse) {
-	var noteGroupOrder=orderNoteGroup(note);
+	var noteGroupOrder=note.noteGroups;
 	var faceRight=false;
 	var adjacent=false;
 	for(n = 0; n<noteGroupOrder.length; n++) {
