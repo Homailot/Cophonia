@@ -9,6 +9,7 @@ function Note(xPos, yPos, line, duration, pos, noteValue, isSpace, scalePos, acc
 	this.accWidth=0;
 	this.width = 30;
 	this.dots=0;
+	this.inverted=false;
 }
 
 function NoteGroup(yPos, pos, noteValue, scalePos, acc) {
@@ -64,14 +65,25 @@ function placeNote(duration, line, pos, isSpace, newGroup) {
 		}
 	}
 	
-
+	var note;
 	if(!newGroup) {
-		var note = new Note(xPos, realPosition, line, duration, pos, noteValue, isSpace, sP, acc);
+		note = new Note(xPos, realPosition, line, duration, pos, noteValue, isSpace, sP, acc);
 		bars[curBar].notes.splice(curNote, 0, note); 
 	} else {
 		bars[curBar].notes[curNote].noteGroups.push(new NoteGroup(realPosition, pos, noteValue, sP, acc));
 		var noteGroupOrder=orderNoteGroup(bars[curBar].notes[curNote]);
 		bars[curBar].notes[curNote].noteGroups=noteGroupOrder;
+	}
+	note = bars[curBar].notes[curNote];
+	var inverse;
+	for(var n=0; n<note.noteGroups.length; n++) {
+		if(n===0) inverse = note.noteGroups[0].pos;
+		else if(Math.abs(note.noteGroups[n].pos - (-3)) > Math.abs(inverse - (-3))) {
+			inverse = note.noteGroups[n].pos;
+		}
+	}
+	if(inverse<-3) {
+		note.inverted=true;
 	}
 }
 
@@ -202,7 +214,7 @@ function getAccWidth(note, bar) {
 		curLength=0;
 		while(curLength<objGroup.length) {
 			if(objNote.noteGroups[nG].pos-objGroup[curLength].pos<=5) {
-					curLength++;		
+				curLength++;		
 			} else {
 				objNote.noteGroups[nG].accIsOffset=curLength+1;
 
@@ -219,6 +231,7 @@ function getAccWidth(note, bar) {
 
 		
 	}
+	if(note.inverted && note.noteGroups.length>1) objNote.accWidth+=15;
 	if(objGroup.length !== 0) objNote.accWidth+=(objGroup.length*18);
 }
 

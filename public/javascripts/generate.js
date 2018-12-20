@@ -263,14 +263,7 @@ function getBeamGroups(bar) {
 }
 
 function getInverse(beamGroups, group, note, inverse) {
-	for(var n=0; n<beamGroups[group][note].noteGroups.length; n++) {
-		if(note===0 && n===0) inverse = beamGroups[group][note].pos;
-		else if(Math.abs(beamGroups[group][note].noteGroups[n].pos - (-3)) > Math.abs(inverse - (-3))) {
-			inverse = beamGroups[group][note].noteGroups[n].pos;
-		}
-	}
-
-	return inverse;
+	return beamGroups[group][note].inverted;
 }
 
 function getShortest(beamGroups, group, note, shortest) {
@@ -316,7 +309,7 @@ function getDirection(beamGroups, group) {
 function getYStart(beamGroups, group, inverse, shortest) {
 	var beamOffset=-33;
 	var mult=-1
-	if(inverse<-3) {
+	if(inverse) {
 		beamOffset=53;
 		mult=1;
 	}
@@ -329,7 +322,7 @@ function getYStart(beamGroups, group, inverse, shortest) {
 		for(n=0; n<beamGroups[group][note].noteGroups.length; n++) {
 			proceed = false;
 
-			if(inverse<-3) {
+			if(inverse) {
 				if((note === 0 && n===0) || beamGroups[group][note].noteGroups[n].yPos+beamOffset >= yStart ) proceed = true;
 			} else if((note === 0 && n===0)|| beamGroups[group][note].noteGroups[n].yPos+beamOffset <= yStart ) proceed = true;
 			if(proceed) {
@@ -364,7 +357,7 @@ function defineStem(beamGroups, group, note, line, inverse) {
 
 	for(n=0; n<beamGroups[group][note].noteGroups.length; n++) {
 		var height = Math.abs(beamGroups[group][note].noteGroups[n].yPos - xP);
-
+		
 		drawStem(beamGroups[group][note], height, inverse, n);
 	}
 }
@@ -412,7 +405,7 @@ function defineLowerBeams(beamGroups, group, line, inverse) {
 				defineSmallBeams(beamGroups, group, note, startBeam, endBeam, beam);
 
 				m=1
-				if(inverse < -3) {
+				if(inverse) {
 					startBeam[beam]-=10;
 					endBeam[beam] -=10;
 					m = -1
@@ -447,7 +440,7 @@ function defineBeams(beamGroups) {
 			
 				shortest=getShortest(beamGroups, group, note, shortest);
 
-				if(inverse<-3) drawDot(beamGroups[group][note], true);
+				if(inverse) drawDot(beamGroups[group][note], true);
 				else drawDot(beamGroups[group][note], false);
 			}
 
@@ -459,7 +452,7 @@ function defineBeams(beamGroups) {
 			var xStart = beamGroups[group][0].xPos+14;
 			var xEnd = beamGroups[group][notes-1].xPos+16;
 			
-			if(inverse < -3) {
+			if(inverse) {
 				xStart-=10;
 				xEnd -=10;
 				
