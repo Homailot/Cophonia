@@ -249,17 +249,13 @@ function drawNoteAccidental(n, m) {
 
 		if(objNG.hideAcc===false) {
 			ctx.translate(n.xPos, objNG.yPos);
-			if(objNG.accIsOffset) {
-				spacing-=18;
-			} else {
-				spacing=0;
-			}
+
 			if(m===-1) {
 				ctx.translate(+20, +15);
 				ctx.rotate(Math.PI);
 			}
 	
-			ctx.translate(-18+spacing, 0);
+			ctx.translate(-18*objNG.accIsOffset, 0);
 			var offset=10;
 			
 			switch(objNG.accidental) {

@@ -18,7 +18,7 @@ function NoteGroup(yPos, pos, noteValue, scalePos, acc) {
 	this.scalePos = scalePos;
 	this.accidental = acc;
 	this.hideAcc = true;
-	this.accIsOffset=false;
+	this.accIsOffset=1;
 }
 
 function placeNote(duration, line, pos, isSpace, newGroup) {
@@ -183,34 +183,43 @@ function changeAccidental(bar, note, y, value, j) {
 
 function getAccWidth(note, bar) {
 	var objNote = bar.notes[note];
-	var maxLength=0;
-	var curLength=1;
-	var objGroup=null;
-	objNote.accWidth=18;
+	var maxLength=-1;
+	var curLength=0;
+	var objGroup=[];
+	objNote.accWidth=0;
 	
 	for(nG=objNote.noteGroups.length-1; nG>=0; nG--) {
-		if(objGroup=== null && objNote.noteGroups[nG].hideAcc===false) {
-			objGroup=objNote.noteGroups[nG];
+		if(objGroup.length===0 && objNote.noteGroups[nG].hideAcc===false) {
+			objNote.noteGroups[nG].accIsOffset=1;
+			objGroup.push(objNote.noteGroups[nG]);
+			continue;
 		}
-		if((nG-1>=0 && objNote.noteGroups[nG-1].hideAcc) || objGroup===null) continue;
+		else if(objGroup.length===0 || objNote.noteGroups[nG].hideAcc) {
+			objNote.noteGroups[nG].accIsOffset=1;
+			continue;
+		}
 
-		if(nG-1>=0 && objNote.noteGroups[nG-1].pos-objGroup.pos<=5) {
-			objNote.noteGroups[nG-1].accIsOffset=true;
+		curLength=0;
+		while(curLength<objGroup.length) {
+			if(objNote.noteGroups[nG].pos-objGroup[curLength].pos<=5) {
+					curLength++;		
+			} else {
+				objNote.noteGroups[nG].accIsOffset=curLength+1;
 
-			if(curLength>maxLength) {
-				objNote.accWidth+=18;
-				maxLength=curLength;
+				objGroup[curLength]=objNote.noteGroups[nG];
+
+				break;
 			}
-
-			curLength++;
-		} else {
-			curLength=1;
-			if(nG-1>=0) {
-				objGroup=objNote.noteGroups[nG-1];
-				objNote.noteGroups[nG-1].accIsOffset=false;
-			} 
 		}
+		if(curLength>maxLength) {
+			maxLength=curLength;
+			objNote.noteGroups[nG].accIsOffset=curLength+1;
+			objGroup.push(objNote.noteGroups[nG]);
+		}
+
+		
 	}
+	if(objGroup.length !== 0) objNote.accWidth+=(objGroup.length*18);
 }
 
 function augment(bar, note, pos, value) {
