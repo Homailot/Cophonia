@@ -18,7 +18,7 @@ function NoteGroup(yPos, pos, noteValue, scalePos, acc) {
 	this.scalePos = scalePos;
 	this.accidental = acc;
 	this.hideAcc = true;
-	
+	this.accIsOffset=false;
 }
 
 function placeNote(duration, line, pos, isSpace, newGroup) {
@@ -195,6 +195,8 @@ function getAccWidth(note, bar) {
 		if((nG-1>=0 && objNote.noteGroups[nG-1].hideAcc) || objGroup===null) continue;
 
 		if(nG-1>=0 && objNote.noteGroups[nG-1].pos-objGroup.pos<=5) {
+			objNote.noteGroups[nG-1].accIsOffset=true;
+
 			if(curLength>maxLength) {
 				objNote.accWidth+=18;
 				maxLength=curLength;
@@ -203,7 +205,10 @@ function getAccWidth(note, bar) {
 			curLength++;
 		} else {
 			curLength=1;
-			if(nG-1>=0) objGroup=objNote.noteGroups[nG-1]
+			if(nG-1>=0) {
+				objGroup=objNote.noteGroups[nG-1];
+				objNote.noteGroups[nG-1].accIsOffset=false;
+			} 
 		}
 	}
 }

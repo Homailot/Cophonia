@@ -104,7 +104,7 @@ function drawFigure(note) {
 		note.noteGroups[0].yPos = ((note.line+1) * 144 - 2 ) + note.noteGroups[0].pos * 8 - 14;
 		drawExtraStaff(note.xPos, note.noteGroups[0].pos-2, note.line);
 
-
+		drawNoteAccidental(note, m);
 		ctx.save();
 		ctx.translate(note.xPos, note.noteGroups[0].yPos);
 		ctx.font = "69px Musicaf";
@@ -129,7 +129,7 @@ function drawFigure(note) {
 
 		ctx.fillText(text, 0, 0);
 
-		drawNoteAccidental(note.noteGroups[0], m)
+		
 
 		ctx.restore();	
 		drawDot(note, turned);
@@ -241,36 +241,48 @@ function orderNoteGroup(note) {
 }
 
 function drawNoteAccidental(n, m) {
-	ctx.save();
-	if(n.hideAcc===false) {
+	var spacing=0;
+	for(nG=n.noteGroups.length-1; nG>=0; nG--) {
+		ctx.save();
+		var objNG = n.noteGroups[nG];
 		
 
-		if(m===-1) {
-			ctx.translate(+20, +15);
-			ctx.rotate(Math.PI);
+		if(objNG.hideAcc===false) {
+			ctx.translate(n.xPos, objNG.yPos);
+			if(objNG.accIsOffset) {
+				spacing-=18;
+			} else {
+				spacing=0;
+			}
+			if(m===-1) {
+				ctx.translate(+20, +15);
+				ctx.rotate(Math.PI);
+			}
+	
+			ctx.translate(-18+spacing, 0);
+			var offset=10;
+			
+			switch(objNG.accidental) {
+				case 1:
+					text = "\u266F";
+					break;
+				case -1:
+					text = "\u266D";
+					offset -= 6;
+					break;
+				case 0:
+					text = "\u266E";
+					break;
+				default:
+					text = ""; break;
+			}
+	
+			ctx.font = "80px Musicaf";
+			ctx.fillText(text, 0, offset);
 		}
-
-		ctx.translate(-18, 0);
-		var offset=10;
-		
-		switch(n.accidental) {
-			case 1:
-				text = "\u266F";
-				break;
-			case -1:
-				text = "\u266D";
-				offset -= 6;
-				break;
-			case 0:
-				text = "\u266E";
-				break;
-			default:
-				text = ""; break;
-		}
-
-		ctx.font = "80px Musicaf";
-		ctx.fillText(text, 0, offset);
+		ctx.restore();
 	}
+	
 	ctx.restore();
 }
 
@@ -303,6 +315,7 @@ function drawHead(note, inverse) {
 	var noteGroupOrder=note.noteGroups;
 	var faceRight=false;
 	var adjacent=false;
+	drawNoteAccidental(note, inverse);
 	for(n = 0; n<noteGroupOrder.length; n++) {
 		
 		drawExtraStaff(note.xPos, noteGroupOrder[n].pos-2, note.line);
@@ -318,8 +331,6 @@ function drawHead(note, inverse) {
 			ctx.translate(-20, -15);
 			m=-1
 		}
-
-		drawNoteAccidental( noteGroupOrder[n], m);
 		
 		if(n+1<noteGroupOrder.length) {
 			console.log(noteGroupOrder[n].pos);
