@@ -276,8 +276,13 @@ function getBeamGroups(bar) {
 	return beamGroups;
 }
 
-function getInverse(beamGroups, group, note, inverse) {
-	return beamGroups[group][note].inverted;
+function getFarthest(beamGroups, group, note, farthest) {
+	var objNote = beamGroups[group][note];
+
+	if(Math.abs(farthest - (-3))<Math.abs(objNote.pos - (-3))) {
+		return objNote.pos;
+	} else return farthest;
+
 }
 
 function getShortest(beamGroups, group, note, shortest) {
@@ -377,15 +382,16 @@ function defineStem(beamGroups, group, note, line, inverse) {
 }
 
 function getBeamLimits(beamGroups, group, note, startBeam, endBeam) {
-	if(beamGroups[group][note].duration <= 0.0625) {
-		if(startBeam[0] === -1) startBeam[0] = beamGroups[group][note].xPos+15
-		if(startBeam[0] !== -1 && note+1<beamGroups[group].length && beamGroups[group][note+1].duration > 0.0625) endBeam[0] = beamGroups[group][note].xPos+15
-	}
-	if(beamGroups[group][note].duration === 0.03125) {
-		if(startBeam[1] === -1) startBeam[1] = beamGroups[group][note].xPos+15;
-		if(startBeam[1] !== -1 && note+1<beamGroups[group].length && beamGroups[group][note+1].duration > 0.03125) endBeam[1] = beamGroups[group][note].xPos+15
-	}
+	var durations=[0.0625, 0.03125];
 
+	for(beam=0; beam<2; beam++) {
+		if(beamGroups[group][note].duration === durations[beam]) {
+			if(startBeam[beam] === -1) startBeam[beam] = beamGroups[group][note].xPos+15;
+			if(startBeam[beam] !== -1 && note+1<beamGroups[group].length && beamGroups[group][note+1].duration > 0.03125) endBeam[beam] = beamGroups[group][note].xPos+15
+		}
+	}
+	
+	
 	if(note===beamGroups[group].length-1) {
 		if(startBeam[1]!==-1) endBeam[1] = beamGroups[group][note].xPos+15;
 		if(startBeam[0]!==-1)  endBeam[0] = beamGroups[group][note].xPos+15;
@@ -447,10 +453,11 @@ function defineBeams(beamGroups) {
 		if(notes>=2) {
 			var inverse;
 			var shortest;
+			var farthest=beamGroups[group][0].pos;
 
 			//this loop checks which note is the farthest from the center line. that note will define if the beam is upside down
 			for(var note = 0; note < notes; note++) {
-				inverse=getInverse(beamGroups, group, note, inverse);
+				farthest=getFarthest(beamGroups, group, note, farthest);
 			
 				shortest=getShortest(beamGroups, group, note, shortest);
 
@@ -466,10 +473,12 @@ function defineBeams(beamGroups) {
 			var xStart = beamGroups[group][0].xPos+14;
 			var xEnd = beamGroups[group][notes-1].xPos+16;
 			
-			if(inverse) {
+			if(farthest<-3) {
 				xStart-=10;
 				xEnd -=10;
-				
+				inverse=true;
+			} else {
+				inverse=false;
 			}
 			var yStart = getYStart(beamGroups, group, inverse, shortest);
 			var yEnd = getYEnd(yStart, asc, desc);

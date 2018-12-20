@@ -136,75 +136,78 @@ function drawFigure(note) {
 	}	
 }
 
+function writeDots(note) {
+	ctx.font = "80px Musicaf";
+
+	for(var dot=0; dot<note.dots; dot++) {
+		ctx.fillText("\uD834\uDD6D", 0, 0);
+		ctx.translate(10, 0);
+	}
+}
+
+function placeDots(note, noteGroupOrder, ngo, isSpace, occupied, inv) {
+	if(ngo!==0 && occupied) {
+		writeDots(note);
+
+		ctx.translate(-note.dots*10, -16);
+	} else {
+		ctx.restore();
+		ctx.save();
+
+		ctx.translate(note.xPos+25, noteGroupOrder[ngo].yPos)
+		if(!isSpace) {
+			if(inv) ctx.translate(0, -8);
+			else ctx.translate(0, +8);
+		} 
+
+		writeDots(note);
+
+		ctx.translate(-note.dots*10, -16);
+	}
+	
+}
+
+function determineDots(allocatedSpaces, note, noteGroupOrder, ngo, inv) {
+	
+	var isSpace, space, occupied=false;
+	//positions that are divided by 2 are on spaces
+	if(noteGroupOrder[ngo].pos%2===0) isSpace=true;
+	else isSpace=false;
+
+	if(isSpace) {
+		space = noteGroupOrder[ngo].pos/2;
+	} else {
+		if(inv) space = (noteGroupOrder[ngo].pos-1)/2;
+		else space = (noteGroupOrder[ngo].pos+1)/2;
+	}
+	for(s=0; s<allocatedSpaces.length; s++) {
+		if(space===allocatedSpaces[s]) {
+			occupied=true;
+			space-=1;
+		} else if(occupied) {
+			break;
+		}
+	}
+
+	placeDots(note, noteGroupOrder, ngo, isSpace, occupied, inv);
+	allocatedSpaces.push(space);
+}
+
 function drawDot(note, inv) {
 	if(note.dots>0) {
 		if(note.isSpace) {
 			ctx.save();
 			ctx.translate(note.xPos+25, note.noteGroups[0].yPos);
-			ctx.font = "80px Musicaf";
-
-			for(var dot=0; dot<note.dots; dot++) {
-				ctx.fillText("\uD834\uDD6D", 0, 0);
-				ctx.translate(10, 0);
-			}
 			
+			writeDots(note);
 			
 		}else{
 			var noteGroupOrder=note.noteGroups;
-	
 			var allocatedSpaces=[];
+	
 			ctx.save();
 			for(ngo=0; ngo<noteGroupOrder.length ; ngo++) {
-				var isSpace, space, occupied=false;
-				//positions that are divided by 2 are on spaces
-				if(noteGroupOrder[ngo].pos%2===0) isSpace=true;
-				else isSpace=false;
-	
-				if(isSpace) {
-					space = noteGroupOrder[ngo].pos/2;
-				} else {
-					if(inv) space = (noteGroupOrder[ngo].pos-1)/2;
-					else space = (noteGroupOrder[ngo].pos+1)/2;
-				}
-				for(s=0; s<allocatedSpaces.length; s++) {
-					if(space===allocatedSpaces[s]) {
-						occupied=true;
-					}
-					if(occupied) {
-						if(space===allocatedSpaces[s]) {
-							space-=1;
-						} else {
-							break;
-						}
-					} 
-				}
-				if(ngo!==0 && occupied) {
-					for(dot=0; dot<note.dots; dot++) {
-						ctx.font = "80px Musicaf";
-						ctx.fillText("\uD834\uDD6D", 0, 0);
-						ctx.translate(10, 0);
-					}
-	
-					ctx.translate(-note.dots*10, -16);
-				} else {
-					ctx.restore();
-					ctx.save();
-	
-					ctx.translate(note.xPos+25, noteGroupOrder[ngo].yPos)
-					if(!isSpace) {
-						if(inv) ctx.translate(0, -8);
-						else ctx.translate(0, +8);
-					} 
-	
-					for(dot=0; dot<note.dots; dot++) {
-						ctx.font = "80px Musicaf";
-						ctx.fillText("\uD834\uDD6D", 0, 0);
-						ctx.translate(10, 0);
-					}
-	
-					ctx.translate(-note.dots*10, -16);
-				}
-				allocatedSpaces.push(space);
+				determineDots(allocatedSpaces, note, noteGroupOrder, ngo, inv);
 			}
 			ctx.restore();
 		}

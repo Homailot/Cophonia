@@ -119,18 +119,83 @@ function hideAccidental(note, nG, hide, j) {
 	}
 }
 
-function changeAccidental(bar, note, y, value, j) {
-	if(j<bar.notes.length && !note.isSpace) {
-		var n = null;
+function getNote(note, y) {
+	//see if we are on a note, and selects the note if we are on one.
+	var n = null;
+	for(var noteGroup=0; noteGroup<note.noteGroups.length; noteGroup++) {
+		if(note.noteGroups[noteGroup].pos===y+2) {
+			
+			n=note.noteGroups[noteGroup];
+			break;
+		}
+	}
 
-		//see if we are on a note, and selects the note if we are on one.
-		for(var noteGroup=0; noteGroup<note.noteGroups.length; noteGroup++) {
-			if(note.noteGroups[noteGroup].pos===y+2) {
+	return n
+}
+
+function determineAccFromBar(bar, note, n, j) {
+	//if the value was changed then we need to verify if we have to show the accidental figure or not
+	hideAccidental(note, n, false, j);
+	//first we check based on the bar's accidentals
+	if(bar.accidentals===0 && n.accidental===0) {
+		hideAccidental(note, n, true, j);
+	}
+	for(var i = 1; i<=bar.accidentals; i++) {
+		var value = i-1;
+		if(bar.sharpOrFlat===-1) value = 7-i;
+
+		if((n.scalePos === accidentalOrder[value] && n.accidental===bar.sharpOrFlat)) {
+			hideAccidental(note, n, true, j);
+			break;
+		} else if(n.scalePos === accidentalOrder[value] && n.accidental!==bar.sharpOrFlat) {
+			hideAccidental(note, n, false, j);
+			break;
+		}
+
+		if(n.accidental!==0) {
+			hideAccidental(note, n, false, j);
+		} else {
+			hideAccidental(note, n, true, j);
+		}
+	}
+}
+
+function determineAccFromNotes(bar, note, n, j) {
+	//then, we verify for the notes before. Afterwards, we check the notes after it, and change them accordingly.
+	for(var i = 0; i<bar.notes.length; i++) {
+		for(var noteGroup=0; noteGroup<bar.notes[i].noteGroups.length; noteGroup++) {
+			if(i > j) {
+				var subject = bar.notes[i];
+				var subjectPlace = bar.notes[i].noteGroups[noteGroup];
 				
-				n=note.noteGroups[noteGroup];
-				break;
+			}
+			else if(i < j) {
+				var subject = note;
+				var subjectPlace = n;
+			} 
+			else continue;
+
+			if(n.pos === bar.notes[i].noteGroups[noteGroup].pos) {
+				if(bar.notes[i].noteGroups[noteGroup].accidental!==n.accidental) {
+					hideAccidental(subject, subjectPlace, false, i);
+					if(i>j) {
+						n=bar.notes[i].noteGroups[noteGroup];
+					} 
+				} else {
+					hideAccidental(subject, subjectPlace, true, i);
+				}
+			}
+
+			if(i>j) {
+				getAccWidth(i, bar);	
 			}
 		}
+	}
+}
+
+function changeAccidental(bar, note, y, value, j) {
+	if(j<bar.notes.length && !note.isSpace) {
+		var n = getNote(note, y);
 
 		//if we found a note then
 		if(n!==null) {
@@ -140,63 +205,9 @@ function changeAccidental(bar, note, y, value, j) {
 			if(n.accidental>1) n.accidental=1;
 			else if(n.accidental<-1) n.accidental=-1;
 			else {
-				//if the value was changed then we need to verify if we have to show the accidental figure or not
-				hideAccidental(note, n, false, j);
-				//first we check based on the bar's accidentals
-				if(bar.accidentals===0 && n.accidental===0) {
-					hideAccidental(note, n, true, j);
-				}
-				for(var i = 1; i<=bar.accidentals; i++) {
-					var value = i-1;
-					if(bar.sharpOrFlat===-1) value = 7-i;
-			
-					if((n.scalePos === accidentalOrder[value] && n.accidental===bar.sharpOrFlat)) {
-						hideAccidental(note, n, true, j);
-						break;
-					} else if(n.scalePos === accidentalOrder[value] && n.accidental!==bar.sharpOrFlat) {
-						hideAccidental(note, n, false, j);
-						break;
-					}
+				determineAccFromBar(bar, note,n, j);
 
-					if(n.accidental!==0) {
-						hideAccidental(note, n, false, j);
-					} else {
-						hideAccidental(note, n, true, j);
-					}
-					
-				}
-
-				//then, we verify for the notes before. Afterwards, we check the notes after it, and change them accordingly.
-				for(var i = 0; i<bar.notes.length; i++) {
-					for(var noteGroup=0; noteGroup<bar.notes[i].noteGroups.length; noteGroup++) {
-						if(i > j) {
-							var subject = bar.notes[i];
-							var subjectPlace = bar.notes[i].noteGroups[noteGroup];
-							
-						}
-						else if(i < j) {
-							var subject = note;
-							var subjectPlace = n;
-						} 
-						else continue;
-
-						if(n.pos === bar.notes[i].noteGroups[noteGroup].pos) {
-							if(bar.notes[i].noteGroups[noteGroup].accidental!==n.accidental) {
-								hideAccidental(subject, subjectPlace, false, i);
-								if(i>j) {
-									
-									n=bar.notes[i].noteGroups[noteGroup];
-								} 
-							} else {
-								hideAccidental(subject, subjectPlace, true, i);
-							}
-						}
-
-						if(i>j) {
-							getAccWidth(i, bar);	
-						}
-					}
-				}
+				determineAccFromNotes(bar, note, n, j);
 			}
 
 			getAccWidth(j, bar);
@@ -204,10 +215,31 @@ function changeAccidental(bar, note, y, value, j) {
 	}
 }
 
+function determineAccLocation(objNote, objGroup, maxLength) {
+	var curLength=0;
+	while(curLength<objGroup.length) {
+		if(objNote.noteGroups[nG].pos-objGroup[curLength].pos<=5) {
+			curLength++;		
+		} else {
+			objNote.noteGroups[nG].accIsOffset=curLength+1;
+
+			objGroup[curLength]=objNote.noteGroups[nG];
+
+			break;
+		}
+	}
+	if(curLength>maxLength) {
+		maxLength=curLength;
+		objNote.noteGroups[nG].accIsOffset=curLength+1;
+		objGroup.push(objNote.noteGroups[nG]);
+	}
+
+	return maxLength;
+}
+
 function getAccWidth(note, bar) {
 	var objNote = bar.notes[note];
 	var maxLength=-1;
-	var curLength=0;
 	var objGroup=[];
 	objNote.accWidth=0;
 	
@@ -223,29 +255,10 @@ function getAccWidth(note, bar) {
 			continue;
 		}
 
-		curLength=0;
-		while(curLength<objGroup.length) {
-			if(objNote.noteGroups[nG].pos-objGroup[curLength].pos<=5) {
-				curLength++;		
-			} else {
-				objNote.noteGroups[nG].accIsOffset=curLength+1;
-
-				objGroup[curLength]=objNote.noteGroups[nG];
-
-				break;
-			}
-		}
-		if(curLength>maxLength) {
-			maxLength=curLength;
-			objNote.noteGroups[nG].accIsOffset=curLength+1;
-			objGroup.push(objNote.noteGroups[nG]);
-		}
-
-		
+		maxLength = determineAccLocation(objNote, objGroup, maxLength);
 	}
 	if(note.inverted && note.noteGroups.length>1) objNote.accWidth+=15;
 	if(objGroup.length !== 0) objNote.accWidth+=(objGroup.length*18);
-	
 }
 
 function augment(bar, note, pos, value) {
