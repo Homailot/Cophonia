@@ -82,8 +82,11 @@ function placeNote(duration, line, pos, isSpace, newGroup) {
 			inverse = note.noteGroups[n].pos;
 		}
 	}
+	
 	if(inverse<-3) {
 		note.inverted=true;
+	} else {
+		note.inverted=false;
 	}
 }
 
@@ -104,14 +107,14 @@ NoteGroup.prototype.updateAccidental = function(bar, n, j) {
 
 function hideAccidental(note, nG, hide, j) {
 	if(hide) {
-		if(nG.hideAcc===false) {
-			note.width-=note.accWidth;
-		} 
+		// if(nG.hideAcc===false) {
+		// 	note.width-=note.accWidth;
+		// } 
 		nG.hideAcc=true;
 	} else {
-		if(nG.hideAcc===true) {
-			note.width+=note.accWidth;
-		} 
+		// if(nG.hideAcc===true) {
+		// 	note.width+=note.accWidth;
+		// } 
 		nG.hideAcc=false;
 	}
 }
@@ -204,6 +207,7 @@ function getAccWidth(note, bar) {
 		if(objGroup.length===0 && objNote.noteGroups[nG].hideAcc===false) {
 			objNote.noteGroups[nG].accIsOffset=1;
 			objGroup.push(objNote.noteGroups[nG]);
+			maxLength=0;
 			continue;
 		}
 		else if(objGroup.length===0 || objNote.noteGroups[nG].hideAcc) {
@@ -233,6 +237,7 @@ function getAccWidth(note, bar) {
 	}
 	if(note.inverted && note.noteGroups.length>1) objNote.accWidth+=15;
 	if(objGroup.length !== 0) objNote.accWidth+=(objGroup.length*18);
+	
 }
 
 function augment(bar, note, pos, value) {

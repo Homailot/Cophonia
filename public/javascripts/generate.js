@@ -60,6 +60,14 @@ function unStretch(line) {
 	}
 }
 
+function checkAcc(note) {
+	for(nG=0; nG<note.noteGroups.length; nG++) {
+		if(!note.noteGroups[nG].hideAcc) return true;
+	}
+
+	return false;
+}
+
 function getSpace(line) {
 	var fullSpaceWidth, spaces;
 	var totalWidth = c.width-8;
@@ -86,12 +94,17 @@ function getSpace(line) {
 			firstBar = false;
 
 			if(bars[bar].notes.length>0) {
-				objectsWidth.push(bars[bar].notes[0].width);
-				objectWidth+=bars[bar].notes[0].width;
+				var noteW = bars[bar].notes[0].width;
+				if(checkAcc(bars[bar].notes[0])) noteW+=bars[bar].notes[0].accWidth;
+				objectsWidth.push(noteW);
+				objectWidth+=noteW;
 
 				for(var note = 1; note<bars[bar].notes.length; note++) {
-					objectsWidth.push(bars[bar].notes[note].width);
-					objectWidth+=bars[bar].notes[note].width;
+					noteW = bars[bar].notes[note].width;
+					if(checkAcc(bars[bar].notes[note])) noteW+=bars[bar].notes[note].accWidth;
+
+					objectsWidth.push(noteW);
+					objectWidth+=noteW;
 
 					nObjects++;
 				}	
@@ -135,13 +148,13 @@ function stretch(line) {
 				objectIndex++;
 
 				if(bars[bar].notes.length>0) {
-					bars[bar].notes[0].xPos = (thisPos+objectsWidth[objectIndex]/2);
+					bars[bar].notes[0].xPos = (thisPos+bars[bar].notes[0].accWidth+15);
 					thisPos+=objectsWidth[objectIndex];
 					objectIndex++;
 
 					for(var note = 1; note<bars[bar].notes.length; note++) {
 						thisPos+=spaceWidth;
-						bars[bar].notes[note].xPos = (thisPos+objectsWidth[objectIndex]/2)
+						bars[bar].notes[note].xPos = (thisPos+bars[bar].notes[note].accWidth+15)
 						
 						thisPos+=objectsWidth[objectIndex];
 						objectIndex++;
