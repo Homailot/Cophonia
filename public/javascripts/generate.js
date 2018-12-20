@@ -34,14 +34,14 @@ function unStretch(line) {
 					hasAcc=false;
 
 					for(nG=0; nG<bars[bar].notes[note].noteGroups.length; nG++) {
-						objNG = bars[bar].notes[note].noteGroups[nG];
+						var objNG = bars[bar].notes[note].noteGroups[nG];
 						if(objNG.hideAcc===false) {
 							hasAcc=true;
 						}
 						
 					}
 					startPos+=5;
-					if(hasAcc) startPos+=18;
+					if(hasAcc) startPos+=bars[bar].notes[note].accWidth;
 					bars[bar].notes[note].xPos = startPos;
 					
 					startPos+=40+maxDots*10;
@@ -58,6 +58,14 @@ function unStretch(line) {
 			} 
 		}
 	}
+}
+
+function checkAcc(note) {
+	for(nG=0; nG<note.noteGroups.length; nG++) {
+		if(!note.noteGroups[nG].hideAcc) return true;
+	}
+
+	return false;
 }
 
 function getSpace(line) {
@@ -86,12 +94,17 @@ function getSpace(line) {
 			firstBar = false;
 
 			if(bars[bar].notes.length>0) {
-				objectsWidth.push(bars[bar].notes[0].width);
-				objectWidth+=bars[bar].notes[0].width;
+				var noteW = bars[bar].notes[0].width;
+				if(checkAcc(bars[bar].notes[0])) noteW+=bars[bar].notes[0].accWidth;
+				objectsWidth.push(noteW);
+				objectWidth+=noteW;
 
 				for(var note = 1; note<bars[bar].notes.length; note++) {
-					objectsWidth.push(bars[bar].notes[note].width);
-					objectWidth+=bars[bar].notes[note].width;
+					noteW = bars[bar].notes[note].width;
+					if(checkAcc(bars[bar].notes[note])) noteW+=bars[bar].notes[note].accWidth;
+
+					objectsWidth.push(noteW);
+					objectWidth+=noteW;
 
 					nObjects++;
 				}	
@@ -135,13 +148,13 @@ function stretch(line) {
 				objectIndex++;
 
 				if(bars[bar].notes.length>0) {
-					bars[bar].notes[0].xPos = (thisPos+objectsWidth[objectIndex]/2);
+					bars[bar].notes[0].xPos = (thisPos+bars[bar].notes[0].accWidth+15);
 					thisPos+=objectsWidth[objectIndex];
 					objectIndex++;
 
 					for(var note = 1; note<bars[bar].notes.length; note++) {
 						thisPos+=spaceWidth;
-						bars[bar].notes[note].xPos = (thisPos+objectsWidth[objectIndex]/2)
+						bars[bar].notes[note].xPos = (thisPos+bars[bar].notes[note].accWidth+15)
 						
 						thisPos+=objectsWidth[objectIndex];
 						objectIndex++;
@@ -263,14 +276,7 @@ function getBeamGroups(bar) {
 }
 
 function getInverse(beamGroups, group, note, inverse) {
-	for(var n=0; n<beamGroups[group][note].noteGroups.length; n++) {
-		if(note===0 && n===0) inverse = beamGroups[group][note].pos;
-		else if(Math.abs(beamGroups[group][note].noteGroups[n].pos - (-3)) > Math.abs(inverse - (-3))) {
-			inverse = beamGroups[group][note].noteGroups[n].pos;
-		}
-	}
-
-	return inverse;
+	return beamGroups[group][note].inverted;
 }
 
 function getShortest(beamGroups, group, note, shortest) {
@@ -316,7 +322,7 @@ function getDirection(beamGroups, group) {
 function getYStart(beamGroups, group, inverse, shortest) {
 	var beamOffset=-33;
 	var mult=-1
-	if(inverse<-3) {
+	if(inverse) {
 		beamOffset=53;
 		mult=1;
 	}
@@ -329,7 +335,7 @@ function getYStart(beamGroups, group, inverse, shortest) {
 		for(n=0; n<beamGroups[group][note].noteGroups.length; n++) {
 			proceed = false;
 
-			if(inverse<-3) {
+			if(inverse) {
 				if((note === 0 && n===0) || beamGroups[group][note].noteGroups[n].yPos+beamOffset >= yStart ) proceed = true;
 			} else if((note === 0 && n===0)|| beamGroups[group][note].noteGroups[n].yPos+beamOffset <= yStart ) proceed = true;
 			if(proceed) {
@@ -364,7 +370,7 @@ function defineStem(beamGroups, group, note, line, inverse) {
 
 	for(n=0; n<beamGroups[group][note].noteGroups.length; n++) {
 		var height = Math.abs(beamGroups[group][note].noteGroups[n].yPos - xP);
-
+		
 		drawStem(beamGroups[group][note], height, inverse, n);
 	}
 }
@@ -412,7 +418,7 @@ function defineLowerBeams(beamGroups, group, line, inverse) {
 				defineSmallBeams(beamGroups, group, note, startBeam, endBeam, beam);
 
 				m=1
-				if(inverse < -3) {
+				if(inverse) {
 					startBeam[beam]-=10;
 					endBeam[beam] -=10;
 					m = -1
@@ -447,7 +453,7 @@ function defineBeams(beamGroups) {
 			
 				shortest=getShortest(beamGroups, group, note, shortest);
 
-				if(inverse<-3) drawDot(beamGroups[group][note], true);
+				if(inverse) drawDot(beamGroups[group][note], true);
 				else drawDot(beamGroups[group][note], false);
 			}
 
@@ -459,7 +465,7 @@ function defineBeams(beamGroups) {
 			var xStart = beamGroups[group][0].xPos+14;
 			var xEnd = beamGroups[group][notes-1].xPos+16;
 			
-			if(inverse < -3) {
+			if(inverse) {
 				xStart-=10;
 				xEnd -=10;
 				

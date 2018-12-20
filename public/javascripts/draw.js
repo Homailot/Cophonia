@@ -66,13 +66,13 @@ function drawFigure(note) {
 			if(Math.abs(inv.pos - note.noteGroups[n].pos)>Math.abs(farthest.pos - inv.pos)) farthest = note.noteGroups[n];
 		}
 
-		drawHead(note, inv.pos);
+		drawHead(note, note.inverted);
 		for(n=0; n<note.noteGroups.length; n++) {
 			note.noteGroups[n].yPos = ((note.line+1) * 144 - 2 ) + note.noteGroups[n].pos * 8 -14;
 			drawExtraStaff(note.xPos, note.noteGroups[n].pos-2, note.line);
 			var height = Math.abs(note.noteGroups[n].yPos - farthest.yPos) + 4;
-			if(note.noteGroups[n].pos !== farthest.pos) drawStem(note, height+2, inv.pos, n);
-			else  drawStem(note, 32, inv.pos, n)
+			if(note.noteGroups[n].pos !== farthest.pos) drawStem(note, height+2, note.inverted, n);
+			else  drawStem(note, 32, note.inverted, n)
 		}
 
 		ctx.save();
@@ -104,13 +104,13 @@ function drawFigure(note) {
 		note.noteGroups[0].yPos = ((note.line+1) * 144 - 2 ) + note.noteGroups[0].pos * 8 - 14;
 		drawExtraStaff(note.xPos, note.noteGroups[0].pos-2, note.line);
 
-
+		drawNoteAccidental(note, m);
 		ctx.save();
 		ctx.translate(note.xPos, note.noteGroups[0].yPos);
 		ctx.font = "69px Musicaf";
 
 		var m=1;
-		if(note.noteGroups[0].pos<-3) {
+		if(note.inverted) {
 			ctx.rotate(Math.PI);
 			ctx.translate(-20, -15);
 			turned=true;
@@ -129,7 +129,7 @@ function drawFigure(note) {
 
 		ctx.fillText(text, 0, 0);
 
-		drawNoteAccidental(note.noteGroups[0], m)
+		
 
 		ctx.restore();	
 		drawDot(note, turned);
@@ -150,7 +150,7 @@ function drawDot(note, inv) {
 			
 			
 		}else{
-			var noteGroupOrder=orderNoteGroup(note);
+			var noteGroupOrder=note.noteGroups;
 	
 			var allocatedSpaces=[];
 			ctx.save();
@@ -241,35 +241,45 @@ function orderNoteGroup(note) {
 }
 
 function drawNoteAccidental(n, m) {
-	ctx.save();
-	if(n.hideAcc===false) {
+	var spacing=0;
+	for(nG=n.noteGroups.length-1; nG>=0; nG--) {
+		ctx.save();
+		var objNG = n.noteGroups[nG];
 		
-		if(m===-1) {
-			ctx.translate(+20, +15);
-			ctx.rotate(Math.PI);
-		}
 
-		ctx.translate(-18, 0);
-		var offset=10;
-		
-		switch(n.accidental) {
-			case 1:
-				text = "\u266F";
-				break;
-			case -1:
-				text = "\u266D";
-				offset -= 6;
-				break;
-			case 0:
-				text = "\u266E";
-				break;
-			default:
-				text = ""; break;
-		}
+		if(objNG.hideAcc===false) {
+			ctx.translate(n.xPos, objNG.yPos);
 
-		ctx.font = "80px Musicaf";
-		ctx.fillText(text, 0, offset);
+			if(m===-1) {
+				ctx.translate(+15, +15);
+				ctx.rotate(Math.PI);
+			}
+	
+			ctx.translate(-18*objNG.accIsOffset, 0);
+			if(n.inverted && n.noteGroups.length>1) ctx.translate(-15, 0);
+			var offset=10;
+			
+			switch(objNG.accidental) {
+				case 1:
+					text = "\u266F";
+					break;
+				case -1:
+					text = "\u266D";
+					offset -= 6;
+					break;
+				case 0:
+					text = "\u266E";
+					break;
+				default:
+					text = ""; break;
+			}
+	
+			ctx.font = "80px Musicaf";
+			ctx.fillText(text, 0, offset);
+		}
+		ctx.restore();
 	}
+	
 	ctx.restore();
 }
 
@@ -282,7 +292,7 @@ function drawStem(note, height, inverse, noteGroup) {
 	ctx.lineWidth = 2;
 	//height+=2;
 
-	if(inverse < -3) {
+	if(inverse) {
 		ctx.rotate(Math.PI);
 		ctx.translate(-21, 6);
 		height -= 12;
@@ -299,26 +309,25 @@ function drawStem(note, height, inverse, noteGroup) {
 }
 
 function drawHead(note, inverse) {
-	var noteGroupOrder=orderNoteGroup(note);
+	var noteGroupOrder=note.noteGroups;
 	var faceRight=false;
 	var adjacent=false;
+	drawNoteAccidental(note, inverse);
 	for(n = 0; n<noteGroupOrder.length; n++) {
 		
-		drawExtraStaff(note.xPos, note.noteGroups[n].pos-2, note.line);
-		note.noteGroups[n].yPos = ((note.line+1) * 144 - 2 ) + note.noteGroups[n].pos * 8 - 14;
+		drawExtraStaff(note.xPos, noteGroupOrder[n].pos-2, note.line);
+		noteGroupOrder[n].yPos = ((note.line+1) * 144 - 2 ) +  noteGroupOrder[n].pos * 8 - 14;
 
 		ctx.save();
-		ctx.translate(note.xPos, note.noteGroups[n].yPos);
+		ctx.translate(note.xPos,  noteGroupOrder[n].yPos);
 		ctx.font = "69px Musicaf";
 
 		var m=1;
-		if(inverse<-3) {
+		if(inverse) {
 			ctx.rotate(Math.PI);
 			ctx.translate(-20, -15);
 			m=-1
 		}
-
-		drawNoteAccidental(note.noteGroups[n], m);
 		
 		if(n+1<noteGroupOrder.length) {
 			if(noteGroupOrder[n+1].pos-noteGroupOrder[n].pos===-1) {

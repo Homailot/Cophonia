@@ -6,8 +6,10 @@ function Note(xPos, yPos, line, duration, pos, noteValue, isSpace, scalePos, acc
 	this.duration = duration;
 	this.pos = pos;
 	this.isSpace = isSpace;
+	this.accWidth=0;
 	this.width = 30;
 	this.dots=0;
+	this.inverted=false;
 }
 
 function NoteGroup(yPos, pos, noteValue, scalePos, acc) {
@@ -17,7 +19,7 @@ function NoteGroup(yPos, pos, noteValue, scalePos, acc) {
 	this.scalePos = scalePos;
 	this.accidental = acc;
 	this.hideAcc = true;
-	
+	this.accIsOffset=1;
 }
 
 function placeNote(duration, line, pos, isSpace, newGroup) {
@@ -63,12 +65,28 @@ function placeNote(duration, line, pos, isSpace, newGroup) {
 		}
 	}
 	
-
+	var note;
 	if(!newGroup) {
-		var note = new Note(xPos, realPosition, line, duration, pos, noteValue, isSpace, sP, acc);
+		note = new Note(xPos, realPosition, line, duration, pos, noteValue, isSpace, sP, acc);
 		bars[curBar].notes.splice(curNote, 0, note); 
 	} else {
 		bars[curBar].notes[curNote].noteGroups.push(new NoteGroup(realPosition, pos, noteValue, sP, acc));
+		var noteGroupOrder=orderNoteGroup(bars[curBar].notes[curNote]);
+		bars[curBar].notes[curNote].noteGroups=noteGroupOrder;
+	}
+	note = bars[curBar].notes[curNote];
+	var inverse;
+	for(var n=0; n<note.noteGroups.length; n++) {
+		if(n===0) inverse = note.noteGroups[0].pos;
+		else if(Math.abs(note.noteGroups[n].pos - (-3)) > Math.abs(inverse - (-3))) {
+			inverse = note.noteGroups[n].pos;
+		}
+	}
+	
+	if(inverse<-3) {
+		note.inverted=true;
+	} else {
+		note.inverted=false;
 	}
 }
 
@@ -89,14 +107,14 @@ NoteGroup.prototype.updateAccidental = function(bar, n, j) {
 
 function hideAccidental(note, nG, hide, j) {
 	if(hide) {
-		if(nG.hideAcc===false) {
-			note.width-=18;
-		} 
+		// if(nG.hideAcc===false) {
+		// 	note.width-=note.accWidth;
+		// } 
 		nG.hideAcc=true;
 	} else {
-		if(nG.hideAcc===true) {
-			note.width+=18;
-		} 
+		// if(nG.hideAcc===true) {
+		// 	note.width+=note.accWidth;
+		// } 
 		nG.hideAcc=false;
 	}
 }
@@ -172,8 +190,54 @@ function changeAccidental(bar, note, y, value, j) {
 					}
 				}
 			}
+
+			getAccWidth(j, bar);
 		}
 	}
+}
+
+function getAccWidth(note, bar) {
+	var objNote = bar.notes[note];
+	var maxLength=-1;
+	var curLength=0;
+	var objGroup=[];
+	objNote.accWidth=0;
+	
+	for(nG=objNote.noteGroups.length-1; nG>=0; nG--) {
+		if(objGroup.length===0 && objNote.noteGroups[nG].hideAcc===false) {
+			objNote.noteGroups[nG].accIsOffset=1;
+			objGroup.push(objNote.noteGroups[nG]);
+			maxLength=0;
+			continue;
+		}
+		else if(objGroup.length===0 || objNote.noteGroups[nG].hideAcc) {
+			objNote.noteGroups[nG].accIsOffset=1;
+			continue;
+		}
+
+		curLength=0;
+		while(curLength<objGroup.length) {
+			if(objNote.noteGroups[nG].pos-objGroup[curLength].pos<=5) {
+				curLength++;		
+			} else {
+				objNote.noteGroups[nG].accIsOffset=curLength+1;
+
+				objGroup[curLength]=objNote.noteGroups[nG];
+
+				break;
+			}
+		}
+		if(curLength>maxLength) {
+			maxLength=curLength;
+			objNote.noteGroups[nG].accIsOffset=curLength+1;
+			objGroup.push(objNote.noteGroups[nG]);
+		}
+
+		
+	}
+	if(note.inverted && note.noteGroups.length>1) objNote.accWidth+=15;
+	if(objGroup.length !== 0) objNote.accWidth+=(objGroup.length*18);
+	
 }
 
 function augment(bar, note, pos, value) {
