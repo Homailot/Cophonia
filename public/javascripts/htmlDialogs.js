@@ -205,13 +205,12 @@ function openHTMLDialog(contents) {
 	}
 	
 	dialog.style.zIndex = 5;
-	dialog.style.position = 'absolute';
+	dialog.style.position = 'fixed';
 	dialog.style.backgroundColor = "#F9F7F7"
 	dialog.classList.add("rounded-top");
 	dialog.classList.add("shadow");
 	dialog.id = "dialog";
-	dialog.style.bottom = "0px"
-	dialog.style.top = (window.innerHeight)+'px'
+	dialog.style.top = window.innerHeight+"px"
 	dialog.style.left = (window.innerWidth/2- 300) + 'px';
 
 	document.getElementById("dialogContainer").appendChild(dialog);
@@ -222,26 +221,16 @@ function openHTMLDialog(contents) {
 }
 
 var curContent;
-var distance;
-var position;
-var curPosition;
 var removeC;
 
 function slideElement(content, remove) {
 	curContent = content;
-	position = window.innerHeight-content.scrollHeight;
-	distance = (position-window.innerHeight)/50;
 	removeC = remove;
-	curPosition = window.innerHeight;
 
 	
 	setTimeout(moveElement, 4)
 }
 
 function moveElement() {
-	curPosition+=distance;
-	curContent.style.top=curPosition+'px';
-
-	if(curPosition<=position) return;
-	setTimeout(moveElement, 4)
+	curContent.style.top=(window.innerHeight-curContent.scrollHeight)+"px";
 }
