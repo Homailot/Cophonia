@@ -172,6 +172,7 @@ function changeAccidental(bar, note, y, value, j) {
 						if(i > j) {
 							var subject = bar.notes[i];
 							var subjectPlace = bar.notes[i].noteGroups[noteGroup];
+							
 						}
 						else if(i < j) {
 							var subject = note;
@@ -182,10 +183,17 @@ function changeAccidental(bar, note, y, value, j) {
 						if(n.pos === bar.notes[i].noteGroups[noteGroup].pos) {
 							if(bar.notes[i].noteGroups[noteGroup].accidental!==n.accidental) {
 								hideAccidental(subject, subjectPlace, false, i);
-								if(i>j) n=bar.notes[i].noteGroups[noteGroup];
+								if(i>j) {
+									
+									n=bar.notes[i].noteGroups[noteGroup];
+								} 
 							} else {
 								hideAccidental(subject, subjectPlace, true, i);
 							}
+						}
+
+						if(i>j) {
+							getAccWidth(i, bar);	
 						}
 					}
 				}

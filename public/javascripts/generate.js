@@ -101,7 +101,7 @@ function getSpace(line) {
 
 				for(var note = 1; note<bars[bar].notes.length; note++) {
 					noteW = bars[bar].notes[note].width;
-					if(checkAcc(bars[bar].notes[note])) noteW+=bars[bar].notes[note].accWidth;
+					noteW+=bars[bar].notes[note].accWidth;
 
 					objectsWidth.push(noteW);
 					objectWidth+=noteW;
@@ -143,18 +143,17 @@ function stretch(line) {
 		for(var bar = 0; bar<bars.length; bar++) {
 			if(bars[bar].line === line) {
 				bars[bar].initPos=thisPos;
-				if(spaceWidth<0) thisPos+=2*spaceWidth;
 				thisPos+=objectsWidth[objectIndex];
 				objectIndex++;
 
 				if(bars[bar].notes.length>0) {
-					bars[bar].notes[0].xPos = (thisPos+bars[bar].notes[0].accWidth+15);
+					bars[bar].notes[0].xPos = (thisPos+bars[bar].notes[0].accWidth);
 					thisPos+=objectsWidth[objectIndex];
 					objectIndex++;
 
 					for(var note = 1; note<bars[bar].notes.length; note++) {
 						thisPos+=spaceWidth;
-						bars[bar].notes[note].xPos = (thisPos+bars[bar].notes[note].accWidth+15)
+						bars[bar].notes[note].xPos = (thisPos+bars[bar].notes[note].accWidth)
 						
 						thisPos+=objectsWidth[objectIndex];
 						objectIndex++;
@@ -168,10 +167,12 @@ function stretch(line) {
 					objectIndex++;
 				}
 
-				if(spaceWidth<0) thisPos-=spaceWidth;
-				else  thisPos+=spaceWidth;
-				bars[bar].xPos = thisPos;
-				
+				if(spaceWidth<0) { 
+					bars[bar].xPos = thisPos+10; thisPos+=spaceWidth; 
+				} else { 
+					thisPos+=spaceWidth; 
+					bars[bar].xPos = thisPos; 
+				}
 			}
 		}
 	}
