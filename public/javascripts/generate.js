@@ -385,9 +385,9 @@ function getBeamLimits(beamGroups, group, note, startBeam, endBeam) {
 	var durations=[0.0625, 0.03125];
 
 	for(beam=0; beam<2; beam++) {
-		if(beamGroups[group][note].duration === durations[beam]) {
+		if(beamGroups[group][note].duration <= durations[beam]) {
 			if(startBeam[beam] === -1) startBeam[beam] = beamGroups[group][note].xPos+15;
-			if(startBeam[beam] !== -1 && note+1<beamGroups[group].length && beamGroups[group][note+1].duration > 0.03125) endBeam[beam] = beamGroups[group][note].xPos+15
+			if(startBeam[beam] !== -1 && note+1<beamGroups[group].length && beamGroups[group][note+1].duration > durations[beam]) endBeam[beam] = beamGroups[group][note].xPos+15
 		}
 	}
 	

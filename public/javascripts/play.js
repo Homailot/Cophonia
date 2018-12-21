@@ -53,9 +53,10 @@ function playNotes() {
 		}
 
 		var duration = getNoteDuration(bars[playingBar].notes[playingNote]) * (1/((tempo/60))*4);
+		console.log(duration)
 		if(!bars[playingBar].notes[playingNote].isSpace) {
-			player.cancelQueue(audioContext);
-			player.queueChord(audioContext, audioContext.destination, _tone_0000_FluidR3_GM_sf2_file, 0, chord, duration);
+			//player.cancelQueue(audioContext);
+			player.queueChord(audioContext, audioContext.destination, _tone_0000_FluidR3_GM_sf2_file, 0, chord, duration+duration*1/4);
 		}
 
 		playingNote++
