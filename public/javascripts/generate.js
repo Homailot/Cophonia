@@ -498,6 +498,7 @@ function defineBeams(beamGroups) {
 //this is the main update function
 function generateAll() {
 	var lineChange = -1;
+	var totalYOffset = 0;
 	for(var bar = 0; bar<bars.length; bar++) {
 		lineChange = updateFirstBars(bar, lineChange);
 		
@@ -511,6 +512,7 @@ function generateAll() {
 	ctx.clearRect(0, 0, c.width, 100000);
 	var groupChange = false;
 	
+	var firstLine=0;
 	for(var bar = 0; bar < bars.length; bar++) {
 		//the beamGroups define the groups of eigth plus notes to be grouped with beams
 		var beamGroups = new Array();
@@ -525,6 +527,11 @@ function generateAll() {
 			color = "#000000";
 		} 
 		
+		if(firstLine===bars[bar].line) {
+			ctx.translate(0, lines[bars[bar].line].yOffset);
+			totalYOffset+=lines[bars[bar].line].yOffset;
+			firstLine++;
+		}
 		//draws the staff for this bar, and then the bar itself
 		drawStaff(bars[bar].line, bars[bar].initPos, bars[bar].xPos, color);
 		drawBar(bars[bar], color);
@@ -535,5 +542,6 @@ function generateAll() {
 	}
 
 	saveCanvas();
+	ctx.translate(0, -totalYOffset);
 	drawMarker(y);
 }

@@ -3,6 +3,7 @@ function Line() {
 	this.complete = false;
 	this.changedComplete = false;
 	this.overflown = false;
+	this.yOffset=0;
 }
 
 function LineFunction(pointAX, pointAY, pointBX, pointBY) {

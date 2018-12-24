@@ -409,17 +409,26 @@ function drawMarker(y) {
 	else if(!extended) {
 		Marker.xPos = bars[curBar].notes[curNote].xPos;
 	}
-	drawExtraStaff(Marker.xPos, y, curLine);
+
+	var yOffset=0;
+	for(line = 0; line<=curLine; line++) {
+
+		yOffset+=lines[line].yOffset;
+	}
+	ctx.translate(0, yOffset);
+	drawExtraStaff(Marker.xPos, y, curLine, yOffset);
 
 	ctx.beginPath();
 	ctx.lineWidth = 1;
 	ctx.strokeStyle = "#000000";
 	ctx.globalAlpha = 0.2;
 	ctx.fillStyle = '#00FF3C'
+	
 	ctx.fillRect(Marker.xPos, ((curLine+1)*144) + y * 8 - 5, 20, 26);
 	ctx.rect(Marker.xPos, ((curLine+1)*144) + y * 8 - 5, 20, 26);
 	ctx.globalAlpha = 1;
 	ctx.stroke();
+	ctx.translate(0, -yOffset);
 }
 
 function drawHeader(x, line) {

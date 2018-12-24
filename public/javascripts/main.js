@@ -43,6 +43,7 @@ var accidentalOrder = [4, 1, 5, 2, 6, 3, 7]
 
 function start() {
 	lines.push(new Line());
+	lines[0].yOffset=0;
 	newBar(4, 4, true, 0, false, lastPos, 0, false, 0, 0);
 	//+10 que initPos
 	//35 + 45 + 10

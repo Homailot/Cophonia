@@ -103,6 +103,8 @@ NoteGroup.prototype.updateAccidental = function(bar, n, j) {
 			break;
 		}
 	}
+
+	getAccWidth(j, bars[bar]);
 }
 
 function hideAccidental(note, nG, hide, j) {

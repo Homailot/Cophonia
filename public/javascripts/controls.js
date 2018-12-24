@@ -113,6 +113,7 @@ function moveLeft() {
 		curBar--;
 		curNote = bars[curBar].notes.length-1;
 		if(curNote < 0) curNote = 0;
+		
 		restoreCanvas();
 		drawMarker(y);
 	}

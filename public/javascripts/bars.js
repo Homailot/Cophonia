@@ -28,6 +28,7 @@ function newBar(upperSig, lowerSig, cS, clef, cC, xPos, line, cA, acc, sof) {
 		lines.push(new Line());
 		lines[curLine].complete = true;
 		lines[curLine+1].bars++;
+		lines[curLine+1].yOffset=0;
 		xPos = 8;
 		//cC = true;
 		line++;
