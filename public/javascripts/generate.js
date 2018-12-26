@@ -495,10 +495,52 @@ function defineBeams(beamGroups) {
 	}
 }
 
+function getExtremes(line) {
+	var highest=null;
+	var lowest=null;
+
+	for(var bar=0; bar<bars.length; bar++) {
+		if(bars[bar].line===line) {
+			for(var note=0; note<bars[bar].notes.length; note++) {
+				for(var nG=0; nG<bars[bar].notes[note].noteGroups.length; nG++) {
+					var nGObj = bars[bar].notes[note].noteGroups[nG];
+
+					if(highest===null) highest = nGObj.pos;
+					else if(nGObj.pos<highest) highest=nGObj.pos;
+
+					if(lowest===null) lowest = nGObj.pos;
+					else if(nGObj.pos>lowest) lowest=nGObj.pos;
+				}
+			}
+		} 
+	}
+
+	return {highest: highest, lowest: lowest};
+}
+
 //this is the main update function
 function generateAll() {
 	var lineChange = -1;
 	var totalYOffset = 0;
+	var changedYOff=false;
+
+	for(var line = 0; line<lines.length; line++) {
+		var result = getExtremes(line);
+		var highest = result.highest;
+		var lowest = result.lowest;
+		if(!changedYOff) lines[line].yOffset=0;
+		changedYOff=false;
+
+		if(highest<=-6) {
+			lines[line].yOffset+=(Math.abs(highest + 6) + 1 ) * 10;
+		} 
+
+		if(lowest>=0 && line+1<lines.length) {
+			lines[line+1].yOffset=(Math.abs(lowest) + 1 ) * 10;
+			changedYOff=true;
+		}
+	}
+
 	for(var bar = 0; bar<bars.length; bar++) {
 		lineChange = updateFirstBars(bar, lineChange);
 		
@@ -537,7 +579,6 @@ function generateAll() {
 		drawBar(bars[bar], color);
 
 		beamGroups = getBeamGroups(bar);
-
 		defineBeams(beamGroups);
 	}
 
