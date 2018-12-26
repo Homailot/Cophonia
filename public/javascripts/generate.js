@@ -96,12 +96,14 @@ function getSpace(line) {
 			if(bars[bar].notes.length>0) {
 				var noteW = bars[bar].notes[0].width;
 				if(checkAcc(bars[bar].notes[0])) noteW+=bars[bar].notes[0].accWidth;
+				if(bars[bar].notes[0].duration<=0.125) noteW+=10;
 				objectsWidth.push(noteW);
 				objectWidth+=noteW;
 
 				for(var note = 1; note<bars[bar].notes.length; note++) {
 					noteW = bars[bar].notes[note].width;
 					noteW+=bars[bar].notes[note].accWidth;
+					if(bars[bar].notes[note].duration<=0.125) noteW+=10;
 
 					objectsWidth.push(noteW);
 					objectWidth+=noteW;
@@ -148,12 +150,14 @@ function stretch(line) {
 
 				if(bars[bar].notes.length>0) {
 					bars[bar].notes[0].xPos = (thisPos+bars[bar].notes[0].accWidth);
+					if(bars[bar].notes[0].duration<=0.125) bars[bar].notes[0].xPos+=10;
 					thisPos+=objectsWidth[objectIndex];
 					objectIndex++;
 
 					for(var note = 1; note<bars[bar].notes.length; note++) {
 						thisPos+=spaceWidth;
 						bars[bar].notes[note].xPos = (thisPos+bars[bar].notes[note].accWidth)
+						if(bars[bar].notes[note].duration<=0.125) bars[bar].notes[note].xPos+=10;
 						
 						thisPos+=objectsWidth[objectIndex];
 						objectIndex++;
@@ -531,11 +535,11 @@ function generateAll() {
 		if(!changedYOff) lines[line].yOffset=0;
 		changedYOff=false;
 
-		if(highest<=-6) {
+		if(highest!=null && highest<=-6) {
 			lines[line].yOffset+=(Math.abs(highest + 6) + 1 ) * 10;
 		} 
 
-		if(lowest>=0 && line+1<lines.length) {
+		if(lowest!=null && lowest>=0 && line+1<lines.length) {
 			lines[line+1].yOffset=(Math.abs(lowest) + 1 ) * 10;
 			changedYOff=true;
 		}
