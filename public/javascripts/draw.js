@@ -431,15 +431,17 @@ function drawMarker(y) {
 	ctx.translate(0, -yOffset);
 }
 
-function drawHeader(x, line) {
+function drawHeader(x, line, offset) {
 	ctx.beginPath();
 
 	ctx.lineWidth=2;
 	ctx.strokeStyle = "#0505FF";
-	ctx.moveTo(x+11, ((line+1)*144)+lines[line].yOffset - 90);
-	ctx.lineTo(x+11, ((line+1)*144)+lines[line].yOffset + 30);
+	ctx.moveTo(x+11, ((line+1)*144)+offset - 90);
+	ctx.lineTo(x+11, ((line+1)*144)+offset + 30);
 	ctx.stroke();
 	ctx.globalAlpha=1;
+
+	return offset;
 }
 
 function drawBar(bar, color) {

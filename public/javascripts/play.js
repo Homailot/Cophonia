@@ -4,9 +4,15 @@ var playingTime = 0;
 var tempo = 120;
 var savedCanvas = document.getElementById("save");
 var playing = false;
+var hOffset=0;
+var playLine=0;
+var headerPos = -1;
 
 function play() {
 	playing=true;
+	playLine=0;
+	headerPos=-1;
+	hOffset=0;
 
 	playNotes();
 }
@@ -30,22 +36,29 @@ function playNotes() {
 			drawMarker(y); playing=false; return;
 		}
 
+		if(bars[playingBar].line===playLine) {
+			playLine++;
+			hOffset+=lines[bars[playingBar].line].yOffset;
+		}
+
 		if(playingNote === bars[playingBar].notes.length && playingTime!==totalTime) {
 			velocity = (totalTime-playingTime) * (1/((tempo/60))*4);
 			playingTime=0;
 
-			var headerPos = bars[playingBar].initPos + 10;
-			if(bars[playingBar].changedOrFirstClef) headerPos += 45;
-			if(bars[playingBar].changedTimeSig) headerPos+=35;
-			if(bars[playingBar].changedAcc || bars[playingBar].firstAcc)headerPos += bars[playingBar].accidentals*18;
-			drawHeader(headerPos, bars[playingBar].line);
+			if( bars[playingBar].notes.length===0) {
+				headerPos=bars[playingBar].initPos + 10;
+				if(bars[playingBar].changedOrFirstClef) headerPos += 45;
+				if(bars[playingBar].changedTimeSig) headerPos+=35;
+				if(bars[playingBar].changedAcc || bars[playingBar].firstAcc)headerPos += bars[playingBar].accidentals*18;
+			}
+			hOffset = drawHeader(headerPos, bars[playingBar].line, hOffset);
 
 			playingNote = 0; playingBar++;
 			time = setTimeout(playNotes, velocity*1000);
 			return;
 		}
-	
-		drawHeader(bars[playingBar].notes[playingNote].xPos, bars[playingBar].line);
+		headerPos=bars[playingBar].notes[playingNote].xPos;
+		drawHeader(bars[playingBar].notes[playingNote].xPos, bars[playingBar].line, hOffset);
 		playingTime+=getNoteDuration(bars[playingBar].notes[playingNote]);
 		chord = new Array();
 		for(n=0; n<bars[playingBar].notes[playingNote].noteGroups.length; n++) {
