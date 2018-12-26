@@ -436,8 +436,8 @@ function drawHeader(x, line) {
 
 	ctx.lineWidth=2;
 	ctx.strokeStyle = "#0505FF";
-	ctx.moveTo(x+11, ((line+1)*144) - 90);
-	ctx.lineTo(x+11, ((line+1)*144) + 30);
+	ctx.moveTo(x+11, ((line+1)*144)+lines[line].yOffset - 90);
+	ctx.lineTo(x+11, ((line+1)*144)+lines[line].yOffset + 30);
 	ctx.stroke();
 	ctx.globalAlpha=1;
 }
