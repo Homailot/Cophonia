@@ -368,7 +368,7 @@ function drawHead(note, inverse) {
 
 function arrangeNote(faceRight, m) {
 	if(m===-1) {
-		ctx.translate(3, 0);
+		ctx.translate(0, 0);
 	}
 
 	if(!faceRight) {
