@@ -1,5 +1,6 @@
 var newGroup = false;
 var ctrlPress = false;
+var tPress=false;
 
 
 //a more fitting name would be place/remove pause
@@ -294,13 +295,21 @@ document.addEventListener("keydown", function(event) {
 				
 				break;
 			case "ArrowRight":
-				moveRight();
+				if(tPress) {
+					tieBeat(curBar, curNote, curNote+1, y);
+				} else {
+					moveRight();
+				}
 
 							
 				event.preventDefault();
 				break;
 			case "ArrowLeft":
-				moveLeft();
+				if(tPress) {
+					tieBeat(curBar, curNote, curNote-1, y);
+				} else {
+					moveLeft();
+				}
 
 				
 				event.preventDefault();
@@ -354,7 +363,10 @@ document.addEventListener("keydown", function(event) {
 			case "KeyT":
 				if(ctrlPress) {
 					changeTimeSigPop(curBar);
+				} else {
+					tPress=true;
 				}
+
 
 				break;
 			case "ShiftLeft":
@@ -373,6 +385,7 @@ document.addEventListener("keydown", function(event) {
 			case "ShiftRight":
 				ctrlPress = true;
 				break;
+			
 		}
 	}
 })
@@ -383,6 +396,8 @@ document.addEventListener("keyup", function(event) {
 		case "ShiftRight":
 			ctrlPress = false;
 			break;
+		case "KeyT":
+			tPress=false;
 	}
 })
 

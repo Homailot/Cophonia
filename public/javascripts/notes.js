@@ -20,6 +20,8 @@ function NoteGroup(yPos, pos, noteValue, scalePos, acc) {
 	this.accidental = acc;
 	this.hideAcc = true;
 	this.accIsOffset=1;
+	this.tiedTo=null;
+	this.tiesTo=null;
 }
 
 function placeNote(duration, line, pos, isSpace, newGroup) {
@@ -287,4 +289,40 @@ function getNoteDuration(note) {
 	}
 
 	return duration;
+}
+
+function tieBeat(bar, note, tieTo, y) {
+	if(note<0 || curNote>=bars[bar].notes.length) return;
+	var objNoteS;
+	var objNoteE;
+
+	if(note<tieTo) {
+		objNoteS=bars[bar].notes[note];
+		objNoteE=bars[bar].notes[tieTo];
+	} else {
+		objNoteS=bars[bar].notes[tieTo];
+		objNoteE=bars[bar].notes[note];
+	}
+	
+	var objNG=null;
+	var objDest=null;
+
+	for(var nG = 0; nG<objNoteS.noteGroups.length; nG++) {
+		if(objNoteS.noteGroups[nG].pos===y+2) {
+			objNG={objNote: objNoteS, objNG: objNoteS.noteGroups[nG]}
+			break;
+		}
+	}
+
+	for(var nG=0; nG<objNoteE.noteGroups.length; nG++) {
+		if(objNoteE.noteGroups[nG].pos===y+2) {
+			objDest={objNote: objNoteE, objNG: objNoteE.noteGroups[nG]}
+			break;
+		}
+	}
+
+	if(objNG!==null && objDest!==null) {
+		objNG.objNG.tiesTo=objDest;
+		objDest.objNG.tiedTo=objNG;
+	}
 }
