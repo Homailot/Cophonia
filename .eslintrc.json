@@ -1,3 +1,40 @@
 {
-    "extends": "google"
+    "env": {
+        "browser": true,
+        "es6": true,
+        "node": true
+    },
+    "globals": {
+        "lines":true,
+        "bars":true,
+        "curLine": true,
+        "curBar":true,
+        "curNote": true,
+        "Line": true,
+        "changeTimeSig": true,
+        "newBar": true,
+        "y": true
+    },
+    "extends": "eslint:recommended",
+    "parserOptions": {
+        "ecmaVersion": 2016
+    },
+    "rules": {
+        "indent": [
+            "error",
+            "tab"
+        ],
+        "linebreak-style": [
+            "error",
+            "windows"
+        ],
+        "quotes": [
+            "error",
+            "double"
+        ],
+        "semi": [
+            "error",
+            "always"
+        ]
+    }
 }

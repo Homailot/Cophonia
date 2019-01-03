@@ -29,7 +29,7 @@ function unStretch(line) {
 			var maxDots;
 			var hasAcc;
 			if(bars[bar].notes.length>0) {
-				for(note = 0; note<bars[bar].notes.length; note++) {
+				for(var note = 0; note<bars[bar].notes.length; note++) {
 					maxDots=bars[bar].notes[note].dots;
 					hasAcc=false;
 
@@ -51,7 +51,7 @@ function unStretch(line) {
 					startPos+=40;
 				} 
 			} else startPos+=40;
-			bars[bar].xPos = startPos
+			bars[bar].xPos = startPos;
 
 			if(bars[bar].xPos >= c.width) {
 				lines[bars[bar].line].overflown = true;
@@ -83,7 +83,7 @@ function getSpace(line) {
 	for(var bar = 0; bar<bars.length; bar++) {
 		if(bars[bar].line === line) {
 			var startWidth = 5;
-			if(bars[bar].changedAcc || bars[bar].firstAcc) startWidth+=(bars[bar].accidentals+bars[bar].naturals.length)*18
+			if(bars[bar].changedAcc || bars[bar].firstAcc) startWidth+=(bars[bar].accidentals+bars[bar].naturals.length)*18;
 			if(bars[bar].changedOrFirstClef || bars[bar].changedClef) startWidth+=45;
 			if(bars[bar].changedTimeSig) startWidth+=35;
 			if(bars[bar].notes.length===0) startWidth+=40;
@@ -156,7 +156,7 @@ function stretch(line) {
 
 					for(var note = 1; note<bars[bar].notes.length; note++) {
 						thisPos+=spaceWidth;
-						bars[bar].notes[note].xPos = (thisPos+bars[bar].notes[note].accWidth)
+						bars[bar].notes[note].xPos = (thisPos+bars[bar].notes[note].accWidth);
 						if(bars[bar].notes[note].duration<=0.125 || bars[bar].notes[note].inverted) bars[bar].notes[note].xPos+=10;
 						
 						thisPos+=objectsWidth[objectIndex];
@@ -290,8 +290,8 @@ function getFarthest(beamGroups, group, note, farthest) {
 }
 
 function getShortest(beamGroups, group, note, shortest) {
-	if(note === 0) shortest =beamGroups[group][note].duration
-	else if(beamGroups[group][note].duration < shortest) shortest = beamGroups[group][note].duration
+	if(note === 0) shortest =beamGroups[group][note].duration;
+	else if(beamGroups[group][note].duration < shortest) shortest = beamGroups[group][note].duration;
 
 	return shortest;
 }
@@ -326,12 +326,12 @@ function getDirection(beamGroups, group) {
 	if(pos1 > pos2) asc= true;
 	else if(pos1 < pos2) desc = true;
 
-	return {asc: asc, desc: desc}
+	return {asc: asc, desc: desc};
 }
 
 function getYStart(beamGroups, group, inverse, shortest) {
 	var beamOffset=-33;
-	var mult=-1
+	var mult=-1;
 	if(inverse) {
 		beamOffset=53;
 		mult=1;
@@ -351,12 +351,12 @@ function getYStart(beamGroups, group, inverse, shortest) {
 			if(proceed) {
 				yStart = beamGroups[group][note].noteGroups[n].yPos+beamOffset;
 				switch(shortest){
-					case 0.0625:
-						yStart+=10*mult;
-						break;
-					case 0.03125:
-						yStart+=20*mult;
-						break;
+				case 0.0625:
+					yStart+=10*mult;
+					break;
+				case 0.03125:
+					yStart+=20*mult;
+					break;
 				}
 			}
 		} 		
@@ -391,7 +391,7 @@ function getBeamLimits(beamGroups, group, note, startBeam, endBeam) {
 	for(beam=0; beam<2; beam++) {
 		if(beamGroups[group][note].duration <= durations[beam]) {
 			if(startBeam[beam] === -1) startBeam[beam] = beamGroups[group][note].xPos+15;
-			if(startBeam[beam] !== -1 && note+1<beamGroups[group].length && beamGroups[group][note+1].duration > durations[beam]) endBeam[beam] = beamGroups[group][note].xPos+15
+			if(startBeam[beam] !== -1 && note+1<beamGroups[group].length && beamGroups[group][note+1].duration > durations[beam]) endBeam[beam] = beamGroups[group][note].xPos+15;
 		}
 	}
 	
@@ -405,13 +405,13 @@ function getBeamLimits(beamGroups, group, note, startBeam, endBeam) {
 function defineSmallBeams(beamGroups, group, note, startBeam, endBeam, beam) {
 	if(startBeam[beam] === endBeam[beam]) {
 		if(note!==0 && note+1<beamGroups[group].length) {
-			if(beamGroups[group][note+1].duration<=beamGroups[group][note-1].duration) endBeam[beam] = (beamGroups[group][note+1].xPos - beamGroups[group][note].xPos)/2 + beamGroups[group][note].xPos + 15
-			else if (beamGroups[group][note+1].duration>beamGroups[group][note-1].duration) endBeam[beam] = (beamGroups[group][note].xPos - beamGroups[group][note-1].xPos)/2 + beamGroups[group][note-1].xPos +15	
+			if(beamGroups[group][note+1].duration<=beamGroups[group][note-1].duration) endBeam[beam] = (beamGroups[group][note+1].xPos - beamGroups[group][note].xPos)/2 + beamGroups[group][note].xPos + 15;
+			else if (beamGroups[group][note+1].duration>beamGroups[group][note-1].duration) endBeam[beam] = (beamGroups[group][note].xPos - beamGroups[group][note-1].xPos)/2 + beamGroups[group][note-1].xPos +15;	
 		} 
 		else if(note===0){
-			endBeam[beam] = (beamGroups[group][note+1].xPos - beamGroups[group][note].xPos)/2 + beamGroups[group][note].xPos + 15
+			endBeam[beam] = (beamGroups[group][note+1].xPos - beamGroups[group][note].xPos)/2 + beamGroups[group][note].xPos + 15;
 		}
-		else endBeam[beam] = (beamGroups[group][note].xPos - beamGroups[group][note-1].xPos)/2 + beamGroups[group][note-1].xPos +15		
+		else endBeam[beam] = (beamGroups[group][note].xPos - beamGroups[group][note-1].xPos)/2 + beamGroups[group][note-1].xPos +15;		
 	}
 }
 
@@ -428,11 +428,11 @@ function defineLowerBeams(beamGroups, group, line, inverse) {
 			if(endBeam[beam]!==-1) {
 				defineSmallBeams(beamGroups, group, note, startBeam, endBeam, beam);
 
-				m=1
+				m=1;
 				if(inverse) {
 					startBeam[beam]-=10;
 					endBeam[beam] -=10;
-					m = -1
+					m = -1;
 				}
 
 				yStart = getYFromX(line.m, line.b+10*(beam+1)*m, startBeam[beam]);
@@ -495,7 +495,7 @@ function defineBeams(beamGroups) {
 
 			defineLowerBeams(beamGroups, group, line, inverse);
 			
-		} else drawFigure(beamGroups[group][0])
+		} else drawFigure(beamGroups[group][0]);
 	}
 }
 
