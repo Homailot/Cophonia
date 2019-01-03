@@ -7,32 +7,38 @@ var tPress=false;
 function deleteNote() {
 	//only deletes a note if it exists
 	if(curNote < bars[curBar].notes.length) {
-		isSpace = bars[curBar].notes[curNote].isSpace;
-
-		//deletes the note
-		var diff = bars[curBar].notes[curNote].xPos;
-		bars[curBar].notes.splice(curNote, 1);
+		var isSpace = bars[curBar].notes[curNote].isSpace;
 
 		if(!isSpace) {
-			//if it was a note, it replaces it with a pause (hence the "true")
-			setMarker(true, false);
+			var nGD=null;
+			for(var nG=0; nG<bars[curBar].notes[curNote].noteGroups.length; nG++) {
+				if(bars[curBar].notes[curNote].noteGroups[nG].pos===y+2) {
+					nGD=nG;
+				}
+			}
+			if(nGD===null) return;
+			
+	
+			//deletes the note
+			var objNG=bars[curBar].notes[curNote].noteGroups[nGD];
+			if(objNG.tiesTo!=null) {
+				objNG.tiesTo.objNG.tiedTo=null;
+			} 
+			if(objNG.tiedTo!=null) {
+				objNG.tiedTo.objNG.tiesTo=null;
+			}
+			bars[curBar].notes[curNote].noteGroups.splice(nGD, 1);
+
+			if(bars[curBar].notes[curNote].noteGroups.length===0) {
+				bars[curBar].notes.splice(curNote, 1);
+				//if it was a note, it replaces it with a pause (hence the "true")
+				setMarker(true, false);
+			}
 		} else {
-			//if it was a pause, it moves everything back by 40 px.
+			bars[curBar].notes.splice(curNote, 1);
 			if(curNote !== 0) {
-				diff-=bars[curBar].notes[curNote-1].xPos;
-				Marker.xPos = bars[curBar].notes[curNote-1].xPos;
 				curNote--;
 			} 
-
-			var lastBar = 0;
-			for(line = 0; line<lines.length; line++)  {
-				lastBar+=lines[line].bars;
-				if(line === curLine) break;
-			}
-
-			if(lines[curLine].overflown && bars[lastBar-1].xPos<c.width) {
-				lines[curLine].changedComplete = true;
-			}
 		}
 
 		
@@ -46,16 +52,6 @@ function deleteBar() {
 	//only deletes a bar if it isn"t the first one
 	var line = bars[curBar].line
 	if(curBar > 0) {
-
-		//if a note exists on the bar before, it places the marker on it
-		if(bars[curBar-1].notes.length > 0) Marker.xPos = bars[curBar-1].notes[0].xPos;
-		else {
-
-			//if not it just places it on the bar"s starting position
-			Marker.xPos = bars[curBar-1].initPos;
-			//if(bars[curBar-1].changedTimeSig) Marker.xPos +=35
-			//if(bars[curBar-1].changedOrFirstClef) Marker.xPos += 45	
-		} 
 
 		//removes the bar from the current array and effectively deletes it
 		bars.splice(curBar, 1);
