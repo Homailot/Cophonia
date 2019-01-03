@@ -34,7 +34,7 @@ Here are some basic controls (all input is done via keyboard for now):
 * Backspace to delete a note
 * Shift + Delete to delete a Bar/Measure
 * Shift + T to change the Time Signature
-* Shit + K to change the Key
+* Shift + K to change the Key
 * T + Arrow Keys to tie beats
 * . to add augmentation dots
 * (+) and (-) for accidentals
