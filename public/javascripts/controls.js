@@ -188,7 +188,13 @@ function insertBeat() {
 	if(!extended) {
 		//if we aren"t at the first note of the bar or if we aren"t at the last note, the markers moves forward and everything with it
 		if((curNote!==0 || curNote < bars[curBar].notes.length)) {
-			Marker.xPos += 40;
+			for(nG=0; nG<bars[curBar].notes[curNote].noteGroups.length; nG++) {
+				var objNG = bars[curBar].notes[curNote].noteGroups[nG];
+				if(objNG.tiesTo!==null) {
+					objNG.tiesTo.objNG.tiedTo=null;
+					objNG.tiesTo=null;
+				}
+			}
 			curNote++;
 		}
 		
