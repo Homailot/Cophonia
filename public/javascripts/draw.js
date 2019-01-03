@@ -1,8 +1,8 @@
-function drawStaff(line, end, start, color) {
+function drawStaff(line, end, start) { // eslint-disable-line no-unused-vars
 	ctx.beginPath(); 
 	ctx.lineWidth = 1;
 	ctx.strokeStyle = "#939393";
-	baseY = line * 144;
+	var baseY = line * 144;
 
 	ctx.moveTo(start, baseY + 80);
 	ctx.lineTo(end, baseY + 80);
@@ -37,16 +37,17 @@ function drawClef(clef, xPos, line) {
 	}
 }
 
-function drawFigure(note) {
+function drawFigure(note) { // eslint-disable-line no-unused-vars
 	var turned=false;
+	var text;
 	if(note.isSpace) {
 		switch(note.duration) {
-			case 1: text = "\uD834\uDD3B"; break;
-			case 0.5: text = "\uD834\uDD3C"; break;
-			case 0.25: text = "\uD834\uDD3D"; break;
-			case 0.125: text = "\uD834\uDD3E"; break;
-			case 0.0625: text = "\uD834\uDD3F"; break;
-			case 0.03125: text = "\uD834\uDD40"; break;
+		case 1: text = "\uD834\uDD3B"; break;
+		case 0.5: text = "\uD834\uDD3C"; break;
+		case 0.25: text = "\uD834\uDD3D"; break;
+		case 0.125: text = "\uD834\uDD3E"; break;
+		case 0.0625: text = "\uD834\uDD3F"; break;
+		case 0.03125: text = "\uD834\uDD40"; break;
 		}
 		ctx.font = "69px Musicaf";
 		ctx.fillText(text, note.xPos, ((note.line+1)*144)-8-26 );
@@ -59,12 +60,12 @@ function drawFigure(note) {
 		var inv = note.noteGroups[0];
 		var farthest;
 
-		for(n=1; n<note.noteGroups.length; n++) {
+		for(var n=1; n<note.noteGroups.length; n++) {
 			if(Math.abs(inv.pos - (-3)) < Math.abs(note.noteGroups[n].pos - (-3))) inv = note.noteGroups[n];
 		}
 		farthest=inv;
-		for(n=0; n<note.noteGroups.length; n++) {
-			if(Math.abs(inv.pos - note.noteGroups[n].pos)>Math.abs(farthest.pos - inv.pos)) farthest = note.noteGroups[n];
+		for(var n2=0; n2<note.noteGroups.length; n2++) {
+			if(Math.abs(inv.pos - note.noteGroups[n2].pos)>Math.abs(farthest.pos - inv.pos)) farthest = note.noteGroups[n2];
 		}
 
 		drawHead(note, note.inverted);
@@ -73,7 +74,7 @@ function drawFigure(note) {
 			drawExtraStaff(note.xPos, note.noteGroups[n].pos-2, note.line);
 			var height = Math.abs(note.noteGroups[n].yPos - farthest.yPos) + 4;
 			if(note.noteGroups[n].pos !== farthest.pos) drawStem(note, height+2, note.inverted, n);
-			else  drawStem(note, 32, note.inverted, n)
+			else  drawStem(note, 32, note.inverted, n);
 		}
 
 		ctx.save();
@@ -87,16 +88,16 @@ function drawFigure(note) {
 		}
 
 		switch(note.duration) {
-			case 1: text = ""; break;
-			case 0.5: text = ""; break;
-			case 0.25: text = ""; break;
-			case 0.125: text = "\uD834\uDD6E"; break;
-			case 0.0625: text = "\uD834\uDD6F"; break;
-			case 0.03125: text = "\uD834\uDD70"; break;
-			default: text = ""; break;
+		case 1: text = ""; break;
+		case 0.5: text = ""; break;
+		case 0.25: text = ""; break;
+		case 0.125: text = "\uD834\uDD6E"; break;
+		case 0.0625: text = "\uD834\uDD6F"; break;
+		case 0.03125: text = "\uD834\uDD70"; break;
+		default: text = ""; break;
 		}
 
-		if(text!== "") ctx.fillText(text, 0, 0)
+		if(text!== "") ctx.fillText(text, 0, 0);
 		
 
 		ctx.restore();
@@ -120,13 +121,13 @@ function drawFigure(note) {
 		}
 
 		switch(note.duration) {
-			case 1: text = "\uD834\uDD5D"; break;
-			case 0.5: text = "\uD834\uDD5E"; break;
-			case 0.25: text = "\uD834\uDD5F"; break;
-			case 0.125: text = "\uD834\uDD60"; break;
-			case 0.0625: text = "\uD834\uDD61"; break;
-			case 0.03125: text = "\uD834\uDD62"; break;
-			default: text = "\uD834\uDD5F"; break;
+		case 1: text = "\uD834\uDD5D"; break;
+		case 0.5: text = "\uD834\uDD5E"; break;
+		case 0.25: text = "\uD834\uDD5F"; break;
+		case 0.125: text = "\uD834\uDD60"; break;
+		case 0.0625: text = "\uD834\uDD61"; break;
+		case 0.03125: text = "\uD834\uDD62"; break;
+		default: text = "\uD834\uDD5F"; break;
 		}
 
 		ctx.fillText(text, 0, 0);
@@ -139,17 +140,14 @@ function drawFigure(note) {
 	}	
 }
 
-function drawTies(note, turned) {
-	for(nG=0; nG<note.noteGroups.length; nG++) {
+function drawTies(note, turned) { // eslint-disable-line no-unused-vars
+	for(var nG=0; nG<note.noteGroups.length; nG++) {
 		if(note.noteGroups[nG].tiesTo!=null) {
 			var xCenter = (note.xPos+10+note.noteGroups[nG].tiesTo.objNote.xPos)/2;
 			var yCenter = note.noteGroups[nG].yPos+15;
 			var radius = note.noteGroups[nG].tiesTo.objNote.xPos-xCenter;
 			var startAngle = 0.125*Math.PI;
 			var endAngle = 0.875*Math.PI;
-
-			var ca=document.createElement("canvas");
-			var cc=ca.getContext("2d");
 			
 			ctx.beginPath();
 			ctx.ellipse(xCenter, yCenter, radius, 10, 0, startAngle, endAngle, false);
@@ -176,7 +174,7 @@ function placeDots(note, noteGroupOrder, ngo, isSpace, occupied, inv) {
 		ctx.restore();
 		ctx.save();
 
-		ctx.translate(note.xPos+25, noteGroupOrder[ngo].yPos)
+		ctx.translate(note.xPos+25, noteGroupOrder[ngo].yPos);
 		if(!isSpace) {
 			if(inv) ctx.translate(0, -8);
 			else ctx.translate(0, +8);
@@ -202,7 +200,7 @@ function determineDots(allocatedSpaces, note, noteGroupOrder, ngo, inv) {
 		if(inv) space = (noteGroupOrder[ngo].pos-1)/2;
 		else space = (noteGroupOrder[ngo].pos+1)/2;
 	}
-	for(s=0; s<allocatedSpaces.length; s++) {
+	for(var s=0; s<allocatedSpaces.length; s++) {
 		if(space===allocatedSpaces[s]) {
 			occupied=true;
 			space-=1;
@@ -228,7 +226,7 @@ function drawDot(note, inv) {
 			var allocatedSpaces=[];
 	
 			ctx.save();
-			for(ngo=0; ngo<noteGroupOrder.length ; ngo++) {
+			for(var ngo=0; ngo<noteGroupOrder.length ; ngo++) {
 				determineDots(allocatedSpaces, note, noteGroupOrder, ngo, inv);
 			}
 			ctx.restore();
@@ -237,10 +235,10 @@ function drawDot(note, inv) {
 	ctx.restore();
 }
 
-function orderNoteGroup(note) {
+function orderNoteGroup(note) { // eslint-disable-line no-unused-vars
 	var noteGroupOrder=[];
 	var firstN=true;
-	for(n=0; n<note.noteGroups.length; n++) {
+	for(var n=0; n<note.noteGroups.length; n++) {
 		var objN = note.noteGroups[n];
 
 		if(firstN) {
@@ -249,7 +247,7 @@ function orderNoteGroup(note) {
 			continue;
 			
 		}
-		for(ngo=0; ngo<noteGroupOrder.length; ngo++) {
+		for(var ngo=0; ngo<noteGroupOrder.length; ngo++) {
 			if(noteGroupOrder[ngo].pos<objN.pos) {
 				noteGroupOrder.splice(ngo, 0, objN);
 				break;
@@ -266,8 +264,7 @@ function orderNoteGroup(note) {
 }
 
 function drawNoteAccidental(n, m) {
-	var spacing=0;
-	for(nG=n.noteGroups.length-1; nG>=0; nG--) {
+	for(var nG=n.noteGroups.length-1; nG>=0; nG--) {
 		ctx.save();
 		var objNG = n.noteGroups[nG];
 		
@@ -283,20 +280,20 @@ function drawNoteAccidental(n, m) {
 			ctx.translate(-18*objNG.accIsOffset, 0);
 			if(n.inverted && n.noteGroups.length>1) ctx.translate(-15, 0);
 			var offset=10;
-			
+			var text;
 			switch(objNG.accidental) {
-				case 1:
-					text = "\u266F";
-					break;
-				case -1:
-					text = "\u266D";
-					offset -= 6;
-					break;
-				case 0:
-					text = "\u266E";
-					break;
-				default:
-					text = ""; break;
+			case 1:
+				text = "\u266F";
+				break;
+			case -1:
+				text = "\u266D";
+				offset -= 6;
+				break;
+			case 0:
+				text = "\u266E";
+				break;
+			default:
+				text = ""; break;
 			}
 	
 			ctx.font = "80px Musicaf";
@@ -338,7 +335,7 @@ function drawHead(note, inverse) {
 	var faceRight=false;
 	var adjacent=false;
 	drawNoteAccidental(note, inverse);
-	for(n = 0; n<noteGroupOrder.length; n++) {
+	for(var n = 0; n<noteGroupOrder.length; n++) {
 		
 		drawExtraStaff(note.xPos, noteGroupOrder[n].pos-2, note.line);
 		noteGroupOrder[n].yPos = ((note.line+1) * 144 - 2 ) +  noteGroupOrder[n].pos * 8 - 14;
@@ -351,7 +348,7 @@ function drawHead(note, inverse) {
 		if(inverse) {
 			ctx.rotate(Math.PI);
 			ctx.translate(-20, -15);
-			m=-1
+			m=-1;
 		}
 		
 		if(n+1<noteGroupOrder.length) {
@@ -404,7 +401,7 @@ function arrangeNote(faceRight, m) {
 	return faceRight;
 }
 
-function drawBeam(xStart, yStart, xEnd, yEnd) {
+function drawBeam(xStart, yStart, xEnd, yEnd) {// eslint-disable-line no-unused-vars
 	ctx.beginPath(); 
 	ctx.strokeStyle = "#000000";
 	ctx.lineWidth = 5;
@@ -414,12 +411,12 @@ function drawBeam(xStart, yStart, xEnd, yEnd) {
 	ctx.stroke();
 }
 
-function drawMarker(y) {
+function drawMarker(y) {// eslint-disable-line no-unused-vars
 	if(curNote === 0) {
 		Marker.xPos = bars[curBar].initPos+10;
 
-		if(bars[curBar].changedTimeSig) Marker.xPos +=35
-		if(bars[curBar].changedOrFirstClef) Marker.xPos += 45
+		if(bars[curBar].changedTimeSig) Marker.xPos +=35;
+		if(bars[curBar].changedOrFirstClef) Marker.xPos += 45;
 		if(bars[curBar].changedAcc || bars[curBar].firstAcc) {
 			Marker.xPos += (bars[curBar].accidentals+bars[curBar].naturals.length)*18;
 		}
@@ -427,13 +424,12 @@ function drawMarker(y) {
 			Marker.xPos=(bars[curBar].notes[0].xPos);
 		}
 
-	}
-	else if(!extended) {
+	} else if(!extended) {
 		Marker.xPos = bars[curBar].notes[curNote].xPos;
 	}
 
 	var yOffset=0;
-	for(line = 0; line<=curLine; line++) {
+	for(var line = 0; line<=curLine; line++) {
 
 		yOffset+=lines[line].yOffset;
 	}
@@ -444,7 +440,7 @@ function drawMarker(y) {
 	ctx.lineWidth = 1;
 	ctx.strokeStyle = "#000000";
 	ctx.globalAlpha = 0.2;
-	ctx.fillStyle = '#00FF3C'
+	ctx.fillStyle = "#00FF3C";
 	
 	ctx.fillRect(Marker.xPos, ((curLine+1)*144) + y * 8 - 5, 20, 26);
 	ctx.rect(Marker.xPos, ((curLine+1)*144) + y * 8 - 5, 20, 26);
@@ -453,7 +449,7 @@ function drawMarker(y) {
 	ctx.translate(0, -yOffset);
 }
 
-function drawHeader(x, line, offset) {
+function drawHeader(x, line, offset) { // eslint-disable-line no-unused-vars
 	ctx.beginPath();
 
 	ctx.lineWidth=2;
@@ -466,9 +462,9 @@ function drawHeader(x, line, offset) {
 	return offset;
 }
 
-function drawBar(bar, color) {
-	ctx.fillStyle = "#000000"
-	timePos = bar.initPos
+function drawBar(bar, color) { // eslint-disable-line no-unused-vars
+	ctx.fillStyle = "#000000";
+	var timePos = bar.initPos;
 	
 	if(bar.changedOrFirstClef) {
 		drawClef(bar.clef, bar.initPos, bar.line);
@@ -476,31 +472,33 @@ function drawBar(bar, color) {
 		timePos += 45;
 	}
 	var accidentalSum = bar.accidentals;
+	var acc;
 	for(var i = 0; i<bar.naturals.length; i++) {
-		var acc = bar.naturals[i]-1;
+		acc = bar.naturals[i]-1;
 		if(bar.firstAcc || bar.changedAcc) drawAccidental(timePos+(i)*18, bar.naturalOrder, acc, bar.line, 0);
 	}
-	if(bar.firstAcc || bar.changedAcc) timePos+=(bar.naturals.length) * 18
-	for(var i = 1; i<=accidentalSum; i++) {
-		var acc = i-1;
-		if(bar.sharpOrFlat===-1) acc = 7-i
-		if(bar.firstAcc || bar.changedAcc) drawAccidental(timePos+(i-1)*18, bar.sharpOrFlat, acc, bar.line, bar.sharpOrFlat);
+	if(bar.firstAcc || bar.changedAcc) timePos+=(bar.naturals.length) * 18;
+	for(var i2 = 1; i2<=accidentalSum; i2++) {
+		acc = i2-1;
+		if(bar.sharpOrFlat===-1) acc = 7-i2;
+		if(bar.firstAcc || bar.changedAcc) drawAccidental(timePos+(i2-1)*18, bar.sharpOrFlat, acc, bar.line, bar.sharpOrFlat);
 	}
 
 	if(bar.firstAcc || bar.changedAcc) timePos+=(accidentalSum) * 18;
 	timePos+=10;
+	var texto;
 	if(bar.changedTimeSig) {
 		ctx.font = "48px Calibri";
 		texto = bar.upperSig;
 		ctx.fillText(texto, timePos, (bar.line*144) + 111);
 		texto = bar.lowerSig;
-		ctx.fillText(texto, timePos, (bar.line*144) + 144)
+		ctx.fillText(texto, timePos, (bar.line*144) + 144);
 	}
 
 	ctx.beginPath();
 	ctx.strokeStyle = color;
 	ctx.lineWidth = 2;
-	baseY = bar.line * 144;
+	var baseY = bar.line * 144;
 
 	ctx.moveTo(bar.xPos, baseY + 80);
 	ctx.lineTo(bar.xPos, baseY + 144);
@@ -511,51 +509,52 @@ function drawAccidental(pos, acc, note, line, sof) {
 	var text = "";
 	var offset;
 	switch(note) {
-		case 0:
-			if(acc===-1) offset = 136;
-			else offset = 80;
-			break;
-		case 1:
-			offset = 104;
-			break;
-		case 2:
-			if(acc === -1) offset = 128;
-			else offset = 72;
-			break; 
-		case 3:
-			offset = 96;
-			break;
-		case 4:
-			offset = 120;
-			break;
-		case 5:
-			offset = 88;
-			break;
-		case 6:
-			offset = 112;
-			break;
+	case 0:
+		if(acc===-1) offset = 136;
+		else offset = 80;
+		break;
+	case 1:
+		offset = 104;
+		break;
+	case 2:
+		if(acc === -1) offset = 128;
+		else offset = 72;
+		break; 
+	case 3:
+		offset = 96;
+		break;
+	case 4:
+		offset = 120;
+		break;
+	case 5:
+		offset = 88;
+		break;
+	case 6:
+		offset = 112;
+		break;
 
 	}
 
 	switch(sof) {
-		case 1:
-			text = "\u266F"; break;
-		case -1:
-			text = "\u266D";
-			offset -= 6;
-			break;
-		case 0:
-			text = "\u266E";
-			break;
-		default:
-			text = ""; break;
+	case 1:
+		text = "\u266F"; break;
+	case -1:
+		text = "\u266D";
+		offset -= 6;
+		break;
+	case 0:
+		text = "\u266E";
+		break;
+	default:
+		text = ""; break;
 	}
 
 	ctx.font = "80px Musicaf";
-	ctx.fillText(text, pos, (line*144)+offset)
+	ctx.fillText(text, pos, (line*144)+offset);
 }
 
 function drawExtraStaff(x, y, rLine) {
+	var line;
 	if(y <= -11) {
 		for(line = -11; line>=y; line-=2) {
 			ctx.beginPath();

@@ -1,21 +1,22 @@
-function changeTimeSigPop(bar) {
-	var form = document.createElement('form');
-	form.classList.add('m-3');
+function changeTimeSigPop(bar) { // eslint-disable-line no-unused-vars
+	var form = document.createElement("form");
+	form.classList.add("m-3");
 
-	var formDiv = document.createElement('div');
-	formDiv.classList.add('form-group')
+	var formDiv = document.createElement("div");
+	formDiv.classList.add("form-group");
 
-	var sigSel = document.createElement('select');
-	sigSel.classList.add('form-control');
+	var sigSel = document.createElement("select");
+	sigSel.classList.add("form-control");
 	sigSel.id = "upperSig";
 
-	var label = document.createElement('label');
-	label.innerHTML="Upper Number:"
+	var label = document.createElement("label");
+	label.innerHTML="Upper Number:";
 	label.for="upperSig";
-	formDiv.appendChild(label)
+	formDiv.appendChild(label);
+	var option;
 
 	for(var num = 1; num<=32; num++) {
-		var option = document.createElement('option');
+		option = document.createElement("option");
 		option.innerHTML = num;
 		option.value=num;
 		sigSel.appendChild(option);
@@ -25,29 +26,29 @@ function changeTimeSigPop(bar) {
 	formDiv.appendChild(sigSel);
 	form.appendChild(formDiv);
 
-	formDiv = document.createElement('div');
-	formDiv.classList.add('form-group')
+	formDiv = document.createElement("div");
+	formDiv.classList.add("form-group");
 
-	sigSel = document.createElement('select');
-	sigSel.classList.add('form-control');
+	sigSel = document.createElement("select");
+	sigSel.classList.add("form-control");
 	sigSel.id = "lowerSig";
 
-	label = document.createElement('label');
-	label.innerHTML="Lower Number:"
+	label = document.createElement("label");
+	label.innerHTML="Lower Number:";
 	label.for="lowerSig";
-	formDiv.appendChild(label)
+	formDiv.appendChild(label);
 
-	for(var num=1; num<=32; num*=2) {
-		option = document.createElement('option');
-		option.innerHTML = num;
-		option.value=num;
+	for(var nums=1; nums<=32; nums*=2) {
+		option = document.createElement("option");
+		option.innerHTML = nums;
+		option.value=nums;
 		sigSel.appendChild(option);
 	}
 
 	formDiv.appendChild(sigSel);
 	form.appendChild(formDiv);
 	
-	var submitButton = document.createElement('input');
+	var submitButton = document.createElement("input");
 	submitButton.type = "button";
 	submitButton.classList.add("btn");
 	submitButton.classList.add("btn-primary");
@@ -62,108 +63,108 @@ function changeTimeSigPop(bar) {
 
 		var dc = document.getElementById("dialogContainer");
 		dc.removeChild(dc.childNodes[0]);
-	})
+	});
 
-	form.appendChild(submitButton)
+	form.appendChild(submitButton);
 
-	openHTMLDialog([form])
+	openHTMLDialog([form]);
 }
 
-function changeKeyPop(bar) {
-	var form = document.createElement('form');
-	form.classList.add('m-3');
+function changeKeyPop(bar) { // eslint-disable-line no-unused-vars
+	var form = document.createElement("form");
+	form.classList.add("m-3");
 
-	var formDiv = document.createElement('div');
-	formDiv.classList.add('form-group')
+	var formDiv = document.createElement("div");
+	formDiv.classList.add("form-group");
 
-	var keySel = document.createElement('select');
-	keySel.classList.add('form-control');
+	var keySel = document.createElement("select");
+	keySel.classList.add("form-control");
 	keySel.id = "keySel";
 
-	var label = document.createElement('label');
-	label.innerHTML="Key Signature:"
+	var label = document.createElement("label");
+	label.innerHTML="Key Signature:";
 	label.for="keySel";
 	formDiv.appendChild(label);
 
-	option = document.createElement('option');
+	var option = document.createElement("option");
 	option.innerHTML = "Cb (bbbbbbb)";
 	option.value="7:-1";
 	keySel.appendChild(option);
 
-	option = document.createElement('option');
+	option = document.createElement("option");
 	option.innerHTML = "Gb (bbbbbb)";
 	option.value="6:-1";
 	keySel.appendChild(option);
 
-	option = document.createElement('option');	
+	option = document.createElement("option");	
 	option.innerHTML = "Db (bbbbb)";
 	option.value="5:-1";
 	keySel.appendChild(option);
 
-	option = document.createElement('option');	
+	option = document.createElement("option");	
 	option.innerHTML = "Ab (bbbb)";
 	option.value="4:-1";
 	keySel.appendChild(option);
 
-	option = document.createElement('option');	
+	option = document.createElement("option");	
 	option.innerHTML = "Eb (bbb)";
 	option.value="3:-1";
 	keySel.appendChild(option);
 
-	option = document.createElement('option');	
+	option = document.createElement("option");	
 	option.innerHTML = "Bb (bb)";
 	option.value="2:-1";
 	keySel.appendChild(option);
 
-	option = document.createElement('option');	
+	option = document.createElement("option");	
 	option.innerHTML = "F (b)";
 	option.value="1:-1";
 	keySel.appendChild(option);
 
-	option = document.createElement('option');	
+	option = document.createElement("option");	
 	option.innerHTML = "C";
 	option.value="0:0";
 	keySel.appendChild(option);
 
-	option = document.createElement('option');	
+	option = document.createElement("option");	
 	option.innerHTML = "G (#)";
 	option.value="1:1";
 	keySel.appendChild(option);
 
-	option = document.createElement('option');	
+	option = document.createElement("option");	
 	option.innerHTML = "D (##)";
 	option.value="2:1";
 	keySel.appendChild(option);
 
-	option = document.createElement('option');	
+	option = document.createElement("option");	
 	option.innerHTML = "A (###)";
 	option.value="3:1";
 	keySel.appendChild(option);
 
-	option = document.createElement('option');	
+	option = document.createElement("option");	
 	option.innerHTML = "E (####)";
 	option.value="4:1";
 	keySel.appendChild(option);
 
-	option = document.createElement('option');	
+	option = document.createElement("option");	
 	option.innerHTML = "B (#####)";
 	option.value="5:1";
 	keySel.appendChild(option);
 
-	option = document.createElement('option');	
+	option = document.createElement("option");	
 	option.innerHTML = "F# (######)";
 	option.value="6:1";
 	keySel.appendChild(option);
 
-	option = document.createElement('option');	
+	option = document.createElement("option");	
 	option.innerHTML = "C# (#######)";
 	option.value="7:1";
-	keySel.appendChild(option)
+	keySel.appendChild(option);
 
 	formDiv.appendChild(keySel);
 	form.appendChild(formDiv);
 
-	var submitButton = document.createElement('input');
+	var submitButton = document.createElement("input");
 	submitButton.type = "button";
 	submitButton.classList.add("btn");
 	submitButton.classList.add("btn-primary");
@@ -179,11 +180,11 @@ function changeKeyPop(bar) {
 
 		var dc = document.getElementById("dialogContainer");
 		dc.removeChild(dc.childNodes[0]);
-	})
+	});
 
-	form.appendChild(submitButton)
+	form.appendChild(submitButton);
 
-	openHTMLDialog([form])
+	openHTMLDialog([form]);
 }
 
 
@@ -193,42 +194,36 @@ function openHTMLDialog(contents) {
 		dc.removeChild(dc.childNodes[0]);
 		return;
 	} 
-	var dialog = document.createElement('div');
-	var height = 0;
-	var minHeight = 200;
-	dialog.style.width= '600px';
+	var dialog = document.createElement("div");
+	dialog.style.width= "600px";
 	//dialog.style.minHeight = '200px';
 
-	for(content = 0; content < contents.length; content++) {
-		height += contents[content].scrollHeight;
-		dialog.appendChild(contents[content])
+	for(var content = 0; content < contents.length; content++) {
+		dialog.appendChild(contents[content]);
 	}
 	
 	dialog.style.zIndex = 5;
-	dialog.style.position = 'fixed';
-	dialog.style.backgroundColor = "#F9F7F7"
+	dialog.style.position = "fixed";
+	dialog.style.backgroundColor = "#F9F7F7";
 	dialog.classList.add("rounded-top");
 	dialog.classList.add("shadow");
 	dialog.id = "dialog";
-	dialog.style.top = window.innerHeight+"px"
-	dialog.style.left = (window.innerWidth/2- 300) + 'px';
+	dialog.style.top = window.innerHeight+"px";
+	dialog.style.left = (window.innerWidth/2- 300) + "px";
 
 	document.getElementById("dialogContainer").appendChild(dialog);
 
 
-	document.getElementById("dialog").style.height = document.getElementById("dialog").scrollHeight+'px';
-	slideElement(document.getElementById("dialog"), false);
+	document.getElementById("dialog").style.height = document.getElementById("dialog").scrollHeight+"px";
+	slideElement(document.getElementById("dialog"));
 }
 
 var curContent;
-var removeC;
 
-function slideElement(content, remove) {
+function slideElement(content) {
 	curContent = content;
-	removeC = remove;
 
-	
-	setTimeout(moveElement, 4)
+	setTimeout(moveElement, 4);
 }
 
 function moveElement() {
