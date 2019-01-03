@@ -24,20 +24,19 @@ function NoteGroup(yPos, pos, noteValue, scalePos, acc) {
 	this.tiesTo=null;
 }
 
-function placeNote(duration, line, pos, isSpace, newGroup) {
-	realPosition = ((line+1) * 144 - 2 ) + pos * 8;
+function placeNote(duration, line, pos, isSpace, newGroup) { // eslint-disable-line no-unused-vars
+	var realPosition = ((line+1) * 144 - 2 ) + pos * 8;
 	if(isSpace) realPosition=((line+1) * 144) - 48;
-	xPos = Marker.xPos
+	var xPos = Marker.xPos;
 	var noteValue = 71;
 	var scalePos = (pos+3)*-1+7;
 	var sP = 7;
 	var desc = false;
 	var acc = 0;
-	for(iPos = 7; iPos!==scalePos;) {
+	for(var iPos = 7; iPos!==scalePos;) {
 		if(scalePos<iPos) {
 			iPos--; sP--; noteValue-=2; desc = true;
-		} 
-		else {
+		} else {
 			iPos++; sP++; noteValue+=2;
 		} 
 
@@ -57,7 +56,7 @@ function placeNote(duration, line, pos, isSpace, newGroup) {
 		}
 	}
 
-	for(var i = 0; i<bars[curBar].notes.length; i++) {
+	for(i = 0; i<bars[curBar].notes.length; i++) {
 		var n=bars[curBar];
 		for(var note=0; note<n.notes[i].noteGroups.length; note++) {
 			if(pos === n.notes[i].noteGroups[note].pos) {
@@ -67,7 +66,6 @@ function placeNote(duration, line, pos, isSpace, newGroup) {
 		}
 	}
 	
-	var note;
 	if(!newGroup) {
 		note = new Note(xPos, realPosition, line, duration, pos, noteValue, isSpace, sP, acc);
 		bars[curBar].notes.splice(curNote, 0, note); 
@@ -78,10 +76,10 @@ function placeNote(duration, line, pos, isSpace, newGroup) {
 	}
 	note = bars[curBar].notes[curNote];
 	var inverse;
-	for(var n=0; n<note.noteGroups.length; n++) {
-		if(n===0) inverse = note.noteGroups[0].pos;
-		else if(Math.abs(note.noteGroups[n].pos - (-3)) > Math.abs(inverse - (-3))) {
-			inverse = note.noteGroups[n].pos;
+	for(var nG=0; n<note.noteGroups.length; nG++) {
+		if(nG===0) inverse = note.noteGroups[0].pos;
+		else if(Math.abs(note.noteGroups[nG].pos - (-3)) > Math.abs(inverse - (-3))) {
+			inverse = note.noteGroups[nG].pos;
 		}
 	}
 	
@@ -107,18 +105,14 @@ NoteGroup.prototype.updateAccidental = function(bar, n, j) {
 	}
 
 	getAccWidth(j, bars[bar]);
-}
+};
 
-function hideAccidental(note, nG, hide, j) {
+function hideAccidental(nG, hide) {
 	if(hide) {
-		// if(nG.hideAcc===false) {
-		// 	note.width-=note.accWidth;
-		// } 
+
 		nG.hideAcc=true;
 	} else {
-		// if(nG.hideAcc===true) {
-		// 	note.width+=note.accWidth;
-		// } 
+
 		nG.hideAcc=false;
 	}
 }
@@ -134,32 +128,32 @@ function getNote(note, y) {
 		}
 	}
 
-	return n
+	return n;
 }
 
-function determineAccFromBar(bar, note, n, j) {
+function determineAccFromBar(bar, note, n, j) {  // eslint-disable-line no-unused-vars
 	//if the value was changed then we need to verify if we have to show the accidental figure or not
-	hideAccidental(note, n, false, j);
+	hideAccidental(n, false);
 	//first we check based on the bar's accidentals
 	if(bar.accidentals===0 && n.accidental===0) {
-		hideAccidental(note, n, true, j);
+		hideAccidental(n, true);
 	}
 	for(var i = 1; i<=bar.accidentals; i++) {
 		var value = i-1;
 		if(bar.sharpOrFlat===-1) value = 7-i;
 
 		if((n.scalePos === accidentalOrder[value] && n.accidental===bar.sharpOrFlat)) {
-			hideAccidental(note, n, true, j);
+			hideAccidental(n, true);
 			break;
 		} else if(n.scalePos === accidentalOrder[value] && n.accidental!==bar.sharpOrFlat) {
-			hideAccidental(note, n, false, j);
+			hideAccidental(n, false);
 			break;
 		}
 
 		if(n.accidental!==0) {
-			hideAccidental(note, n, false, j);
+			hideAccidental(n, false);
 		} else {
-			hideAccidental(note, n, true, j);
+			hideAccidental(n, true);
 		}
 	}
 }
@@ -168,25 +162,22 @@ function determineAccFromNotes(bar, note, n, j) {
 	//then, we verify for the notes before. Afterwards, we check the notes after it, and change them accordingly.
 	for(var i = 0; i<bar.notes.length; i++) {
 		for(var noteGroup=0; noteGroup<bar.notes[i].noteGroups.length; noteGroup++) {
+			var subjectPlace;
 			if(i > j) {
-				var subject = bar.notes[i];
-				var subjectPlace = bar.notes[i].noteGroups[noteGroup];
+				subjectPlace = bar.notes[i].noteGroups[noteGroup];
 				
-			}
-			else if(i < j) {
-				var subject = note;
-				var subjectPlace = n;
-			} 
-			else continue;
+			} else if(i < j) {
+				subjectPlace = n;
+			} else continue;
 
 			if(n.pos === bar.notes[i].noteGroups[noteGroup].pos) {
 				if(bar.notes[i].noteGroups[noteGroup].accidental!==n.accidental) {
-					hideAccidental(subject, subjectPlace, false, i);
+					hideAccidental(subjectPlace, false);
 					if(i>j) {
 						n=bar.notes[i].noteGroups[noteGroup];
 					} 
 				} else {
-					hideAccidental(subject, subjectPlace, true, i);
+					hideAccidental(subjectPlace, true);
 				}
 			}
 
@@ -197,7 +188,7 @@ function determineAccFromNotes(bar, note, n, j) {
 	}
 }
 
-function changeAccidental(bar, note, y, value, j) {
+function changeAccidental(bar, note, y, value, j) { // eslint-disable-line no-unused-vars
 	if(j<bar.notes.length && !note.isSpace) {
 		var n = getNote(note, y);
 
@@ -219,7 +210,7 @@ function changeAccidental(bar, note, y, value, j) {
 	}
 }
 
-function determineAccLocation(objNote, objGroup, maxLength) {
+function determineAccLocation(objNote, objGroup, maxLength, nG) {
 	var curLength=0;
 	while(curLength<objGroup.length) {
 		if(objNote.noteGroups[nG].pos-objGroup[curLength].pos<=5) {
@@ -247,58 +238,56 @@ function getAccWidth(note, bar) {
 	var objGroup=[];
 	objNote.accWidth=0;
 	
-	for(nG=objNote.noteGroups.length-1; nG>=0; nG--) {
+	for(var nG=objNote.noteGroups.length-1; nG>=0; nG--) {
 		if(objGroup.length===0 && objNote.noteGroups[nG].hideAcc===false) {
 			objNote.noteGroups[nG].accIsOffset=1;
 			objGroup.push(objNote.noteGroups[nG]);
 			maxLength=0;
 			continue;
-		}
-		else if(objGroup.length===0 || objNote.noteGroups[nG].hideAcc) {
+		} else if(objGroup.length===0 || objNote.noteGroups[nG].hideAcc) {
 			objNote.noteGroups[nG].accIsOffset=1;
 			continue;
 		}
 
-		maxLength = determineAccLocation(objNote, objGroup, maxLength);
+		maxLength = determineAccLocation(objNote, objGroup, maxLength, nG);
 	}
 	if(note.inverted && note.noteGroups.length>1) objNote.accWidth+=15;
 	if(objGroup.length !== 0) objNote.accWidth+=(objGroup.length*18);
 }
 
-function augment(bar, note, pos, value) {
+function augment(bar, note, pos, value) { // eslint-disable-line no-unused-vars
 	if(note<bars[bar].notes.length) {
-		var objNote = bars[bar].notes[note]
+		var objNote = bars[bar].notes[note];
 		objNote.dots+=value;
 		if(objNote.dots<0) objNote.dots=0;
 		else if(objNote.dots>3) objNote.dots=3;
 		else if(value>0) {
 			objNote.width+=10;
-		}
-		else {
+		} else {
 			objNote.width-=10;
 		}
 	}
 }
 
-function getNoteDuration(note) {
+function getNoteDuration(note) { // eslint-disable-line no-unused-vars
 	var duration = note.duration;
 	var lastDuration = duration;
-	for(dot=0; dot<note.dots; dot++) {
-		lastDuration=lastDuration*1/2
+	for(var dot=0; dot<note.dots; dot++) {
+		lastDuration=lastDuration*1/2;
 		duration+=lastDuration;
 	}
 
 	return duration;
 }
 
-function tieBeat(bar, note, tieTo, y) {
+function tieBeat(bar, note, tieTo, y) { // eslint-disable-line no-unused-vars
 	var barTo=bar;
 	if(tieTo>=bars[bar].notes.length) {
 		barTo=bar+1;
-		tieTo=0
+		tieTo=0;
 
 		if(barTo<bars.length)  {
-			if(bars[barTo].notes.length===0) return
+			if(bars[barTo].notes.length===0) return;
 		} else {
 			return;
 		}
@@ -307,7 +296,7 @@ function tieBeat(bar, note, tieTo, y) {
 		tieTo=bars[barTo].notes.length-1;
 
 		if(barTo>=0) {
-			if(bars[barTo].notes.length===0) return
+			if(bars[barTo].notes.length===0) return;
 		} else {
 			return;
 		}
@@ -330,14 +319,14 @@ function tieBeat(bar, note, tieTo, y) {
 
 	for(var nG = 0; nG<objNoteS.noteGroups.length; nG++) {
 		if(objNoteS.noteGroups[nG].pos===y+2) {
-			objNG={objNote: objNoteS, objNG: objNoteS.noteGroups[nG]}
+			objNG={objNote: objNoteS, objNG: objNoteS.noteGroups[nG]};
 			break;
 		}
 	}
 
-	for(var nG=0; nG<objNoteE.noteGroups.length; nG++) {
+	for(nG=0; nG<objNoteE.noteGroups.length; nG++) {
 		if(objNoteE.noteGroups[nG].pos===y+2) {
-			objDest={objNote: objNoteE, objNG: objNoteE.noteGroups[nG]}
+			objDest={objNote: objNoteE, objNG: objNoteE.noteGroups[nG]};
 			break;
 		}
 	}

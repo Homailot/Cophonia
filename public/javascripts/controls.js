@@ -1,4 +1,3 @@
-var newGroup = false;
 var ctrlPress = false;
 var tPress=false;
 
@@ -109,13 +108,14 @@ function moveLeft() {
 			extended = false;
 			generateAll();
 		}
+	// eslint-disable-next-line brace-style
 	} 
 	//if it was the first and the current bar also isn"t
 	else if(curBar-1 >= 0) {
 		//moves back the current line if the bar before is on a different line.
 		if(bars[curBar-1].line!==curLine) curLine--;
 		
-		notes = bars[curBar-1].notes.length;
+		var notes = bars[curBar-1].notes.length;
 
 		//if the bar before has no notes, then the marker is placed at the start of the bar.
 		if(notes === 0) {
@@ -123,6 +123,7 @@ function moveLeft() {
 			if(bars[curBar-1].changedTimeSig) Marker.xPos +=35;
 			if(bars[curBar-1].changedOrFirstClef) Marker.xPos += 45;
 
+		// eslint-disable-next-line brace-style
 		} 
 		//if it does, it places the marker at the position of the last note of that bar
 		else Marker.xPos = bars[curBar-1].notes[notes-1].xPos;
@@ -190,6 +191,7 @@ function moveRight() {
 
 			curNote++;
 			generateAll();
+		// eslint-disable-next-line brace-style
 		} 
 		//if we are just moving to next note, we place the marker in the same position as the next one
 		else if(curNote+1 <= bars[curBar].notes.length) {
@@ -208,7 +210,7 @@ function insertBeat() {
 	if(!extended) {
 		//if we aren"t at the first note of the bar or if we aren"t at the last note, the markers moves forward and everything with it
 		if((curNote!==0 || curNote < bars[curBar].notes.length)) {
-			for(nG=0; nG<bars[curBar].notes[curNote].noteGroups.length; nG++) {
+			for(var nG=0; nG<bars[curBar].notes[curNote].noteGroups.length; nG++) {
 				var objNG = bars[curBar].notes[curNote].noteGroups[nG];
 				if(objNG.tiesTo!==null) {
 					objNG.tiesTo.objNG.tiedTo=null;
@@ -278,12 +280,10 @@ document.addEventListener("keydown", function(event) {
 			generateAll();
 			break;
 		case "Enter":
-			newGroup = false;
-
 			//check to see if the current note the marker is on is a pause, if it is, it deletes it
 			if(curNote < bars[curBar].notes.length) {
 				if(!bars[curBar].notes[curNote].isSpace) {
-					for(n = 0; n<bars[curBar].notes[curNote].noteGroups.length; n++) {
+					for(var n = 0; n<bars[curBar].notes[curNote].noteGroups.length; n++) {
 						if(bars[curBar].notes[curNote].noteGroups[n].pos === y+2) return;
 					}
 						
@@ -304,9 +304,9 @@ document.addEventListener("keydown", function(event) {
 			generateAll();
 			break;
 		case "Space":
-			 	insertBeat();
+			insertBeat();
 
-			 	generateAll();
+			generateAll();
 			break;
 		case "Delete":
 			if(ctrlPress) {
