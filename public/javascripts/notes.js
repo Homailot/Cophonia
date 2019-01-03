@@ -269,7 +269,7 @@ function augment(bar, note, pos, value) {
 		objNote.dots+=value;
 		if(objNote.dots<0) objNote.dots=0;
 		else if(objNote.dots>3) objNote.dots=3;
-		if(value>0) {
+		else if(value>0) {
 			objNote.width+=10;
 		}
 		else {
