@@ -1,7 +1,7 @@
 function drawStaff(line, end, start, color) {
 	ctx.beginPath(); 
 	ctx.lineWidth = 1;
-	ctx.strokeStyle = color;
+	ctx.strokeStyle = "#939393";
 	baseY = line * 144;
 
 	ctx.moveTo(start, baseY + 80);
@@ -52,6 +52,7 @@ function drawFigure(note) {
 		ctx.fillText(text, note.xPos, ((note.line+1)*144)-8-26 );
 
 		drawDot(note, false);
+		drawTies(note, turned);
 		return;
 	}
 	if(note.noteGroups.length>1) {
@@ -100,6 +101,7 @@ function drawFigure(note) {
 
 		ctx.restore();
 		drawDot(note, turned);
+		drawTies(note, turned);
 	} else {
 		note.noteGroups[0].yPos = ((note.line+1) * 144 - 2 ) + note.noteGroups[0].pos * 8 - 14;
 		drawExtraStaff(note.xPos, note.noteGroups[0].pos-2, note.line);
@@ -133,7 +135,27 @@ function drawFigure(note) {
 
 		ctx.restore();	
 		drawDot(note, turned);
+		drawTies(note, turned);
 	}	
+}
+
+function drawTies(note, turned) {
+	for(nG=0; nG<note.noteGroups.length; nG++) {
+		if(note.noteGroups[nG].tiesTo!=null) {
+			var xCenter = (note.xPos+10+note.noteGroups[nG].tiesTo.objNote.xPos)/2;
+			var yCenter = note.noteGroups[nG].yPos+15;
+			var radius = note.noteGroups[nG].tiesTo.objNote.xPos-xCenter;
+			var startAngle = 0.125*Math.PI;
+			var endAngle = 0.875*Math.PI;
+
+			var ca=document.createElement("canvas");
+			var cc=ca.getContext("2d");
+			
+			ctx.beginPath();
+			ctx.ellipse(xCenter, yCenter, radius, 10, 0, startAngle, endAngle, false);
+			ctx.stroke();
+		}
+	}
 }
 
 function writeDots(note) {
@@ -538,7 +560,7 @@ function drawExtraStaff(x, y, rLine) {
 		for(line = -11; line>=y; line-=2) {
 			ctx.beginPath();
 			ctx.lineWidth = 1;
-			ctx.strokeStyle = "#000000";
+			ctx.strokeStyle = "#939393";
 			ctx.moveTo(x-5, ((rLine+1)*144) + line * 8 + 9);
 			ctx.lineTo(x+25, ((rLine+1)*144) + line * 8 + 9);
 			ctx.stroke();
@@ -547,7 +569,7 @@ function drawExtraStaff(x, y, rLine) {
 		for(line = 1; line<=y; line+=2) {
 			ctx.beginPath();
 			ctx.lineWidth = 1;
-			ctx.strokeStyle = "#000000";
+			ctx.strokeStyle = "#939393";
 			ctx.moveTo(x-5, ((rLine+1)*144) + line * 8 + 9);
 			ctx.lineTo(x+25, ((rLine+1)*144) + line * 8 + 9);
 			ctx.stroke();

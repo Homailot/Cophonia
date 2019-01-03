@@ -20,6 +20,8 @@ function NoteGroup(yPos, pos, noteValue, scalePos, acc) {
 	this.accidental = acc;
 	this.hideAcc = true;
 	this.accIsOffset=1;
+	this.tiedTo=null;
+	this.tiesTo=null;
 }
 
 function placeNote(duration, line, pos, isSpace, newGroup) {
@@ -287,4 +289,61 @@ function getNoteDuration(note) {
 	}
 
 	return duration;
+}
+
+function tieBeat(bar, note, tieTo, y) {
+	var barTo=bar;
+	if(tieTo>=bars[bar].notes.length) {
+		barTo=bar+1;
+		tieTo=0
+
+		if(barTo<bars.length)  {
+			if(bars[barTo].notes.length===0) return
+		} else {
+			return;
+		}
+	} else if(tieTo<0) {
+		barTo=bar-1;
+		tieTo=bars[barTo].notes.length-1;
+
+		if(barTo>=0) {
+			if(bars[barTo].notes.length===0) return
+		} else {
+			return;
+		}
+	}
+	if(bars[bar].notes[note].isSpace && !bars[barTo].notes[tieTo].isSpace ||
+		!bars[bar].notes[note].isSpace && bars[barTo].notes[tieTo].isSpace) return;
+	var objNoteS;
+	var objNoteE;
+
+	if((bar!==barTo && barTo>bar) || (bar===barTo && note<tieTo)) {
+		objNoteS=bars[bar].notes[note];
+		objNoteE=bars[barTo].notes[tieTo];
+	} else {
+		objNoteS=bars[barTo].notes[tieTo];
+		objNoteE=bars[bar].notes[note];
+	}
+	
+	var objNG=null;
+	var objDest=null;
+
+	for(var nG = 0; nG<objNoteS.noteGroups.length; nG++) {
+		if(objNoteS.noteGroups[nG].pos===y+2) {
+			objNG={objNote: objNoteS, objNG: objNoteS.noteGroups[nG]}
+			break;
+		}
+	}
+
+	for(var nG=0; nG<objNoteE.noteGroups.length; nG++) {
+		if(objNoteE.noteGroups[nG].pos===y+2) {
+			objDest={objNote: objNoteE, objNG: objNoteE.noteGroups[nG]}
+			break;
+		}
+	}
+
+	if(objNG!==null && objDest!==null) {
+		objNG.objNG.tiesTo=objDest;
+		objDest.objNG.tiedTo=objNG;
+	}
 }
