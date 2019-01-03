@@ -25,6 +25,21 @@ set DEBUG=music* & npm start
 
 Open up the browser on localhost port 3000, and evereything should be up and running.
 
+## Controls
+Here are some basic controls (all input is done via keyboard for now):
+* Arrow keys to move the marker
+* Enter to place a note
+* Spacebar to insert a beat
+* Backspace to delete a note
+* Shift + Delete to delete a Bar/Measure
+* Shift + T to change the Time Signature
+* Shit + K to change the Key
+* T + Arrow Keys to tie beats
+* . to add augmentation dots
+* + and - for accidentals
+* K is for music playback
+* Numbers to define the note's duration
+
 ## Built with
 
 * [Node.js](https://nodejs.org/en/) - Server Language used
