@@ -45,6 +45,7 @@ Here are some basic controls (all input is done via keyboard for now):
 * [Node.js](https://nodejs.org/en/) - Server Language used
 * [Handlebars.js](https://handlebarsjs.com/) - View Engine used
 * [webaudiofont](https://github.com/surikov/webaudiofont) - Used for real-time music playback
+* [Bravura](https://github.com/steinbergmedia/bravura) - Font from the software Dorico, which is a reference font for Standard Music Font Layout (or SMuFL)
 
 ## License
 
