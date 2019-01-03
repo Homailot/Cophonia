@@ -28,6 +28,7 @@ Open up the browser on localhost port 3000, and evereything should be up and run
 ## Controls
 Here are some basic controls (all input is done via keyboard for now):
 * Arrow keys to move the marker
+* Numbers to define the note's duration
 * Enter to place a note
 * Spacebar to insert a beat
 * Backspace to delete a note
@@ -36,9 +37,8 @@ Here are some basic controls (all input is done via keyboard for now):
 * Shit + K to change the Key
 * T + Arrow Keys to tie beats
 * . to add augmentation dots
-* + and - for accidentals
+* (+) and (-) for accidentals
 * K is for music playback
-* Numbers to define the note's duration
 
 ## Built with
 
