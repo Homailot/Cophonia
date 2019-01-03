@@ -415,7 +415,12 @@ function drawMarker(y) {// eslint-disable-line no-unused-vars
 	if(curNote === 0) {
 		Marker.xPos = bars[curBar].initPos+10;
 
-		if(bars[curBar].changedTimeSig) Marker.xPos +=35;
+		if(bars[curBar].changedTimeSig) {
+			Marker.xPos +=35;
+			if(bars[curBar].upperSig.length>1 || bars[curBar].lowerSig.length>1) {
+				Marker.xPos+=15;
+			}
+		}
 		if(bars[curBar].changedOrFirstClef) Marker.xPos += 45;
 		if(bars[curBar].changedAcc || bars[curBar].firstAcc) {
 			Marker.xPos += (bars[curBar].accidentals+bars[curBar].naturals.length)*18;
@@ -488,8 +493,24 @@ function drawBar(bar, color) { // eslint-disable-line no-unused-vars
 	timePos+=10;
 	if(bar.changedTimeSig) {
 		ctx.font = "60px BravuraF";
-		ctx.fillText(unescape("%u"+"E08"+bar.upperSig), timePos, (bar.line*144) + 95);
-		ctx.fillText(unescape("%u"+"E08"+bar.lowerSig), timePos, (bar.line*144) + 128);
+		if(bar.upperSig.length>1 || bar.lowerSig.length>1) {
+			timePos+=5;
+		}
+
+		if(bar.upperSig.length>1) {
+			ctx.fillText(unescape("%u"+"E08"+bar.upperSig[0]), timePos-11, (bar.line*144) + 95);
+			ctx.fillText(unescape("%u"+"E08"+bar.upperSig[1]), timePos+11, (bar.line*144) + 95);
+		} else {
+			ctx.fillText(unescape("%u"+"E08"+bar.upperSig), timePos, (bar.line*144) + 95);
+		}
+		
+		if(bar.lowerSig.length>1) {
+			ctx.fillText(unescape("%u"+"E08"+bar.lowerSig[0]), timePos-11, (bar.line*144) + 128);
+			ctx.fillText(unescape("%u"+"E08"+bar.lowerSig[1]), timePos+11, (bar.line*144) + 128);
+		} else {
+			ctx.fillText(unescape("%u"+"E08"+bar.lowerSig), timePos, (bar.line*144) + 128);
+		}
+		
 	}
 
 	ctx.beginPath();

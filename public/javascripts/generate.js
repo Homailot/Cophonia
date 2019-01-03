@@ -18,6 +18,9 @@ function unStretch(line) {
 
 			if(bars[bar].changedTimeSig) {
 				startPos+=35;
+				if(bars[bar].upperSig.length>1 || bars[bar].lowerSig.length>1) {
+					startPos+=15;
+				}
 			} 
 			if(bars[bar].changedOrFirstClef) {
 				startPos+=45;
@@ -45,7 +48,7 @@ function unStretch(line) {
 					
 					startPos+=40+maxDots*10;
 				}
-				if(curBar===bar && extended) {
+				if(curBar===bar && (extended || bars[bar].notes.length===0)) {
 					Marker.xPos=startPos;
 					startPos+=40;
 				} 
@@ -84,7 +87,13 @@ function getSpace(line) {
 			var startWidth = 5;
 			if(bars[bar].changedAcc || bars[bar].firstAcc) startWidth+=(bars[bar].accidentals+bars[bar].naturals.length)*18;
 			if(bars[bar].changedOrFirstClef || bars[bar].changedClef) startWidth+=45;
-			if(bars[bar].changedTimeSig) startWidth+=35;
+			if(bars[bar].changedTimeSig) {
+				startWidth+=35;
+
+				if(bars[bar].upperSig.length>1 || bars[bar].lowerSig.length>1) {
+					startWidth+=15;
+				}
+			} 
 			if(bars[bar].notes.length===0) startWidth+=40;
 
 			objectsWidth.push(startWidth);
