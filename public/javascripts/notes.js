@@ -292,15 +292,36 @@ function getNoteDuration(note) {
 }
 
 function tieBeat(bar, note, tieTo, y) {
-	if(note<0 || note>=bars[bar].notes.length-1) return;
+	var barTo=bar;
+	if(tieTo>=bars[bar].notes.length) {
+		barTo=bar+1;
+		tieTo=0
+
+		if(barTo<bars.length)  {
+			if(bars[barTo].notes.length===0) return
+		} else {
+			return;
+		}
+	} else if(tieTo<0) {
+		barTo=bar-1;
+		tieTo=bars[barTo].notes.length-1;
+
+		if(barTo>=0) {
+			if(bars[barTo].notes.length===0) return
+		} else {
+			return;
+		}
+	}
+	if(bars[bar].notes[note].isSpace && !bars[barTo].notes[tieTo].isSpace ||
+		!bars[bar].notes[note].isSpace && bars[barTo].notes[tieTo].isSpace) return;
 	var objNoteS;
 	var objNoteE;
 
-	if(note<tieTo) {
+	if((bar!==barTo && barTo>bar) || (bar===barTo && note<tieTo)) {
 		objNoteS=bars[bar].notes[note];
-		objNoteE=bars[bar].notes[tieTo];
+		objNoteE=bars[barTo].notes[tieTo];
 	} else {
-		objNoteS=bars[bar].notes[tieTo];
+		objNoteS=bars[barTo].notes[tieTo];
 		objNoteE=bars[bar].notes[note];
 	}
 	

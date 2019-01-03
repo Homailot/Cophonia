@@ -52,6 +52,7 @@ function drawFigure(note) {
 		ctx.fillText(text, note.xPos, ((note.line+1)*144)-8-26 );
 
 		drawDot(note, false);
+		drawTies(note, turned);
 		return;
 	}
 	if(note.noteGroups.length>1) {
