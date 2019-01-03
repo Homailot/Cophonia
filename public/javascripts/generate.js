@@ -565,12 +565,12 @@ function generateAll() {
 		
 
 		//sets the color to red if the sum is wrong
-		var color="";
+		var color = "#000000";
 		if(curBar!==bar && sum!==bars[curBar].upperSig/bars[curBar].lowerSig) {
-			color = "#FF0000";
+			//color = "#FF0000";
 		}
 		else {
-			color = "#000000";
+			//color = "#000000";
 		} 
 		
 		if(firstLine===bars[bar].line) {

@@ -292,7 +292,7 @@ function getNoteDuration(note) {
 }
 
 function tieBeat(bar, note, tieTo, y) {
-	if(note<0 || curNote>=bars[bar].notes.length) return;
+	if(note<0 || note>=bars[bar].notes.length-1) return;
 	var objNoteS;
 	var objNoteE;
 

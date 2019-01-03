@@ -297,6 +297,8 @@ document.addEventListener("keydown", function(event) {
 			case "ArrowRight":
 				if(tPress) {
 					tieBeat(curBar, curNote, curNote+1, y);
+
+					generateAll();
 				} else {
 					moveRight();
 				}
@@ -307,6 +309,8 @@ document.addEventListener("keydown", function(event) {
 			case "ArrowLeft":
 				if(tPress) {
 					tieBeat(curBar, curNote, curNote-1, y);
+
+					generateAll();
 				} else {
 					moveLeft();
 				}
