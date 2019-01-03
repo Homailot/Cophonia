@@ -7,14 +7,24 @@
 		    font-family: "Musicaf";
 		    src: url('./Musica.ttf') format("truetype");
 		}
+		@font-face {
+			font-family: "BravuraF";
+			src: url("./Bravura.otf") format("opentype")
+		}
 		canvas { 
 			font-family: "Musicaf";
 		 }
-		 #load {
+		 .load {
 		 	font-family: "Musicaf";
             visibility: hidden;
             height: 0px;
 		 }
+
+		.load2{
+			font-family: "BravuraF";
+			visibility: hidden;
+            height: 0px;
+		}
 		html, body {
 			height: 96%;
 			padding: 0px;
@@ -47,7 +57,8 @@
 	<script src='https://surikov.github.io/webaudiofont/npm/dist/WebAudioFontPlayer.js'></script>
 </head>
 <body style="font-family: Musicaf;">
-	 <div id="load">words</div>
+	 <div class="load">words</div>
+	 <div class="load2">as</div>
 	<canvas class="save" id="save">
 
 	</canvas>

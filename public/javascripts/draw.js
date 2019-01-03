@@ -486,13 +486,10 @@ function drawBar(bar, color) { // eslint-disable-line no-unused-vars
 
 	if(bar.firstAcc || bar.changedAcc) timePos+=(accidentalSum) * 18;
 	timePos+=10;
-	var texto;
 	if(bar.changedTimeSig) {
-		ctx.font = "48px Calibri";
-		texto = bar.upperSig;
-		ctx.fillText(texto, timePos, (bar.line*144) + 111);
-		texto = bar.lowerSig;
-		ctx.fillText(texto, timePos, (bar.line*144) + 144);
+		ctx.font = "60px BravuraF";
+		ctx.fillText(unescape("%u"+"E08"+bar.upperSig), timePos, (bar.line*144) + 95);
+		ctx.fillText(unescape("%u"+"E08"+bar.lowerSig), timePos, (bar.line*144) + 128);
 	}
 
 	ctx.beginPath();

@@ -91,18 +91,8 @@ function placeNote(duration, line, pos, isSpace, newGroup) { // eslint-disable-l
 }
 
 NoteGroup.prototype.updateAccidental = function(bar, n, j) {
-	for(var i = 1; i<=bars[bar].accidentals; i++) {
-		var value = i-1;
-		if(bars[bar].sharpOrFlat===-1) value = 7-i;
-
-		if(this.scalePos === accidentalOrder[value] && this.accidental===bars[bar].sharpOrFlat) {
-			hideAccidental(n, this, true, j);
-			break;
-		} else if(this.scalePos === accidentalOrder[value]) {
-			hideAccidental(n, this, false, j);
-			break;
-		}
-	}
+	determineAccFromBar(bars[bar], null, this, 0);
+	determineAccFromNotes(bars[bar], null, this, j);
 
 	getAccWidth(j, bars[bar]);
 };
