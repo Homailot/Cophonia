@@ -1,6 +1,6 @@
 function Note(xPos, yPos, line, duration, pos, noteValue, isSpace, scalePos, acc) {
 	this.xPos = xPos;
-	this.noteGroups = new Array();
+	this.noteGroups = [];
 	this.noteGroups.push(new NoteGroup(yPos, pos, noteValue, scalePos, acc));
 	this.line = line;
 	this.duration = duration;
@@ -55,10 +55,10 @@ function placeNote(duration, line, pos, isSpace, newGroup) { // eslint-disable-l
 			break;
 		}
 	}
-
+	var note;
 	for(i = 0; i<bars[curBar].notes.length; i++) {
 		var n=bars[curBar];
-		for(var note=0; note<n.notes[i].noteGroups.length; note++) {
+		for(note=0; note<n.notes[i].noteGroups.length; note++) {
 			if(pos === n.notes[i].noteGroups[note].pos) {
 				acc=n.notes[i].noteGroups[note].accidental;
 
@@ -76,7 +76,7 @@ function placeNote(duration, line, pos, isSpace, newGroup) { // eslint-disable-l
 	}
 	note = bars[curBar].notes[curNote];
 	var inverse;
-	for(var nG=0; n<note.noteGroups.length; nG++) {
+	for(var nG=0; nG<note.noteGroups.length; nG++) {
 		if(nG===0) inverse = note.noteGroups[0].pos;
 		else if(Math.abs(note.noteGroups[nG].pos - (-3)) > Math.abs(inverse - (-3))) {
 			inverse = note.noteGroups[nG].pos;

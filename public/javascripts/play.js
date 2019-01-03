@@ -79,10 +79,10 @@ function playNotes() {
 }
 
 function getChords(playingBar, playingNote) {
-	var chords = new Array();
+	var chords = [];
 	var duration = 0;
 	for(var n=0; n<bars[playingBar].notes[playingNote].noteGroups.length; n++) {
-		var chord = new Array();
+		var chord = [];
 		if(bars[playingBar].notes[playingNote].noteGroups[n].tiedTo!==null) continue;
 		
 		chord.push(bars[playingBar].notes[playingNote].noteGroups[n].noteValue + bars[playingBar].notes[playingNote].noteGroups[n].accidental);

@@ -40,14 +40,14 @@ function moveBars(bar, forward, line) { // eslint-disable-line no-unused-vars
 	var movingLine = line;
 
 	for(bar=bar+1; bar < bars.length; bar++) {
-
+		var note;
 		if(bars[bar].line !== movingLine) {
 			movingLine++;
 			lines[bars[bar].line].bars -= 1;
 			if(lines[bars[bar].line].bars === 0) lines.splice(bars[bar].line, 1);
 			bars[bar].line-=1;
 			lines[bars[bar].line].bars +=1; 
-			for(var note = 0; note < bars[bar].notes.length; note++) {
+			for(note = 0; note < bars[bar].notes.length; note++) {
 				bars[bar].notes[note].line-=1;
 			}
 		} else {

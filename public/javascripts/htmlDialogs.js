@@ -13,9 +13,10 @@ function changeTimeSigPop(bar) { // eslint-disable-line no-unused-vars
 	label.innerHTML="Upper Number:";
 	label.for="upperSig";
 	formDiv.appendChild(label);
+	var option;
 
 	for(var num = 1; num<=32; num++) {
-		var option = document.createElement("option");
+		option = document.createElement("option");
 		option.innerHTML = num;
 		option.value=num;
 		sigSel.appendChild(option);

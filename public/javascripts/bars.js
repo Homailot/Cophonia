@@ -12,7 +12,7 @@ function Bar(upperSig, lowerSig, changedTimeSig, clef, changedOrFirstClef, xPos,
 	//initPos = start of bar
 	this.initPos = xPos;
 	this.line = line;
-	this.notes = new Array();
+	this.notes = [];
 	this.sharpOrFlat = sof;
 	this.accidentals = acc;
 	this.naturals = [];

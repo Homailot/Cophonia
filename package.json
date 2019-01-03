@@ -8,13 +8,14 @@
   },
   "dependencies": {
     "cookie-parser": "~1.4.3",
-    "debug": "^4.1.0",
+    "debug": "^4.1.1",
     "express": "~4.16.0",
     "grunt": "^1.0.3",
     "grunt-contrib-concat": "^1.0.1",
     "grunt-contrib-uglify": "^4.0.0",
     "hbs": "~4.0.1",
     "http-errors": "^1.7.1",
+    "jshint": "^2.9.7",
     "morgan": "~1.9.0"
   },
   "devDependencies": {

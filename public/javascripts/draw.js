@@ -472,8 +472,9 @@ function drawBar(bar, color) { // eslint-disable-line no-unused-vars
 		timePos += 45;
 	}
 	var accidentalSum = bar.accidentals;
+	var acc;
 	for(var i = 0; i<bar.naturals.length; i++) {
-		var acc = bar.naturals[i]-1;
+		acc = bar.naturals[i]-1;
 		if(bar.firstAcc || bar.changedAcc) drawAccidental(timePos+(i)*18, bar.naturalOrder, acc, bar.line, 0);
 	}
 	if(bar.firstAcc || bar.changedAcc) timePos+=(bar.naturals.length) * 18;
@@ -553,8 +554,9 @@ function drawAccidental(pos, acc, note, line, sof) {
 }
 
 function drawExtraStaff(x, y, rLine) {
+	var line;
 	if(y <= -11) {
-		for(var line = -11; line>=y; line-=2) {
+		for(line = -11; line>=y; line-=2) {
 			ctx.beginPath();
 			ctx.lineWidth = 1;
 			ctx.strokeStyle = "#939393";

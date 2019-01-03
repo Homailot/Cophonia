@@ -232,7 +232,7 @@ function checkBarCompletion(bar) {
 }
 
 function getBeamGroups(bar) {
-	var beamGroups = new Array();
+	var beamGroups = [];
 	var objBar = bars[bar];
 
 	//we just say we are going to create a new group so that we don't create unecessary groups
@@ -256,7 +256,7 @@ function getBeamGroups(bar) {
 		} else {
 			//if we are creating a new group it creates it
 			if(newGroup) {
-				beamGroups.push(new Array());
+				beamGroups.push([]);
 
 				newGroup = false;
 			}
@@ -554,7 +554,7 @@ function generateAll() { // eslint-disable-line no-unused-vars
 	var firstLine=0;
 	for(var bar = 0; bar < bars.length; bar++) {
 		//the beamGroups define the groups of eigth plus notes to be grouped with beams
-		var beamGroups = new Array();
+		var beamGroups = [];
 		
 
 		// //sets the color to red if the sum is wrong
