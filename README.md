@@ -36,6 +36,7 @@ Here are some basic controls (all input is done via keyboard for now):
 * Shift + T to change the Time Signature
 * Shift + K to change the Key
 * T + Arrow Keys to tie beats
+* T + Delete to demolish ties
 * . to add augmentation dots
 * (+) and (-) for accidentals
 * K is for music playback
