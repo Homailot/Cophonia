@@ -148,8 +148,11 @@ function drawTies(note, turned) { // eslint-disable-line no-unused-vars
 			var radius = note.noteGroups[nG].tiesTo.objNote.xPos-xCenter;
 			var startAngle = 0.125*Math.PI;
 			var endAngle = 0.875*Math.PI;
+			if(no)
 			
 			ctx.beginPath();
+			ctx.strokeStyle="#000000";
+			ctx.lineWidth=2;
 			ctx.ellipse(xCenter, yCenter, radius, 10, 0, startAngle, endAngle, false);
 			ctx.stroke();
 		}
