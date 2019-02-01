@@ -325,6 +325,16 @@ document.addEventListener("keydown", function(event) {
 				tieBeat(curBar, curNote, curNote+1, y);
 
 				generateAll();
+			} else if(ctrlPress) {
+				if(curIPage+1<iPages.length) curIPage++;
+				curNote=0;
+				bars=iPages[curIPage].bars;
+				lines=iPages[curIPage].lines;
+
+				markerOutOfBounds();
+				console.log(curIPage);
+
+				generateAll();
 			} else {
 				moveRight();
 			}
@@ -337,9 +347,20 @@ document.addEventListener("keydown", function(event) {
 				tieBeat(curBar, curNote, curNote-1, y);
 
 				generateAll();
+			} else if(ctrlPress) {
+				if(curIPage-1>=0) curIPage--;
+				curNote=0;
+				bars=iPages[curIPage].bars;
+				lines=iPages[curIPage].lines;
+
+				markerOutOfBounds();
+				console.log(curIPage);
+
+				generateAll();
 			} else {
 				moveLeft();
 			}
+
 
 				
 			event.preventDefault();
@@ -376,6 +397,19 @@ document.addEventListener("keydown", function(event) {
 		case "Digit6":
 			curDuration = 0.03125;
 			changeDuration(curNote, curDuration);
+			break;
+		case "KeyN":
+			if(ctrlPress) {
+				iPages.push(new InstrumentPage());	
+				curIPage=iPages.length-1;
+				curNote=0;
+				bars=iPages[curIPage].bars;
+				lines=iPages[curIPage].lines;
+
+				
+			}
+			
+			generateAll();
 			break;
 		case "KeyK":
 			if(ctrlPress) {

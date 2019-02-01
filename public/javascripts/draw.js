@@ -148,7 +148,7 @@ function drawTies(note, turned) { // eslint-disable-line no-unused-vars
 			var radius = note.noteGroups[nG].tiesTo.objNote.xPos-xCenter;
 			var startAngle = 0.125*Math.PI;
 			var endAngle = 0.875*Math.PI;
-			if(no)
+			//if(no)
 			
 			ctx.beginPath();
 			ctx.strokeStyle="#000000";
@@ -438,7 +438,6 @@ function drawMarker(y) {// eslint-disable-line no-unused-vars
 
 	var yOffset=0;
 	for(var line = 0; line<=curLine; line++) {
-
 		yOffset+=lines[line].yOffset;
 	}
 	ctx.translate(0, yOffset);
