@@ -259,7 +259,7 @@ function getBeamGroups(bar) {
 
 		//we only create a new group if newGroup = true and if the note has lower duration than a quarter note
 		if(getNoteDuration(objNote) >= 0.25 || objNote.isSpace) {
-			drawFigure(objNote);
+			drawFigure(bar, objNote);
 			//if the notes is quarter note or higher it creates a new group
 			newGroup = true;
 		} else {
@@ -334,7 +334,7 @@ function getDirection(beamGroups, group) {
 	return {asc: asc, desc: desc};
 }
 
-function getYStart(beamGroups, group, inverse, shortest) {
+function getYStart(bar, beamGroups, group, inverse, shortest) {
 	var beamOffset=-33;
 	var mult=-1;
 	if(inverse) {
@@ -345,7 +345,7 @@ function getYStart(beamGroups, group, inverse, shortest) {
 	var yStart=0;
 
 	for(var note = 0; note < beamGroups[group].length; note++) {
-		drawTies(beamGroups[group][note], inverse);
+		drawTies(bar, beamGroups[group][note], inverse);
 		drawHead(beamGroups[group][note], inverse);
 		//finally, we define the y pos of the beam. in this case we check for the note farthest away from all the others, so that the beam isn't drawn on top of the head
 		for(var n=0; n<beamGroups[group][note].noteGroups.length; n++) {
@@ -450,7 +450,7 @@ function defineLowerBeams(beamGroups, group, line, inverse) {
 	}
 }
 
-function defineBeams(beamGroups) {
+function defineBeams(bar, beamGroups) {
 	//finally we go through each group to draw the beams
 	for(var group = 0; group < beamGroups.length; group++) {
 		var notes = beamGroups[group].length;
@@ -488,7 +488,7 @@ function defineBeams(beamGroups) {
 			} else {
 				inverse=false;
 			}
-			var yStart = getYStart(beamGroups, group, inverse, shortest);
+			var yStart = getYStart(bar, beamGroups, group, inverse, shortest);
 			var yEnd = getYEnd(yStart, asc, desc);
 			
 			//here, we get the length of each note's stem and draw it
@@ -586,7 +586,7 @@ function generateAll() { // eslint-disable-line no-unused-vars
 		drawBar(bars[bar], color);
 
 		beamGroups = getBeamGroups(bar);
-		defineBeams(beamGroups);
+		defineBeams(bar, beamGroups);
 	}
 
 	saveCanvas();

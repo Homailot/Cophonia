@@ -37,7 +37,7 @@ function drawClef(clef, xPos, line) {
 	}
 }
 
-function drawFigure(note) { // eslint-disable-line no-unused-vars
+function drawFigure(bar, note) { // eslint-disable-line no-unused-vars
 	var turned=false;
 	var text;
 	if(note.isSpace) {
@@ -53,7 +53,7 @@ function drawFigure(note) { // eslint-disable-line no-unused-vars
 		ctx.fillText(text, note.xPos, ((note.line+1)*144)-8-26 );
 
 		drawDot(note, false);
-		drawTies(note, turned);
+		drawTies(bar, note, turned);
 		return;
 	}
 	if(note.noteGroups.length>1) {
@@ -102,7 +102,7 @@ function drawFigure(note) { // eslint-disable-line no-unused-vars
 
 		ctx.restore();
 		drawDot(note, turned);
-		drawTies(note, turned);
+		drawTies(bar, note, turned);
 	} else {
 		note.noteGroups[0].yPos = ((note.line+1) * 144 - 2 ) + note.noteGroups[0].pos * 8 - 14;
 		drawExtraStaff(note.xPos, note.noteGroups[0].pos-2, note.line);
@@ -136,20 +136,39 @@ function drawFigure(note) { // eslint-disable-line no-unused-vars
 
 		ctx.restore();	
 		drawDot(note, turned);
-		drawTies(note, turned);
+		drawTies(bar, note, turned);
 	}	
 }
 
-function drawTies(note, turned) { // eslint-disable-line no-unused-vars
+function drawTies(bar, note, turned) { // eslint-disable-line no-unused-vars
 	for(var nG=0; nG<note.noteGroups.length; nG++) {
 		if(note.noteGroups[nG].tiesTo!=null) {
-			var xCenter = (note.xPos+10+note.noteGroups[nG].tiesTo.objNote.xPos)/2;
-			var yCenter = note.noteGroups[nG].yPos+15;
-			var radius = note.noteGroups[nG].tiesTo.objNote.xPos-xCenter;
-			var startAngle = 0.125*Math.PI;
-			var endAngle = 0.875*Math.PI;
-			//if(no)
+			var xCenter, yCenter, radius, startAngle, endAngle;
 			
+			yCenter = note.noteGroups[nG].yPos+15;	
+			startAngle = 0.125*Math.PI;
+			endAngle = 0.875*Math.PI;
+
+			if(note.noteGroups[nG].tiesTo.objNote.line!=note.line) {
+				xCenter=bars[bar].xPos;
+				radius=bars[bar].xPos-(note.xPos+10);
+
+				ctx.beginPath();
+				ctx.strokeStyle="#000000";
+				ctx.lineWidth=2;
+				ctx.ellipse(xCenter, yCenter, radius, 10, 0, startAngle, endAngle, false);
+				ctx.stroke();
+
+				yCenter=note.noteGroups[nG].tiesTo.objNG.yPos+15+lines[note.noteGroups[nG].tiesTo.objBar.line].yOffset;
+				xCenter=note.noteGroups[nG].tiesTo.objBar.initPos;
+				radius=note.noteGroups[nG].tiesTo.objNote.xPos-note.noteGroups[nG].tiesTo.objBar.initPos;
+				console.log(note.noteGroups[nG].tiesTo.objBar.initPos);
+			} else {
+				xCenter = (note.xPos+10+note.noteGroups[nG].tiesTo.objNote.xPos)/2;
+				radius = note.noteGroups[nG].tiesTo.objNote.xPos-xCenter;
+			}
+			
+
 			ctx.beginPath();
 			ctx.strokeStyle="#000000";
 			ctx.lineWidth=2;

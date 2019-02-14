@@ -295,13 +295,18 @@ function tieBeat(bar, note, tieTo, y) { // eslint-disable-line no-unused-vars
 		!bars[bar].notes[note].isSpace && bars[barTo].notes[tieTo].isSpace) return;
 	var objNoteS;
 	var objNoteE;
+	var objBarS, objBarE;
 
 	if((bar!==barTo && barTo>bar) || (bar===barTo && note<tieTo)) {
 		objNoteS=bars[bar].notes[note];
 		objNoteE=bars[barTo].notes[tieTo];
+		objBarS=bars[bar];
+		objBarE=bars[barTo];
 	} else {
 		objNoteS=bars[barTo].notes[tieTo];
 		objNoteE=bars[bar].notes[note];
+		objBarE=bars[bar];
+		objBarS=bars[barTo];
 	}
 	
 	var objNG=null;
@@ -309,14 +314,14 @@ function tieBeat(bar, note, tieTo, y) { // eslint-disable-line no-unused-vars
 
 	for(var nG = 0; nG<objNoteS.noteGroups.length; nG++) {
 		if(objNoteS.noteGroups[nG].pos===y+2) {
-			objNG={objNote: objNoteS, objNG: objNoteS.noteGroups[nG]};
+			objNG={objNote: objNoteS, objNG: objNoteS.noteGroups[nG], objBar: objBarS};
 			break;
 		}
 	}
 
 	for(nG=0; nG<objNoteE.noteGroups.length; nG++) {
 		if(objNoteE.noteGroups[nG].pos===y+2) {
-			objDest={objNote: objNoteE, objNG: objNoteE.noteGroups[nG]};
+			objDest={objNote: objNoteE, objNG: objNoteE.noteGroups[nG], objBar: objBarE};
 			break;
 		}
 	}
