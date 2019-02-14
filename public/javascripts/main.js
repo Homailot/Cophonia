@@ -39,7 +39,7 @@ var extended = false; // eslint-disable-line no-unused-vars
 var Marker = { // eslint-disable-line no-unused-vars
 	xPos: 0
 };
-var time = null; // eslint-disable-line no-unused-vars
+var time = []; // eslint-disable-line no-unused-vars
 var scrollValue=0; // eslint-disable-line no-unused-vars
 var accidentalOrder = [4, 1, 5, 2, 6, 3, 7]; // eslint-disable-line no-unused-vars
 

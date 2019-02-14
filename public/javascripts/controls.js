@@ -254,9 +254,17 @@ function setMarker(isSpace, newGroup) {
 	generateAll();
 }
 
+function checkPlay() {
+	for(var i = 0; i<playing.length; i++) {
+		if(playing[i]===true) return true;
+	}
+
+	return false;
+}
+
 document.addEventListener("keydown", function(event) {
 	//simple code that checks what key was pressed and executes a function
-	if(!playing) {
+	if(!checkPlay()) {
 		var dc = document.getElementById("dialogContainer");
 		if(dc.childNodes.length>0) dc.removeChild(dc.childNodes[0]);
 		switch(event.key) {
@@ -418,8 +426,11 @@ document.addEventListener("keydown", function(event) {
 				playingBar = 0;
 				playingNote = 0;
 				playingTime = 0;
-
-				clearTimeout(time);
+				
+				for(var i=0; i<time.length; i++) {
+					clearTimeout(time[i]);
+				}
+				
 				play();
 			}
 				
@@ -442,7 +453,9 @@ document.addEventListener("keydown", function(event) {
 	} else {
 		switch(event.code) {
 		case "KeyK":
-			clearTimeout(time);
+			for(var j=0; j<time.length; j++) {
+				clearTimeout(time[j]);
+			}
 			restoreCanvas(); playing=false;
 			break;
 		case "ShiftLeft":
