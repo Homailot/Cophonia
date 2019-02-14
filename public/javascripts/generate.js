@@ -345,6 +345,7 @@ function getYStart(beamGroups, group, inverse, shortest) {
 	var yStart=0;
 
 	for(var note = 0; note < beamGroups[group].length; note++) {
+		drawTies(beamGroups[group][note], inverse);
 		drawHead(beamGroups[group][note], inverse);
 		//finally, we define the y pos of the beam. in this case we check for the note farthest away from all the others, so that the beam isn't drawn on top of the head
 		for(var n=0; n<beamGroups[group][note].noteGroups.length; n++) {

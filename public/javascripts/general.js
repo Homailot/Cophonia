@@ -79,6 +79,16 @@ function saveCanvas() { // eslint-disable-line no-unused-vars
 	savedCanvas.ctx.drawImage(c, 0, 0);
 }
 
+function markerOutOfBounds() {  // eslint-disable-line no-unused-vars
+	if(curBar>=bars.length) {
+		curBar = bars.length-1;
+	}
+
+	if(curLine>=lines.length) {
+		curLine = lines.length-1;
+	}
+}
+
 function restoreCanvas() { // eslint-disable-line no-unused-vars
 	ctx.clearRect(0, 0, c.width, 100000);
 	ctx.drawImage(savedCanvas, -0.5, -0.5+scrollValue);

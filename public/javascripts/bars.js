@@ -1,56 +1,41 @@
-function Bar(upperSig, lowerSig, changedTimeSig, clef, changedOrFirstClef, xPos, line, cA, acc, sof) {
-	this.upperSig = upperSig;
-	this.lowerSig = lowerSig;
-	this.changedTimeSig = changedTimeSig;
-	this.clef = clef;
-	this.changedOrFirstClef = changedOrFirstClef;
-	this.changedClef = changedOrFirstClef;
+function Bar() {
+	this.upperSig = 4;
+	this.lowerSig = 4;
+	this.changedTimeSig = false;
+	this.clef = 1;
+	this.changedOrFirstClef = false;
+	this.changedClef = false;
 	this.complete = false;
 	//xPos = end of bar
-	this.xPos = xPos+40;
+	this.xPos = 0;
 
 	//initPos = start of bar
-	this.initPos = xPos;
-	this.line = line;
+	this.initPos = 0;
+	this.line = 0;
 	this.notes = [];
-	this.sharpOrFlat = sof;
-	this.accidentals = acc;
+	this.sharpOrFlat = 0;
+	this.accidentals = 0;
 	this.naturals = [];
 	this.naturalOrder=0;
 	this.firstAcc;
-	this.changedAcc = cA;
+	this.changedAcc = false;
 }
 
 function newBar(upperSig, lowerSig, cS, clef, cC, xPos, line, cA, acc, sof) { // eslint-disable-line no-unused-vars
-	//checks if new line(meaning that we have 3 or more bars on the current line)
-	if(lines[curLine].bars === 3 && line === 0 || lines[curLine].bars === 4 && line !==0) {
-		//if we create a new line, then we check the current one as complete, then initialize the variables.
-		lines.push(new Line());
-		lines[curLine].complete = true;
-		lines[curLine+1].bars++;
-		lines[curLine+1].yOffset=0;
-		xPos = 8;
-		//cC = true;
-		line++;
-	} else {
-		lines[curLine].bars++;
-	}
-
+	line = checkLineOverflow(curLine, lines);
 	//creates the new bar and initializes it's xPosition depending on the values.
-	var bar = new Bar(upperSig, lowerSig, cS, clef, cC, xPos, line, cA, acc, sof);
-	if(cS) {
-		xPos+=35;
-		bar.xPos+= 35;
-	} 
-	if(cC) {
-		xPos += 45;
-		bar.xPos+=45;
-	}
-	if(cA) {
-		xPos+=(bar.accidentals)*18;
-		bar.xPos += (bar.accidentals)*18;
-	}
-	
+	var bar = new Bar();	
+	bar.upperSig = upperSig;
+	bar.lowerSig=lowerSig;
+	bar.changedTimeSig = cS;
+	bar.clef = clef;
+	bar.changedOrFirstClef = cC;
+	bar.changedClef= cC;
+	bar.xPos=0;
+	bar.line = line;
+	bar.changedAcc=cA;
+	bar.accidentals=acc;
+	bar.sharpOrFlat=sof;
 
 	//we insert the bar in the array at the current position
 	bars.splice(curBar, 0, bar);
@@ -58,6 +43,24 @@ function newBar(upperSig, lowerSig, cS, clef, cC, xPos, line, cA, acc, sof) { //
 	
 	return xPos;
 }
+
+function checkLineOverflow(line, lines) {
+	//checks if new line(meaning that we have 3 or more bars on the current line)
+	if( lines[line].bars === 3 && line === 0 ||  lines[line].bars === 4 && line !==0) {
+		//if we create a new line, then we check the current one as complete, then initialize the variables.
+		lines.push(new Line());
+		lines[line].complete = true;
+		lines[line+1].bars++;
+		lines[line+1].yOffset=0;
+		//cC = true;
+		line++;
+	} else {
+		lines[line].bars++;
+	}
+
+	return line;
+}
+
 
 function changeTimeSig(upperSig, lowerSig, bar) { // eslint-disable-line no-unused-vars
 	for(var ibar = bar+1; ibar<bars.length; ibar++) {
