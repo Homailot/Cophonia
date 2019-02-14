@@ -1,52 +1,55 @@
-window.onload = function () {
-	var instrumentName= "acoustic_grand_piano"
+var instr=null; // eslint-disable-line no-unused-vars
+var AudioContextFunc = window.AudioContext || window.webkitAudioContext;
+var audioContext = new AudioContextFunc();
+var player=new WebAudioFontPlayer();
 
-	MIDI.loadPlugin({
-		soundfontUrl: '/FluidR3_GM/',
-		instrument: instrumentName,
-		onprogress: function(state, progress) {
-			console.log(state, progress);
-		},
-		onsuccess: function() {
-			var delay = 0; // play one note every quarter second
-			var note = 70; // the MIDI note
-			var velocity = 127; // how hard the note hits
-			MIDI.programChange(0, MIDI.GM.byName[instrumentName].number);
-
-		}
+function changeInstrument(path,name){
+	player.loader.startLoad(audioContext, path, name);
+	player.loader.waitLoad(function () {
+		instr=window[name];
 	});
+}
+
+window.onload = function () {
+	changeInstrument("https://surikov.github.io/webaudiofontdata/sound/0000_FluidR3_GM_sf2_file.js","_tone_0000_FluidR3_GM_sf2_file");
 
 	setTimeout(start,200);
 };
 
+
+
 var c = document.getElementById("principal");
 var ctx = c.getContext("2d");
-c.width = window.innerWidth - 50
-c.height = window.innerHeight - 20
+c.width = window.innerWidth - 50;
+c.height = window.innerHeight - 20;
 ctx.translate(0.5, 0.5);
-lastPos = 180;
+var lastPos = 180;
 y=0;
-var bars = new Array();
-var lines = new Array();
-var savedBars = new Array();
-var curBar = 0;
-var curNote = 0;
-var staffN = 1;
-var curDuration = 0.5;
-var curLine = 0;
-var extended = false;
-var Marker = {
+var iPages = [];
+var curIPage=0;
+var bars = []; // eslint-disable-line no-unused-vars
+var lines = []; // eslint-disable-line no-unused-vars
+var savedBars = []; // eslint-disable-line no-unused-vars
+var curBar = 0; // eslint-disable-line no-unused-vars
+var curNote = 0; // eslint-disable-line no-unused-vars
+var staffN = 1; // eslint-disable-line no-unused-vars
+var curDuration = 0.5; // eslint-disable-line no-unused-vars
+var curLine = 0; // eslint-disable-line no-unused-vars
+var extended = false; // eslint-disable-line no-unused-vars
+var Marker = { // eslint-disable-line no-unused-vars
 	xPos: 0
-}
-var time = null;
-var scrollValue=0;
-var accidentalOrder = [4, 1, 5, 2, 6, 3, 7]
+};
+var time = []; // eslint-disable-line no-unused-vars
+var scrollValue=0; // eslint-disable-line no-unused-vars
+var accidentalOrder = [4, 1, 5, 2, 6, 3, 7]; // eslint-disable-line no-unused-vars
 
 function start() {
 	lines.push(new Line());
-	newBar(4, 4, true, 0, false, lastPos, 0, false);
-	//+10 que initPos
-	//35 + 45 + 10
-	//Marker.xPos = bars[curBar].initPos + 90;
+	lines[0].yOffset=0;
+	iPages.push(new InstrumentPage());
+	bars=iPages[curIPage].bars;
+	iPages[curIPage].lines=lines;
+	newBar(4, 4, true, 0, false, lastPos, 0, false, 0, 0);
+
 	generateAll();
 }

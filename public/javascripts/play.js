@@ -1,64 +1,167 @@
-var playingBar = 0;
-var playingNote = 0;
-var playingTime = 0;
-var tempo = 2;
-var savedCanvas = document.getElementById("save");
-var playing = false;
+var playingBar = [];
+var playingNote = [];
+var playingTime = [];
+var tempo = 74;
+var savedCanvas = document.getElementById("save"); // eslint-disable-line no-unused-vars
+var playing = []; // eslint-disable-line no-unused-vars
+var hOffset=0;
+var playLine=0;
+var headerPos = -1;
 
-function play() {
+function play() { // eslint-disable-line no-unused-vars
 	playing=true;
+	playingBar=[];
+	playingNote=[];
+	playingTime=[];
+	time = [];
+	playing = [];
+	playLine=0;
+	headerPos=-1;
+	hOffset=0;
 
-	playNotes();
-}
-var chord;
-
-function playNotes() {
-	MIDI.setVolume(0, 127);
-	if(bars.length>0) {
-		restoreCanvas();
-		if(playingBar == bars.length){
-			drawMarker(y); playing=false; return;
-		}
-		var totalTime = bars[playingBar].upperSig/bars[playingBar].lowerSig;
+	for(var i = 0; i<iPages.length; i++) {
+		playingBar.push(0);
+		playingNote.push(0);
+		playingTime.push(0);
+		playing.push(true);
 		
-		if((playingNote == bars[playingBar].notes.length && playingTime==totalTime)||playingTime>totalTime) {
-			playingNote = 0; playingBar++; playingTime=0;
+		playNotes(iPages[i].bars, i);
+	}
+	
+}
+
+function playNotes(bars, page) {
+	if(bars.length>0) {
+		if(page===curIPage) restoreCanvas();
+		if(playingBar[page] === bars.length){
+			if(page===curIPage) drawMarker(y); 
+			playing[page]=false; return;
+		}
+		var totalTime = bars[playingBar[page]].upperSig/bars[playingBar[page]].lowerSig;
+		
+		//if we've reached the end of the bar or if the note's duration exceeds the bar's duration, we go on to the next bar
+		if((playingNote[page] === bars[playingBar[page]].notes.length && playingTime[page]===totalTime)||playingTime[page]>totalTime) {
+			playingNote[page] = 0; playingBar[page]++; playingTime[page]=0;
 		} 
 
-		if(playingBar == bars.length){
-			drawMarker(y); playing=false; return;
+		if(playingBar[page] === bars.length){
+			if(page===curIPage) drawMarker(y);
+			playing[page]=false; return;
 		}
 
-		if(playingNote == bars[playingBar].notes.length && playingTime!=totalTime) {
-			velocity = (totalTime-playingTime) * tempo;
-			playingTime=0;
+		//set the vertical offsets for the marker that follows along
+		if(bars[playingBar[page]].line===playLine) {
+			playLine++;
+			hOffset+=lines[bars[playingBar[page]].line].yOffset;
+		}
 
-			var headerPos = bars[playingBar].initPos + 10;
-			if(bars[playingBar].changedOrFirstClef) headerPos += 45;
-			if(bars[playingBar].changedTimeSig) headerPos+=35;
-			if(bars[playingBar].changedAcc || bars[playingBar].firstAcc)headerPos += bars[playingBar].accidentals*18;
-			drawHeader(headerPos, bars[playingBar].line);
+		//if we've reached the end of the bar, but the bar's time isn't complete we await until it is.
+		if(playingNote[page] === bars[playingBar[page]].notes.length && playingTime[page]!==totalTime) {
+			var velocity = (totalTime-playingTime[page]) * (1/((tempo/60))*4);
+			playingTime[page]=0;
 
-			playingNote = 0; playingBar++;
-			time = setTimeout(playNotes, velocity*1000);
+			if( bars[playingBar[page]].notes.length===0) {
+				headerPos=bars[playingBar[page]].initPos + 10;
+				if(bars[playingBar[page]].changedOrFirstClef) headerPos += 45;
+				if(bars[playingBar[page]].changedTimeSig) headerPos+=35;
+				if(bars[playingBar[page]].changedAcc || bars[playingBar[page]].firstAcc)headerPos += bars[playingBar[page]].accidentals*18;
+			}
+			if(page===curIPage) hOffset = drawHeader(headerPos, bars[playingBar[page]].line, hOffset);
+
+			playingNote[page] = 0; playingBar[page]++;
+			time[page] = setTimeout(function() {
+				playNotes(bars, page);
+			}, velocity*1000);
 			return;
 		}
-	
-		drawHeader(bars[playingBar].notes[playingNote].xPos, bars[playingBar].line);
-		playingTime+=bars[playingBar].notes[playingNote].duration;
-		chord = new Array();
-		for(n=0; n<bars[playingBar].notes[playingNote].noteGroups.length; n++) {
-			chord.push(bars[playingBar].notes[playingNote].noteGroups[n].noteValue + bars[playingBar].notes[playingNote].noteGroups[n].accidental);
+		if(page===curIPage) {
+			headerPos=bars[playingBar[page]].notes[playingNote[page]].xPos;
+			drawHeader(bars[playingBar[page]].notes[playingNote[page]].xPos, bars[playingBar[page]].line, hOffset);
+		}
+		
+		var getD = getNoteDuration(bars[playingBar[page]].notes[playingNote[page]]);
+		var nDuration;
+		//if the note's duration is bigger than the duration until the end of the bar, then we only await the time to completion
+		if(playingTime[page]+getD>totalTime) {
+			nDuration = (getD-(playingTime[page]+getD-totalTime)) * (1/(tempo/60)*4);
+		} else {
+			nDuration = getD  * (1/((tempo/60))*4);
+		}
+		playingTime[page]+=getD;
+		
+		var chords = getChords(bars, playingBar[page], playingNote[page]);
+		
+		
+		if(!bars[playingBar[page]].notes[playingNote[page]].isSpace) {
+			//player.cancelQueue(audioContext);
+			for(var ch = 0; ch<chords.length; ch++) {
+				var d = chords[ch].duration+chords[ch].duration*1/4;
+				player.queueChord(audioContext, audioContext.destination, _tone_0000_FluidR3_GM_sf2_file, 0, chords[ch].chord, d);
+			}
+			
 		}
 
-		velocity = bars[playingBar].notes[playingNote].duration * tempo
-		if(!bars[playingBar].notes[playingNote].isSpace) {
-			MIDI.chordOn(0, chord, 127, 0);
-			MIDI.chordOff(0, chord, velocity);
-		}
-
-		playingNote++
-		time = setTimeout(playNotes, velocity*1000);
+		playingNote[page]++;
+		time[page] = setTimeout(function() {
+			playNotes(bars, page);
+		}, nDuration*1000);
 		
 	}
+}
+
+function getChords(bars, playingBar, playingNote) {
+	var chords = [];
+	var duration = 0;
+	//foreach note in the current note group we will get the chords to play
+	for(var n=0; n<bars[playingBar].notes[playingNote].noteGroups.length; n++) {
+		var chord = [];
+		//if the note is tied to another, it will be already on a chord, so it will be skipped
+		if(bars[playingBar].notes[playingNote].noteGroups[n].tiedTo!==null) continue;
+		
+		//we add the note to a temporary chord
+		chord.push(bars[playingBar].notes[playingNote].noteGroups[n].noteValue + bars[playingBar].notes[playingNote].noteGroups[n].accidental);
+		
+		//if the note is tied to another, the duration of the chord will be calculated as the full tie group duration
+		if(bars[playingBar].notes[playingNote].noteGroups[n].tiesTo!==null) {
+			var objNG = {objNote: bars[playingBar].notes[playingNote], objNG: bars[playingBar].notes[playingNote].noteGroups[n]};
+			duration = getTieDuration(objNG, duration)  * (1/((tempo/60))*4);
+		
+		//if not, the note duration will be used
+		} else {
+			duration = getNoteDuration(bars[playingBar].notes[playingNote]) * (1/((tempo/60))*4);
+		}
+
+		//gets the index of the chord of the same duration we got from the last instructions
+		var index = getIndexOfChord(chords, duration);
+
+		//we add a new chord or update an old one
+		if(index===-1) {
+			chords.push({chord: chord, duration: duration});
+		} else {
+			chords[index].chord.push(bars[playingBar].notes[playingNote].noteGroups[n].noteValue + bars[playingBar].notes[playingNote].noteGroups[n].accidental);
+		}
+	}
+
+	return chords;
+}
+
+function getIndexOfChord(chords, duration) {
+	for(var ch = 0; ch<chords.length; ch++) {
+		if(chords[ch].duration===duration) {
+			return ch;
+		}
+	}
+
+	return -1;
+}
+
+function getTieDuration(objNG, duration) {
+	if(objNG.objNG.tiesTo===null) {
+		duration=getNoteDuration(objNG.objNote);
+	} else {
+		duration+=getTieDuration(objNG.objNG.tiesTo, duration)+getNoteDuration(objNG.objNote);
+	}
+	
+
+	return duration;
 }
