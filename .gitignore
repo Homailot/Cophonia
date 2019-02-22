@@ -3,8 +3,7 @@ generator/ruby/soundfont*
 **/source*
 **/build*
 */soundfont/*
-*/views/sitehbs/*
-*/routes/siteRoute/*
+
 !examples/soundfont/acoustic_grand_piano*
 !examples/soundfont/synth_drum*
 oggenc
@@ -13,6 +12,8 @@ oggdec
 # NODE/NPM
 node_modules*
 npm-debug.log
+*/views/sitehbs/
+*/routes/siteRoute/
 
 # FORMATS
 *.gz
