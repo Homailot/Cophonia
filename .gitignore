@@ -12,8 +12,8 @@ oggdec
 # NODE/NPM
 node_modules*
 npm-debug.log
-*/views/sitehbs/
-*/routes/siteRoute/
+views/sitehbs/
+routes/siteRoute/
 
 # FORMATS
 *.gz
