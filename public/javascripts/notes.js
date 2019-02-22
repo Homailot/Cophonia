@@ -29,6 +29,7 @@ function placeNote(duration, line, pos, isSpace, newGroup) { // eslint-disable-l
 	if(isSpace) realPosition=((line+1) * 144) - 48;
 	var xPos = Marker.xPos;
 	var noteValue = 71;
+	if(curIPage==1)noteValue-=12;
 	var scalePos = (pos+3)*-1+7;
 	var sP = 7;
 	var desc = false;
@@ -318,7 +319,7 @@ function tieBeat(bar, note, tieTo, y) { // eslint-disable-line no-unused-vars
 			break;
 		}
 	}
-
+	
 	for(nG=0; nG<objNoteE.noteGroups.length; nG++) {
 		if(objNoteE.noteGroups[nG].pos===y+2) {
 			objDest={objNote: objNoteE, objNG: objNoteE.noteGroups[nG], objBar: objBarE};

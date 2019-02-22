@@ -499,7 +499,7 @@ function defineBeams(bar, beamGroups) {
 
 			defineLowerBeams(beamGroups, group, line, inverse);
 			
-		} else drawFigure(beamGroups[group][0]);
+		} else drawFigure(bar, beamGroups[group][0]);
 	}
 }
 
