@@ -3,8 +3,8 @@ generator/ruby/soundfont*
 **/source*
 **/build*
 */soundfont/*
-*/views/sitehbs*
-*/routes/siteRoute*
+*/views/sitehbs/*
+*/routes/siteRoute/*
 !examples/soundfont/acoustic_grand_piano*
 !examples/soundfont/synth_drum*
 oggenc
