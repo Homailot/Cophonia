@@ -13,6 +13,7 @@ oggdec
 node_modules*
 npm-debug.log
 views/sitehbs/
+views/partials/
 routes/siteRoute/
 
 # FORMATS
