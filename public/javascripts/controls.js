@@ -479,7 +479,7 @@ document.addEventListener("keyup", function(event) {
 });
 
 document.addEventListener("mousewheel", function(event) {
-	if(!playing) {
+	if(!checkPlay()) {
 		var distance = -event.deltaY*0.2;
 		
 		if(scrollValue+event.deltaY*0.2<0) {

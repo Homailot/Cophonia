@@ -1,7 +1,7 @@
 var playingBar = [];
 var playingNote = [];
 var playingTime = [];
-var tempo = 74;
+var tempo = 120;
 var savedCanvas = document.getElementById("save"); // eslint-disable-line no-unused-vars
 var playing = []; // eslint-disable-line no-unused-vars
 var hOffset=0;
