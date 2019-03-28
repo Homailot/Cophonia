@@ -49,7 +49,7 @@ function unStretch(line) {
 					startPos+=40+maxDots*10;
 				}
 				if(curBar===bar && (extended || bars[bar].notes.length===0)) {
-					Marker.xPos=startPos;
+					markers[uIndex].xPos=startPos;
 					startPos+=40;
 				} 
 			} else startPos+=40;
@@ -174,7 +174,7 @@ function stretch(line) {
 
 				if(bar===curBar && extended) {
 					thisPos+=spaceWidth;
-					Marker.xPos = thisPos+objectsWidth[objectIndex]/2;
+					markers[uIndex].xPos = thisPos+objectsWidth[objectIndex]/2;
 					thisPos+=objectsWidth[objectIndex];
 					objectIndex++;
 				}
@@ -591,5 +591,6 @@ function generateAll() { // eslint-disable-line no-unused-vars
 
 	saveCanvas();
 	ctx.translate(0, -totalYOffset);
+	updateCurMarker();
 	drawMarker(y);
 }

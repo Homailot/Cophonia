@@ -1,5 +1,11 @@
 "use strict";
 
+var uIndex = 0;
+var tempIndex;
+// This client receives a message
+var peerConn;
+var dataChannel;
+
 var configuration = {
 	"iceServers": [{
 		"urls": "stun:stun.l.google.com:19302"
@@ -8,14 +14,16 @@ var configuration = {
 
 var isInitiator;
 
-window.room = prompt("Enter room name:");
-
-
 var socket = io.connect();
+function startConn() {
+	window.room = prompt("Enter room name:");
 
-if (room !== "") {
-	socket.emit("create or join", room);
-	//console.log("Attempted to create or  join room", room);
+	if (room !== "") {
+		socket.emit("create or join", room);
+		//console.log("Attempted to create or  join room", room);
+	}
+
+
 }
 
 socket.on("ipaddr", function (ipaddr) {
@@ -26,13 +34,24 @@ socket.on("ipaddr", function (ipaddr) {
 socket.on("created", function (room, clientId) {
 	//console.log("Created room", room, "- my client ID is", clientId);
 	isInitiator = true;
+	start();
 });
 
-socket.on("joined", function (room, clientId) {
+socket.on("joined", function (room, clientId, index) {
 	//console.log("This peer has joined room", room, "with client ID", clientId);
 	isInitiator = false;
+	uIndex = index;
 	createPeerConnection(isInitiator, configuration);
+	setTimeout(waitForOpen, 200);
 });
+
+function waitForOpen() {
+	if(dataChannel==null || dataChannel.readyState!="open") {
+		setTimeout(waitForOpen, 200);
+	} else if(dataChannel!=null && dataChannel.readyState==="open") {
+		start();
+	}
+}
 
 socket.on("full", function (room) {
 	alert("Room " + room + " is full. We will create a new room for you.");
@@ -59,9 +78,7 @@ function sendMessage(message) {
 	socket.emit("message", message);
 }
 
-// This client receives a message
-var peerConn;
-var dataChannel;
+
 
 function signalingMessageCallback(message) {
 	if (message.type === "offer") {
@@ -131,29 +148,31 @@ function onDataChannelCreated(channel) {
 	//console.log("onDataChannelCreated:", channel);
 
 	channel.onopen = function () {
-		//console.log("CHANNEL opened!!!");«
+		//console.log("CHANNEL opened!!!");
+
 	};
 
 	channel.onclose = function () {
-		//console.log("Channel closed.");
+        //console.log("Channel closed.");
+        console.log("teste");
 	};
 
-	channel.onmessage = function() {
-        //apply corresponding function
-        receiveData(event);
+	channel.onmessage = function () {
+		//apply corresponding function
+		receiveData(event);
 	};
 }
 
 function receiveData(e) {
-    var information = JSON.parse(e.data);
-    window[information.functionName](information.args);
-    generateAll();
+	var information = JSON.parse(e.data);
+	window[information.functionName](information.args);
+	if (information.generate) generateAll();
 }
 
 function sendData(jsonFunction) {
 	if (!dataChannel) {
-		//logError("Connection has not been initiated. " +
-           // "Get two peers in the same room first");
+		logError("Connection has not been initiated. " +
+            "Get two peers in the same room first");
 		return;
 	} else if (dataChannel.readyState === "closed") {
 		//logError("Connection was lost. Peer closed the connection.");
@@ -187,4 +206,3 @@ function logError(err) {
 		console.warn(err.toString(), err);
 	}
 }
-  

@@ -13,7 +13,7 @@ function changeInstrument(path,name){
 window.onload = function () {
 	changeInstrument("https://surikov.github.io/webaudiofontdata/sound/0000_FluidR3_GM_sf2_file.js","_tone_0000_FluidR3_GM_sf2_file");
 
-	setTimeout(start,200);
+	setTimeout(startConn,200);
 };
 
 
@@ -36,20 +36,56 @@ var staffN = 1; // eslint-disable-line no-unused-vars
 var curDuration = 0.5; // eslint-disable-line no-unused-vars
 var curLine = 0; // eslint-disable-line no-unused-vars
 var extended = false; // eslint-disable-line no-unused-vars
-var Marker = { // eslint-disable-line no-unused-vars
-	xPos: 0
-};
+var markers=[];
+
 var time = []; // eslint-disable-line no-unused-vars
 var scrollValue=0; // eslint-disable-line no-unused-vars
 var accidentalOrder = [4, 1, 5, 2, 6, 3, 7]; // eslint-disable-line no-unused-vars
 
 function start() {
+	console.log(uIndex);
 	lines.push(new Line());
 	lines[0].yOffset=0;
 	iPages.push(new InstrumentPage());
 	bars=iPages[curIPage].bars;
 	iPages[curIPage].lines=lines;
-	newBar(4, 4, true, 0, false, lastPos, 0, false, 0, 0);
+	var args = {
+		upperSig: 4,
+		lowerSig: 4,
+		cS: true,
+		clef: 0,
+		cC: false,
+		iPage: curIPage,
+		bar: curBar,
+		line: curLine, 
+		curLine:curLine,
+		cA: false,
+		acc: 0,
+		sof: 0
+	};
+	newBar(args);
+	
+	var mInformation = {
+		functionName: "sendMarker",
+		args: {
+		},
+		generate: false
+	};
+	sendData(JSON.stringify(mInformation));
+	var lInformation = {
+		functionName: "newMarker",
+		args: {
+			index: uIndex,
+			bar: curBar,
+			note: curNote,
+			line: curLine,
+			iPage: curIPage,
+			y: y
+		},
+		generate: true
+	}
+	sendData(JSON.stringify(lInformation));
+	newMarker(lInformation.args);
 
 	generateAll();
 }

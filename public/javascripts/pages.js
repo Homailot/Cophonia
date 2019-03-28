@@ -25,5 +25,4 @@ function InstrumentPage() {  // eslint-disable-line no-unused-vars
 		
 		this.bars.push(newBar);
 	}
-
 }

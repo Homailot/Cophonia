@@ -21,27 +21,25 @@ function Bar() {
 	this.changedAcc = false;
 }
 
-function newBar(upperSig, lowerSig, cS, clef, cC, xPos, line, cA, acc, sof) { // eslint-disable-line no-unused-vars
-	line = checkLineOverflow(curLine, lines);
+function newBar(args) { // eslint-disable-line no-unused-vars
+	args.line = checkLineOverflow(args.curLine, iPages[args.iPage].lines);
 	//creates the new bar and initializes it's xPosition depending on the values.
 	var bar = new Bar();	
-	bar.upperSig = upperSig;
-	bar.lowerSig=lowerSig;
-	bar.changedTimeSig = cS;
-	bar.clef = clef;
-	bar.changedOrFirstClef = cC;
-	bar.changedClef= cC;
+	bar.upperSig = args.upperSig;
+	bar.lowerSig=args.lowerSig;
+	bar.changedTimeSig = args.cS;
+	bar.clef = args.clef;
+	bar.changedOrFirstClef = args.cC;
+	bar.changedClef= args.cC;
 	bar.xPos=0;
-	bar.line = line;
-	bar.changedAcc=cA;
-	bar.accidentals=acc;
-	bar.sharpOrFlat=sof;
+	bar.line = args.line;
+	bar.changedAcc=args.cA;
+	bar.accidentals=args.acc;
+	bar.sharpOrFlat=args.sof;
 
+	var lbars = iPages[args.iPage].bars;
 	//we insert the bar in the array at the current position
-	bars.splice(curBar, 0, bar);
-	
-	
-	return xPos;
+	lbars.splice(args.bar, 0, bar);
 }
 
 function checkLineOverflow(line, lines) {

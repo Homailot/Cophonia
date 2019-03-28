@@ -100,6 +100,7 @@ function moveLeft() {
 		Marker.xPos = bars[curBar].notes[curNote-1].xPos;
 		curNote--;
 		restoreCanvas();
+		sendAndUpdateMarker();
 		drawMarker(y);
 
 		//if the bar was extended, it de-extends it.
@@ -133,6 +134,7 @@ function moveLeft() {
 		if(curNote < 0) curNote = 0;
 		
 		restoreCanvas();
+		sendAndUpdateMarker();
 		drawMarker(y);
 	}
 }
@@ -159,7 +161,25 @@ function moveRight() {
 		curNote = 0;
 
 		if(curBar === bars.length){
-			newBar(upperSig, lowerSig, false, 0, false, bars[curBar-1].xPos, curLine, false, acc, sof); gen = true;
+			var information = {functionName: "newBar", 
+				args: {
+					upperSig: upperSig,
+					lowerSig: lowerSig,
+					cS: false,
+					clef: 0,
+					cC: false,
+					iPage: curIPage,
+					bar: curBar,
+					line: curLine, 
+					curLine:curLine,
+					cA: false,
+					acc: acc,
+					sof: sof
+				},
+				generate: true
+			};
+			newBar(information.args); gen = true;
+			sendData(JSON.stringify(information));
 		} 
 
 		//finally, it sets the marker at the start of the next bar
@@ -169,16 +189,18 @@ function moveRight() {
 
 		//changes the current line if the current bar is in another line
 		if(bars[curBar].line !== curLine) curLine++;	
+
+		sendAndUpdateMarker();
 		if(gen) generateAll();
 		else {
 			restoreCanvas();
 			drawMarker(y);
 		}
+		
 	} else {
 		//if we are at the last note, we extend the bar before we move on to the next bar
 		if(curNote+1===bars[curBar].notes.length) {
 			//this moves the marker right, effectively when the line isn"t complete
-			Marker.xPos += 40;
 			var maxDots=0;
 			for(var n=0; n<bars[curBar].notes[curNote].noteGroups.length; n++) {
 				if(bars[curBar].notes[curNote].noteGroups[n].dots>maxDots) maxDots=bars[curBar].notes[curNote].noteGroups[n].dots;
@@ -190,6 +212,7 @@ function moveRight() {
 			extended = true;
 
 			curNote++;
+			sendAndUpdateMarker();
 			generateAll();
 		// eslint-disable-next-line brace-style
 		} 
@@ -199,6 +222,7 @@ function moveRight() {
 
 			curNote++;
 			restoreCanvas();
+			sendAndUpdateMarker();
 			drawMarker(y);
 		} 
 	} 
@@ -236,6 +260,7 @@ function changePitch(pitch) {
 	
 
 	restoreCanvas();
+	sendAndUpdateMarker();
 	drawMarker(y);
 }
 
@@ -254,11 +279,12 @@ function setMarker(isSpace, newGroup) {
 			iPage: curIPage,
 			bar: curBar, note:curNote, duration: curDuration,
 			line: curLine, pos: y+2, isSpace: isSpace, newGroup: newGroup
-		}
+		},
+		generate:true
 	};
 	placeNote(information.args);
 	sendData(JSON.stringify(information));
-
+	sendAndUpdateMarker();
 	generateAll();
 }
 
@@ -500,5 +526,4 @@ document.addEventListener("mousewheel", function(event) {
 		generateAll();
 		
 	}
-	event.preventDefault();
 });

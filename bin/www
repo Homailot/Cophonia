@@ -61,7 +61,7 @@ io.sockets.on("connection", function(socket) {
 			//log("Client ID " + socket.id + " joined room " + room);
 			// io.sockets.in(room).emit('join', room);
 			socket.join(room);
-			socket.emit("joined", room, socket.id);
+			socket.emit("joined", room, socket.id, numClients);
 			io.sockets.in(room).emit("ready", room);
 			socket.broadcast.emit("ready", room);
 		} else { // max two clients
@@ -86,7 +86,7 @@ io.sockets.on("connection", function(socket) {
 	});
 
 	socket.on("bye", function(room) {
-		//console.log(`Peer said bye on room ${room}.`);
+		console.log(`Peer said bye on room ${room}.`);
 	});
 });
 

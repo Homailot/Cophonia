@@ -433,46 +433,30 @@ function drawBeam(xStart, yStart, xEnd, yEnd) {// eslint-disable-line no-unused-
 	ctx.stroke();
 }
 
-function drawMarker(y) {// eslint-disable-line no-unused-vars
-	if(curNote === 0) {
-		Marker.xPos = bars[curBar].initPos+10;
-
-		if(bars[curBar].changedTimeSig) {
-			Marker.xPos +=35;
-			if(bars[curBar].upperSig.length>1 || bars[curBar].lowerSig.length>1) {
-				Marker.xPos+=15;
+function drawMarker(args) {// eslint-disable-line no-unused-vars
+	markers.forEach(function(marker) {
+		if(marker.iPage===curIPage) {
+			var yOffset=0;
+			for(var line = 0; line<=marker.line; line++) {
+				yOffset+=lines[line].yOffset;
 			}
-		}
-		if(bars[curBar].changedOrFirstClef) Marker.xPos += 45;
-		if(bars[curBar].changedAcc || bars[curBar].firstAcc) {
-			Marker.xPos += (bars[curBar].accidentals+bars[curBar].naturals.length)*18;
-		}
-		if(bars[curBar].notes.length>0) {
-			Marker.xPos=(bars[curBar].notes[0].xPos);
-		}
+			ctx.translate(0, yOffset);
+			drawExtraStaff(marker.xPos, marker.y, marker.line, yOffset);
 
-	} else if(!extended) {
-		Marker.xPos = bars[curBar].notes[curNote].xPos;
-	}
-
-	var yOffset=0;
-	for(var line = 0; line<=curLine; line++) {
-		yOffset+=lines[line].yOffset;
-	}
-	ctx.translate(0, yOffset);
-	drawExtraStaff(Marker.xPos, y, curLine, yOffset);
-
-	ctx.beginPath();
-	ctx.lineWidth = 1;
-	ctx.strokeStyle = "#000000";
-	ctx.globalAlpha = 0.2;
-	ctx.fillStyle = "#00FF3C";
+			ctx.beginPath();
+			ctx.lineWidth = 1;
+			ctx.strokeStyle = "#000000";
+			ctx.globalAlpha = 0.2;
+			ctx.fillStyle = "#00FF3C";
+		
+			ctx.fillRect(marker.xPos, ((marker.line+1)*144) + marker.y * 8 - 5, 20, 26);
+			ctx.rect(marker.xPos, ((marker.line+1)*144) + marker.y * 8 - 5, 20, 26);
+			ctx.globalAlpha = 1;
+			ctx.stroke();
+			ctx.translate(0, -yOffset);
+		}
+	});
 	
-	ctx.fillRect(Marker.xPos, ((curLine+1)*144) + y * 8 - 5, 20, 26);
-	ctx.rect(Marker.xPos, ((curLine+1)*144) + y * 8 - 5, 20, 26);
-	ctx.globalAlpha = 1;
-	ctx.stroke();
-	ctx.translate(0, -yOffset);
 }
 
 function drawHeader(x, line, offset) { // eslint-disable-line no-unused-vars

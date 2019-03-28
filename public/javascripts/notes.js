@@ -88,17 +88,17 @@ function placeNote(args) { // eslint-disable-line no-unused-vars
 	var acc = getAccidentalFromBar(barP, sP, acc, pos);
 	
 	var note;
-	
+	var lBars = iPages[args.iPage].bars;
 	
 	if(!args.newGroup) {
 		note = new Note(xPos, realPosition, args.line, args.duration, pos, noteValue, args.isSpace, sP, acc);
-		bars[barP].notes.splice(noteP, 0, note); 
+		lBars[barP].notes.splice(noteP, 0, note); 
 	} else {
-		bars[barP].notes[noteP].noteGroups.push(new NoteGroup(realPosition, pos, noteValue, sP, acc));
-		var noteGroupOrder=orderNoteGroup(bars[barP].notes[noteP]);
-		bars[barP].notes[noteP].noteGroups=noteGroupOrder;
+		lBars[barP].notes[noteP].noteGroups.push(new NoteGroup(realPosition, pos, noteValue, sP, acc));
+		var noteGroupOrder=orderNoteGroup(lBars[barP].notes[noteP]);
+		lBars[barP].notes[noteP].noteGroups=noteGroupOrder;
 	}
-	note = bars[barP].notes[noteP];
+	note = lBars[barP].notes[noteP];
 	var inverse;
 	for(var nG=0; nG<note.noteGroups.length; nG++) {
 		if(nG===0) inverse = note.noteGroups[0].pos;
