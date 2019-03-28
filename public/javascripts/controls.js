@@ -249,7 +249,15 @@ function changeDuration(note, duration) {
 }
 
 function setMarker(isSpace, newGroup) {
-	placeNote(curDuration, curLine, y+2, isSpace, newGroup);
+	var information = {functionName: "placeNote", 
+		args: {
+			iPage: curIPage,
+			bar: curBar, note:curNote, duration: curDuration,
+			line: curLine, pos: y+2, isSpace: isSpace, newGroup: newGroup
+		}
+	};
+	placeNote(information.args);
+	sendData(JSON.stringify(information));
 
 	generateAll();
 }

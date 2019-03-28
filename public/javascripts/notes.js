@@ -24,16 +24,8 @@ function NoteGroup(yPos, pos, noteValue, scalePos, acc) {
 	this.tiesTo=null;
 }
 
-function placeNote(duration, line, pos, isSpace, newGroup) { // eslint-disable-line no-unused-vars
-	var realPosition = ((line+1) * 144 - 2 ) + pos * 8;
-	if(isSpace) realPosition=((line+1) * 144) - 48;
-	var xPos = Marker.xPos;
-	var noteValue = 71;
-	if(curIPage==1)noteValue-=12;
-	var scalePos = (pos+3)*-1+7;
-	var sP = 7;
-	var desc = false;
-	var acc = 0;
+function getNoteValue(scalePos, sP, noteValue) {
+	var desc=false;
 	for(var iPos = 7; iPos!==scalePos;) {
 		if(scalePos<iPos) {
 			iPos--; sP--; noteValue-=2; desc = true;
@@ -47,35 +39,66 @@ function placeNote(duration, line, pos, isSpace, newGroup) { // eslint-disable-l
 		if(desc && (sP===7 || sP===3)) noteValue++;
 		else if(!desc && (sP===1 || sP===4)) noteValue--;
 	}
-	for(var i = 1; i<=bars[curBar].accidentals; i++) {
-		var value = i-1;
-		if(bars[curBar].sharpOrFlat===-1) value = 7-i;
 
-		if(sP === accidentalOrder[value]) {
-			acc = bars[curBar].sharpOrFlat;
-			break;
-		}
-	}
+	return noteValue;
+}
+
+function getAccidentalFromBar(barP, sP, acc, pos) {
 	var note;
-	for(i = 0; i<bars[curBar].notes.length; i++) {
-		var n=bars[curBar];
+	var found=false;
+	for(i = 0; i<bars[barP].notes.length; i++) {
+		var n=bars[barP];
 		for(note=0; note<n.notes[i].noteGroups.length; note++) {
 			if(pos === n.notes[i].noteGroups[note].pos) {
 				acc=n.notes[i].noteGroups[note].accidental;
-
+				found = true;
 			}
 		}
 	}
-	
-	if(!newGroup) {
-		note = new Note(xPos, realPosition, line, duration, pos, noteValue, isSpace, sP, acc);
-		bars[curBar].notes.splice(curNote, 0, note); 
-	} else {
-		bars[curBar].notes[curNote].noteGroups.push(new NoteGroup(realPosition, pos, noteValue, sP, acc));
-		var noteGroupOrder=orderNoteGroup(bars[curBar].notes[curNote]);
-		bars[curBar].notes[curNote].noteGroups=noteGroupOrder;
+
+	if(found) return acc;
+
+	for(var i = 1; i<=bars[barP].accidentals; i++) {
+		var value = i-1;
+		if(bars[barP].sharpOrFlat===-1) value = 7-i;
+
+		if(sP === accidentalOrder[value]) {
+			acc = bars[barP].sharpOrFlat;
+			break;
+		}
 	}
-	note = bars[curBar].notes[curNote];
+
+	return acc;
+}
+
+function placeNote(args) { // eslint-disable-line no-unused-vars
+	var realPosition = ((args.line+1) * 144 - 2 ) + pos * 8;
+	if(args.isSpace) realPosition=((args.line+1) * 144) - 48;
+	var xPos = Marker.xPos;
+	var noteValue = 71;
+	if(args.iPage==1)noteValue-=12;
+	var pos = args.pos;
+	var scalePos = (pos+3)*-1+7;
+	var sP = 7;
+	var barP = args.bar;
+	var noteP = args.note;
+	
+	noteValue = getNoteValue(scalePos, sP, noteValue);
+
+	var acc = getAccidentalFromBar(barP, sP, acc, pos);
+	
+	var note;
+	
+	
+	if(!args.newGroup) {
+		note = new Note(xPos, realPosition, args.line, args.duration, pos, noteValue, args.isSpace, sP, acc);
+		bars[barP].notes.splice(noteP, 0, note); 
+	} else {
+		bars[barP].notes[noteP].noteGroups.push(new NoteGroup(realPosition, pos, noteValue, sP, acc));
+		var noteGroupOrder=orderNoteGroup(bars[barP].notes[noteP]);
+		bars[barP].notes[noteP].noteGroups=noteGroupOrder;
+	}
+	note = bars[barP].notes[noteP];
 	var inverse;
 	for(var nG=0; nG<note.noteGroups.length; nG++) {
 		if(nG===0) inverse = note.noteGroups[0].pos;
