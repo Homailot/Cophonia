@@ -3,8 +3,9 @@
 var uIndex = 0;
 var tempIndex;
 // This client receives a message
-var peerConn;
-var dataChannel;
+var peerConnLocal=[];
+var peerConnRemote;
+var dataChannel=[];
 
 var configuration = {
 	"iceServers": [{
@@ -13,8 +14,12 @@ var configuration = {
 };
 
 var isInitiator;
+var clientIdG;
+var idToRespond;
+var curIndex;
 
 var socket = io.connect();
+console.log(socket);
 function startConn() {
 	window.room = prompt("Enter room name:");
 
@@ -33,25 +38,22 @@ socket.on("ipaddr", function (ipaddr) {
 
 socket.on("created", function (room, clientId) {
 	//console.log("Created room", room, "- my client ID is", clientId);
-	isInitiator = true;
+    isInitiator = true;
+    clientIdG = clientId;
 	start();
 });
 
-socket.on("joined", function (room, clientId, index) {
+socket.on("joined", function (idToSend, room, clientId, index) {
 	//console.log("This peer has joined room", room, "with client ID", clientId);
 	isInitiator = false;
 	uIndex = index;
-	createPeerConnection(isInitiator, configuration);
-	setTimeout(waitForOpen, 200);
+    createPeerConnectionLocal(idToSend, isInitiator, configuration);
+    clientIdG=clientId;
 });
 
-function waitForOpen() {
-	if(dataChannel==null || dataChannel.readyState!="open") {
-		setTimeout(waitForOpen, 200);
-	} else if(dataChannel!=null && dataChannel.readyState==="open") {
-		start();
-	}
-}
+socket.on("start", function() {
+	setTimeout(start,200);
+});
 
 socket.on("full", function (room) {
 	alert("Room " + room + " is full. We will create a new room for you.");
@@ -59,9 +61,9 @@ socket.on("full", function (room) {
 	window.location.reload();
 });
 
-socket.on("ready", function () {
-	//console.log("Socket is ready");
-	createPeerConnection(isInitiator, configuration);
+socket.on("ready", function (room, socketId) {
+    console.log("Socket is ready");
+	createPeerConnectionRemote(isInitiator, configuration, socketId);
 });
 
 socket.on("log", function (array) {
@@ -70,78 +72,131 @@ socket.on("log", function (array) {
 
 socket.on("message", function (message) {
 	//console.log("Client received message:", message);
-	signalingMessageCallback(message);
+	signalingMessageCallbackLocal(message);
 });
 
 function sendMessage(message) {
-	//console.log("Client sending message: ", message);
-	socket.emit("message", message);
+	socket.emit("broadcast", message, window.room);
 }
 
+function sendPrivateMessage(message) {
+    socket.emit("private", message);
+}
 
+function iceSuccess() {
 
-function signalingMessageCallback(message) {
+}
+function signalingMessageCallbackLocal(message, dest) {
 	if (message.type === "offer") {
 		//console.log("Got offer. Sending answer to peer.");
-		peerConn.setRemoteDescription(new RTCSessionDescription(message), function () { },
-			logError);
-		peerConn.createAnswer(onLocalSessionCreated, logError);
+        peerConnLocal[message.sId].setRemoteDescription(message.desc).then(function() {}, logError);
+		peerConnLocal[message.sId].createAnswer().then(onRemoteSessionCreated.bind(null, message.sId), logError);
 
 	} else if (message.type === "answer") {
 		//console.log("Got answer.");
-		peerConn.setRemoteDescription(new RTCSessionDescription(message), function () { },
+		peerConnLocal[message.sId].setRemoteDescription(message.desc).then( function () { },
 			logError);
 
 	} else if (message.type === "candidate") {
-		peerConn.addIceCandidate(new RTCIceCandidate({
-			candidate: message.candidate
+		peerConnLocal[message.sId].addIceCandidate(new RTCIceCandidate({
+			candidate: message.candidate,
+			sdpMid: message.mid,
+			sdpMLineIndex: message.label
 		}));
-
 	}
 }
 
-function createPeerConnection(isInitiator, config) {
-	//console.log("Creating Peer connection as initiator?", isInitiator, "config:",
-	//	config);
-	peerConn = new RTCPeerConnection(config);
+function createPeerConnectionRemote(isInitiator, config, id) {
+	peerConnLocal[id] = new RTCPeerConnection(config);
 
-	// send any ice candidates to the other peer
-	peerConn.onicecandidate = function (event) {
+	peerConnLocal[id].onicecandidate = function (event) {
 		//console.log("icecandidate event:", event);
 		if (event.candidate) {
-			sendMessage({
+			sendPrivateMessage({
 				type: "candidate",
 				label: event.candidate.sdpMLineIndex,
-				id: event.candidate.sdpMid,
-				candidate: event.candidate.candidate
+				mid: event.candidate.sdpMid,
+                candidate: event.candidate.candidate,
+                id: id,
+                sId: clientIdG
 			});
-		} else {
-			//console.log("End of candidates.");
+		}
+	};
+    
+    //console.log("Creating Data Channel");
+	peerConnLocal[id].ondatachannel = function (event) {
+		// console.log("ondatachannel:", event.channel);
+		var i = dataChannel.push(event.channel)-1;
+		onDataChannelCreated(dataChannel[i]);
+	};
+}
+
+function createPeerConnectionLocal(id, isInitiator, config) {
+	//console.log("Creating Peer connection as initiator?", isInitiator, "config:",
+	//	config);
+	peerConnLocal[id] = new RTCPeerConnection(config);
+	// peerConnRemote = new RTCPeerConnection(config);
+
+	// send any ice candidates to the other peer
+	peerConnLocal[id].onicecandidate = function (event) {
+		//console.log("icecandidate event:", event);
+		if (event.candidate) {
+			sendPrivateMessage({
+				type: "candidate",
+				label: event.candidate.sdpMLineIndex,
+				mid: event.candidate.sdpMid,
+                candidate: event.candidate.candidate,
+                id: id,
+                sId: clientIdG
+			});
 		}
 	};
 
-	if (isInitiator) {
-		//console.log("Creating Data Channel");
-		dataChannel = peerConn.createDataChannel("sendDataChannel");
-		onDataChannelCreated(dataChannel);
-
-		//console.log("Creating an offer");
-		peerConn.createOffer(onLocalSessionCreated, logError);
-	} else {
-		peerConn.ondatachannel = function (event) {
-			//console.log("ondatachannel:", event.channel);
-			dataChannel = event.channel;
-			onDataChannelCreated(dataChannel);
-		};
-	}
+    
+    var i = dataChannel.push( peerConnLocal[id].createDataChannel("musicTransfer"))-1;
+	onDataChannelCreated(dataChannel[i]);
+	
+	peerConnLocal[id].createOffer().then(onLocalSessionCreated.bind(null, id), logError);
 }
 
-function onLocalSessionCreated(desc) {
-	//console.log("local session created:", desc);
-	peerConn.setLocalDescription(desc, function () {
-		//console.log("sending local desc:", peerConn.localDescription);
-		sendMessage(peerConn.localDescription);
-	}, logError);
+// function createPeerConnectionRemote(isInitiator, config) {
+// 	//console.log("Creating Peer connection as initiator?", isInitiator, "config:",
+// 	//	config);
+	
+
+// 	// send any ice candidates to the other peer
+	
+
+    
+    
+// }
+
+function onLocalSessionCreated(index, desc) {
+    //console.log("local session created:", desc);
+    console.log(index);
+	sendPrivateMessage({
+		type:"offer",
+        desc: desc,
+        sId: clientIdG,
+        id: index
+	});
+	peerConnLocal[index].setLocalDescription(desc);
+	// peerConnRemote.setRemoteDescription(desc);
+	// //     function () {
+	// // 	//console.log("sending local desc:", peerConn.localDescription);
+	// // 	sendMessage(peerConnLocal.localDescription);
+	// // }, logError);
+	// peerConnRemote.createAnswer().then(onRemoteSessionCreated, logError);
+}
+
+function onRemoteSessionCreated(index, desc) {
+    peerConnLocal[index].setLocalDescription(desc);
+    sendPrivateMessage({
+        type: "answer",
+        desc: desc,
+        sId: clientIdG,
+        id: index
+    })
 }
 
 function onDataChannelCreated(channel) {
@@ -149,12 +204,12 @@ function onDataChannelCreated(channel) {
 
 	channel.onopen = function () {
 		//console.log("CHANNEL opened!!!");
-
+        console.log("teste");
 	};
 
 	channel.onclose = function () {
-        //console.log("Channel closed.");
-        console.log("teste");
+		//console.log("Channel closed.");
+		
 	};
 
 	channel.onmessage = function () {
@@ -170,16 +225,18 @@ function receiveData(e) {
 }
 
 function sendData(jsonFunction) {
-	if (!dataChannel) {
-		logError("Connection has not been initiated. " +
-            "Get two peers in the same room first");
-		return;
-	} else if (dataChannel.readyState === "closed") {
-		//logError("Connection was lost. Peer closed the connection.");
-		return;
-	}
-
-	dataChannel.send(jsonFunction);
+    dataChannel.forEach(function(channel) {
+        if (!channel) {
+            logError("Connection has not been initiated. " +
+                "Get two peers in the same room first");
+            return;
+        } else if (channel.readyState === "closed") {
+            //logError("Connection was lost. Peer closed the connection.");
+            return;
+        }
+    
+        channel.send(jsonFunction);
+    });
 }
 
 function show() {
