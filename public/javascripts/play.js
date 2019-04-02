@@ -95,7 +95,9 @@ function playNotes(bars, page) {
 		if(!bars[playingBar[page]].notes[playingNote[page]].isSpace) {
 			//player.cancelQueue(audioContext);
 			for(var ch = 0; ch<chords.length; ch++) {
+				
 				var d = chords[ch].duration+chords[ch].duration*1/4;
+				console.log(chords[ch].chord);
 				player.queueChord(audioContext, audioContext.destination, _tone_0000_FluidR3_GM_sf2_file, 0, chords[ch].chord, d);
 			}
 			
@@ -119,6 +121,7 @@ function getChords(bars, playingBar, playingNote) {
 		if(bars[playingBar].notes[playingNote].noteGroups[n].tiedTo!==null) continue;
 		
 		//we add the note to a temporary chord
+		console.log(bars[playingBar].notes[playingNote].noteGroups[n].accidental)
 		chord.push(bars[playingBar].notes[playingNote].noteGroups[n].noteValue + bars[playingBar].notes[playingNote].noteGroups[n].accidental);
 		
 		//if the note is tied to another, the duration of the chord will be calculated as the full tie group duration

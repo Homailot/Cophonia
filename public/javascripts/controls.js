@@ -97,7 +97,6 @@ function deleteBar() {
 function moveLeft() {
 	//if the note isn"t the first, it places the marker at the note before
 	if(curNote > 0) {
-		Marker.xPos = bars[curBar].notes[curNote-1].xPos;
 		curNote--;
 		restoreCanvas();
 		sendAndUpdateMarker();
@@ -115,19 +114,6 @@ function moveLeft() {
 	else if(curBar-1 >= 0) {
 		//moves back the current line if the bar before is on a different line.
 		if(bars[curBar-1].line!==curLine) curLine--;
-		
-		var notes = bars[curBar-1].notes.length;
-
-		//if the bar before has no notes, then the marker is placed at the start of the bar.
-		if(notes === 0) {
-			Marker.xPos = bars[curBar-1].initPos+10;
-			if(bars[curBar-1].changedTimeSig) Marker.xPos +=35;
-			if(bars[curBar-1].changedOrFirstClef) Marker.xPos += 45;
-
-		// eslint-disable-next-line brace-style
-		} 
-		//if it does, it places the marker at the position of the last note of that bar
-		else Marker.xPos = bars[curBar-1].notes[notes-1].xPos;
 
 		curBar--;
 		curNote = bars[curBar].notes.length-1;
@@ -180,12 +166,7 @@ function moveRight() {
 			};
 			newBar(information.args); gen = true;
 			sendData(JSON.stringify(information));
-		} 
-
-		//finally, it sets the marker at the start of the next bar
-		Marker.xPos = bars[curBar].initPos + 10;
-		if(bars[curBar].changedTimeSig) Marker.xPos +=45;
-		if(bars[curBar].changedOrFirstClef) Marker.xPos += 35;
+		}
 
 		//changes the current line if the current bar is in another line
 		if(bars[curBar].line !== curLine) curLine++;	

@@ -3,6 +3,7 @@ function Marker(bar, note, line) {
 	this.bar = bar;
 	this.note = note;
 	this.line = line;
+	this.extended = false;
 	this.iPage;
 	this.y = y;
 }
@@ -25,14 +26,11 @@ function setMarkerXPos(bar, note, lBars, def) {
 		if(lBars[bar].notes.length>0) {
 			xPos=(lBars[bar].notes[0].xPos);
 		}
-	} else if(!extended && note>=lBars[bar].notes.length) {
-		return def;
-	} else if(!extended) {
+	}else if(!extended || (extended && bar!=curBar)) {
 		xPos = lBars[bar].notes[note].xPos;
-	} else if(extended && bar == curBar) {
+	} else if(!extended && note>=lBars[bar].notes.length || extended) {
 		return def;
 	}
-
 	return xPos;
 }
 
@@ -67,9 +65,10 @@ function sendMarker() {
 			note: markers[uIndex].note,
 			line: markers[uIndex].line,
 			iPage: markers[uIndex].iPage,
-			y: markers[uIndex].y
+			y: markers[uIndex].y,
+			extended: markers[uIndex].extended
 		},
-		generate: false
+		generate: true
 	}
 	sendData(JSON.stringify(mInformation));
 }
@@ -83,7 +82,8 @@ function sendAndUpdateMarker() {
 			note: curNote,
 			line: curLine,
 			iPage: curIPage,
-			y: y
+			y: y,
+			extended: extended
 		},
 		generate: true
 	}
@@ -105,4 +105,10 @@ function updateCurMarker() {
 		generate: true
 	}
 	updateMarker(mInformation.args);
+}
+
+function updateAllXMarkers() {
+	markers.forEach(function(marker) {
+		marker.xPos=setMarkerXPos(marker.bar, marker.note, iPages[marker.iPage].bars, marker.xPos);
+	});
 }

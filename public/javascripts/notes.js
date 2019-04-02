@@ -43,7 +43,7 @@ function getNoteValue(scalePos, sP, noteValue) {
 	return noteValue;
 }
 
-function getAccidentalFromBar(barP, sP, acc, pos) {
+function getAccidentalFromBar(bars, barP, sP, acc, pos) {
 	var note;
 	var found=false;
 	for(i = 0; i<bars[barP].notes.length; i++) {
@@ -82,13 +82,14 @@ function placeNote(args) { // eslint-disable-line no-unused-vars
 	var sP = 7;
 	var barP = args.bar;
 	var noteP = args.note;
+	var note;
+	var lBars = iPages[args.iPage].bars;
+	var acc = 0;
 	
 	noteValue = getNoteValue(scalePos, sP, noteValue);
 
-	var acc = getAccidentalFromBar(barP, sP, acc, pos);
+	acc = getAccidentalFromBar(lBars, barP, sP, acc, pos);
 	
-	var note;
-	var lBars = iPages[args.iPage].bars;
 	
 	if(!args.newGroup) {
 		note = new Note(xPos, realPosition, args.line, args.duration, pos, noteValue, args.isSpace, sP, acc);

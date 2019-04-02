@@ -592,5 +592,6 @@ function generateAll() { // eslint-disable-line no-unused-vars
 	saveCanvas();
 	ctx.translate(0, -totalYOffset);
 	updateCurMarker();
+	updateAllXMarkers();
 	drawMarker(y);
 }

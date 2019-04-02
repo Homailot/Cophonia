@@ -17,6 +17,7 @@ var isInitiator;
 var clientIdG;
 var idToRespond;
 var curIndex;
+var started=false;
 
 var socket = io.connect();
 console.log(socket);
@@ -41,6 +42,7 @@ socket.on("created", function (room, clientId) {
     isInitiator = true;
     clientIdG = clientId;
 	start();
+	started=true;
 });
 
 socket.on("joined", function (idToSend, room, clientId, index) {
@@ -48,11 +50,28 @@ socket.on("joined", function (idToSend, room, clientId, index) {
 	isInitiator = false;
 	uIndex = index;
     createPeerConnectionLocal(idToSend, isInitiator, configuration);
-    clientIdG=clientId;
+	clientIdG=clientId;
+	
 });
 
+function waitStart() {
+	var starting = false;
+
+	dataChannel.forEach(function(channel) {
+		starting=true;
+
+		if(channel.readyState!=="open") {
+			setTimeout(waitStart, 300);
+			starting=false;
+			return;
+		}
+	});
+
+	if(starting) start();
+}
+
 socket.on("start", function() {
-	setTimeout(start,200);
+	setTimeout(waitStart, 300);
 });
 
 socket.on("full", function (room) {
@@ -204,7 +223,6 @@ function onDataChannelCreated(channel) {
 
 	channel.onopen = function () {
 		//console.log("CHANNEL opened!!!");
-        console.log("teste");
 	};
 
 	channel.onclose = function () {
@@ -212,14 +230,14 @@ function onDataChannelCreated(channel) {
 		
 	};
 
-	channel.onmessage = function () {
+	channel.onmessage = function (event) {
 		//apply corresponding function
 		receiveData(event);
 	};
 }
 
-function receiveData(e) {
-	var information = JSON.parse(e.data);
+function receiveData(ev) {
+	var information = JSON.parse(ev.data);
 	window[information.functionName](information.args);
 	if (information.generate) generateAll();
 }
