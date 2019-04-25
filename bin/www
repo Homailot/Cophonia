@@ -60,11 +60,11 @@ io.sockets.on("connection", function(socket) {
 		} else if (numClients <=2) {
 			//log("Client ID " + socket.id + " joined room " + room);
 			// io.sockets.in(room).emit('join', room);
-      socket.join(room);
-      socket.broadcast.to(room).emit("ready", room, socket.id);
-      for(var clientId in clientsInRoom.sockets) {
-        if(clientId!=socket.id)socket.emit("joined", clientId, room, socket.id, numClients);
-      }
+			socket.join(room);
+			socket.broadcast.to(room).emit("ready", room, socket.id);
+			for (var clientId in clientsInRoom.sockets) {
+				if (clientId != socket.id) socket.emit("joined", clientId, room, socket.id, numClients);
+			}
 			socket.emit("start");
 		} else { // max two clients
 			socket.emit("full", room);

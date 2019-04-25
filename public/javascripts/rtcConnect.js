@@ -41,7 +41,7 @@ socket.on("created", function (room, clientId) {
 	//console.log("Created room", room, "- my client ID is", clientId);
     isInitiator = true;
     clientIdG = clientId;
-	start();
+	start(true);
 	started=true;
 });
 
@@ -67,7 +67,7 @@ function waitStart() {
 		}
 	});
 
-	if(starting) start();
+	if(starting) start(false);
 }
 
 socket.on("start", function() {

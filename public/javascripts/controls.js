@@ -26,11 +26,14 @@ function deleteNote(args) {
 	
 			//deletes the note
 			var objNG=bars[args.bar].notes[args.note].noteGroups[nGD];
-			if(objNG.tiesTo!=null) {
-				objNG.tiesTo.objNG.tiedTo=null;
+			var result;
+			if(objNG.tiesTo!==false) {
+				result = getTied(bars, args.bar, args.note+1, objNG);
+				result.tiesToNG.tiedTo=false;
 			} 
-			if(objNG.tiedTo!=null) {
-				objNG.tiedTo.objNG.tiesTo=null;
+			if(objNG.tiedTo!==false) {
+				result = getTied(bars, args.bar, args.note-1, objNG);
+				result.tiesToNG.tiesTo=false;
 			}
 			bars[args.bar].notes[args.note].noteGroups.splice(nGD, 1);
 
@@ -232,8 +235,9 @@ function insertBeat(args) {
 			for(var nG=0; nG<bars[args.bar].notes[args.note].noteGroups.length; nG++) {
 				var objNG = bars[args.bar].notes[args.note].noteGroups[nG];
 				if(objNG.tiesTo!==null) {
-					objNG.tiesTo.objNG.tiedTo=null;
-					objNG.tiesTo=null;
+					result = getTied(bars, args.bar, args.note+1, objNG);
+					result.tiesToNG.tiedTo=false;
+					objNG.tiesTo=false;
 				}
 			}
 			if(curNote==args.note && curIPage == args.iPage) curNote++;
@@ -244,7 +248,7 @@ function insertBeat(args) {
 			functionName: "placeNote", 
 			args: {
 				iPage: args.iPage,
-				bar: args.bar, note:args.note, duration: args.duration,
+				bar: args.bar, note:args.note+1, duration: args.duration,
 				line: args.line, pos: args.y, isSpace: true, newGroup: false
 			},
 			generate:false

@@ -20,8 +20,8 @@ function NoteGroup(yPos, pos, noteValue, scalePos, acc) {
 	this.accidental = acc;
 	this.hideAcc = true;
 	this.accIsOffset=1;
-	this.tiedTo=null;
-	this.tiesTo=null;
+	this.tiedTo=false;
+	this.tiesTo=false;
 }
 
 function getNoteValue(scalePos, sP, noteValue) {
@@ -344,21 +344,21 @@ function tieBeat(args) { // eslint-disable-line no-unused-vars
 
 	for(var nG = 0; nG<objNoteS.noteGroups.length; nG++) {
 		if(objNoteS.noteGroups[nG].pos===args.y+2) {
-			objNG={objNote: objNoteS, objNG: objNoteS.noteGroups[nG], objBar: objBarS};
+			objNG=objNoteS.noteGroups[nG];
 			break;
 		}
 	}
 	
 	for(nG=0; nG<objNoteE.noteGroups.length; nG++) {
 		if(objNoteE.noteGroups[nG].pos===args.y+2) {
-			objDest={objNote: objNoteE, objNG: objNoteE.noteGroups[nG], objBar: objBarE};
+			objDest=objNoteE.noteGroups[nG];
 			break;
 		}
 	}
 
 	if(objNG!==null && objDest!==null) {
-		objNG.objNG.tiesTo=objDest;
-		objDest.objNG.tiedTo=objNG;
+		objNG.tiesTo=true;
+		objDest.tiedTo=true;
 	}
 }
 
@@ -371,14 +371,39 @@ function deleteTie(args) {
 			break;
 		}
 	}
+	var result = null;
 
 	if(objNG!==null) {
-		if(objNG.tiesTo!==null) {
-			objNG.tiesTo.objNG.tiedTo=null;
-			objNG.tiesTo=null;
-		} else if(objNG.tiedTo!=null) {
-			objNG.tiedTo.objNG.tiesTo=null;
-			objNG.tiedTo=null;
+		if(objNG.tiesTo!==false) {
+			result = getTied(bars, args.bar, args.note+1, objNG);
+			result.tiesToNG.tiedTo=false;
+			objNG.tiesTo=false;
+		} else if(objNG.tiedTo!=false) {
+			result = getTied(bars, args.bar, args.note-1, objNG);
+			result.tiesToNG.tiesTo=false;
+			objNG.tiedTo=false;
 		}
 	}
+}
+
+function getTied(bars, bar, note, objNG) {
+	var tiesTo = bars[bar].notes[note];
+	var barTo = bar;
+	var tiesToNG;
+	if(note>=bars[bar].notes.length && bar+1<bars.length) {
+		tiesTo = bars[bar+1].notes[0];
+		barTo++;
+	} else if(note<0 && bar-1>=0) {
+		tiesTo = bars[bar-1].notes[bars[bar-1].notes.length-1];
+		barTo--;
+	}
+
+	for(var nGTo = 0; nGTo< tiesTo.noteGroups.length; nGTo++) {
+		if(tiesTo.noteGroups[nGTo].y===objNG.y) {
+			tiesToNG=tiesTo.noteGroups[nGTo];
+			break;
+		}
+	}
+
+	return {tiesTo: tiesTo, barTo: barTo, tiesToNG:tiesToNG};
 }

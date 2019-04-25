@@ -79,11 +79,11 @@ function changeTimeSig(args) { // eslint-disable-line no-unused-vars
 
 	bars[args.bar].upperSig = args.upperSig;
 	bars[args.bar].lowerSig = args.lowerSig;
-	if(args.bar!==0 && (bars[args.bar-1].args.upperSig!==bars[args.bar].args.upperSig || bars[args.bar].args.lowerSig !== bars[args.bar-1].args.lowerSig)) {
+	if(args.bar!==0 && (bars[args.bar-1].upperSig!==bars[args.bar].upperSig || bars[args.bar].lowerSig !== bars[args.bar-1].lowerSig)) {
 		if(!bars[args.bar].changedTimeSig) {
 			bars[args.bar].changedTimeSig=true;
 		}
-	} else if(args.bar!==0 && (bars[args.bar-1].args.upperSig===bars[args.bar].args.upperSig && bars[args.bar].args.lowerSig === bars[args.bar-1].args.lowerSig)) {
+	} else if(args.bar!==0 && (bars[args.bar-1].upperSig===bars[args.bar].upperSig && bars[args.bar].lowerSig === bars[args.bar-1].lowerSig)) {
 		if(bars[args.bar].changedTimeSig) {
 			bars[args.bar].changedTimeSig=false;
 		}

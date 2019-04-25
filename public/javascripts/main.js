@@ -42,31 +42,24 @@ var time = []; // eslint-disable-line no-unused-vars
 var scrollValue=0; // eslint-disable-line no-unused-vars
 var accidentalOrder = [4, 1, 5, 2, 6, 3, 7]; // eslint-disable-line no-unused-vars
 
-function start() {
-	changeInstrument("https://surikov.github.io/webaudiofontdata/sound/0000_FluidR3_GM_sf2_file.js","_tone_0000_FluidR3_GM_sf2_file");
-
-	lines.push(new Line());
-	lines[0].maxBars=3;
-	lines[0].yOffset=0;
-	iPages.push(new InstrumentPage());
-	bars=iPages[curIPage].bars;
-	iPages[curIPage].lines=lines;
-	var args = {
-		upperSig: 4,
-		lowerSig: 4,
-		cS: true,
-		clef: 0,
-		cC: false,
-		iPage: curIPage,
-		bar: curBar,
-		line: curLine, 
-		curLine:curLine,
-		cA: false,
-		acc: 0,
-		sof: 0
+function sendJSON() {
+	var inf={
+		functionName: "getJSON",
+		args: {
+			json: JSON.stringify(iPages)
+		},
+		generate: true
 	};
-	newBar(args);
-	
+	sendData(JSON.stringify(inf));
+}
+
+function getJSON(args) {
+	//console.log(args.json);
+	iPages = JSON.parse(args.json);
+	bars =iPages[curIPage].bars;
+	lines = iPages[curIPage].lines;
+
+	console.log(lines);
 	var mInformation = {
 		functionName: "sendMarker",
 		args: {
@@ -74,6 +67,7 @@ function start() {
 		generate: false
 	};
 	sendData(JSON.stringify(mInformation));
+
 	var lInformation = {
 		functionName: "newMarker",
 		args: {
@@ -90,4 +84,58 @@ function start() {
 	newMarker(lInformation.args);
 
 	generateAll();
+}
+
+function start(createNew) {
+	changeInstrument("https://surikov.github.io/webaudiofontdata/sound/0000_FluidR3_GM_sf2_file.js","_tone_0000_FluidR3_GM_sf2_file");
+	console.log(createNew);
+	if(createNew) {
+		lines.push(new Line());
+		lines[0].maxBars=3;
+		lines[0].yOffset=0;
+		iPages.push(new InstrumentPage());
+		iPages[curIPage].lines=lines;
+		var args = {
+			upperSig: 4,
+			lowerSig: 4,
+			cS: true,
+			clef: 0,
+			cC: false,
+			iPage: curIPage,
+			bar: curBar,
+			line: curLine, 
+			curLine:curLine,
+			cA: false,
+			acc: 0,
+			sof: 0
+		};
+		newBar(args);
+
+		var lInformation = {
+			functionName: "newMarker",
+			args: {
+				index: uIndex,
+				bar: curBar,
+				note: curNote,
+				line: curLine,
+				iPage: curIPage,
+				y: y
+			},
+			generate: true
+		}
+		newMarker(lInformation.args);
+		bars=iPages[curIPage].bars;
+		lines = iPages[curIPage].lines;
+	
+		generateAll();
+	} else {
+		var jInformation = {
+			functionName: "sendJSON",
+			args: {
+	
+			} ,
+			generate: false
+		};
+		sendData(JSON.stringify(jInformation));
+	}
 }
