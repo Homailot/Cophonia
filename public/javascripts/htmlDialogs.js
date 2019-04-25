@@ -59,7 +59,18 @@ function changeTimeSigPop(bar) { // eslint-disable-line no-unused-vars
 		var upperSelected = document.getElementById("upperSig").selectedIndex;
 		var lowerSelected = document.getElementById("lowerSig").selectedIndex;
 
-		changeTimeSig(upperOptions[upperSelected].text, lowerOptions[lowerSelected].text, bar);
+		inf = {
+			functionName: "changeTimeSig",
+			args: {
+				iPage: curIPage,
+				upperSig: upperOptions[upperSelected].text,
+				lowerSig: lowerOptions[lowerSelected].text,
+				bar: bar
+			},
+			generate: false
+		};
+		changeTimeSig(inf.args);
+		sendData(JSON.stringify(inf));
 
 		var dc = document.getElementById("dialogContainer");
 		dc.removeChild(dc.childNodes[0]);
@@ -176,7 +187,18 @@ function changeKeyPop(bar) { // eslint-disable-line no-unused-vars
 		var accidentals = parseInt(value.substring(0, 1));
 		var sharpOrFlat = parseInt(value.substring(2));
 
-		changeKey(accidentals, sharpOrFlat, bar);
+		inf = {
+			functionName: "changeKey",
+			args: {
+				iPage: curIPage,
+				accidentals: accidentals,
+				sharpOrFlat: sharpOrFlat,
+				bar: bar
+			},
+			generate: false
+		};
+		changeKey(inf.args);
+		sendData(JSON.stringify(inf));
 
 		var dc = document.getElementById("dialogContainer");
 		dc.removeChild(dc.childNodes[0]);

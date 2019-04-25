@@ -3,15 +3,21 @@ var tPress=false;
 
 
 //a more fitting name would be place/remove pause
-function deleteNote() {
+function deleteNote(args) {
+	var bars = iPages[args.iPage].bars;
+	var information = {
+		iPage: args.iPage,
+		bar: args.bar, note:args.note, duration: args.duration,
+		line: args.line, pos: args.y, isSpace: true, newGroup: false
+	};
 	//only deletes a note if it exists
-	if(curNote < bars[curBar].notes.length) {
-		var isSpace = bars[curBar].notes[curNote].isSpace;
+	if(args.note < bars[args.bar].notes.length) {
+		var isSpace = bars[args.bar].notes[args.note].isSpace;
 
 		if(!isSpace) {
 			var nGD=null;
-			for(var nG=0; nG<bars[curBar].notes[curNote].noteGroups.length; nG++) {
-				if(bars[curBar].notes[curNote].noteGroups[nG].pos===y+2) {
+			for(var nG=0; nG<bars[args.bar].notes[args.note].noteGroups.length; nG++) {
+				if(bars[args.bar].notes[args.note].noteGroups[nG].pos===args.y) {
 					nGD=nG;
 				}
 			}
@@ -19,79 +25,86 @@ function deleteNote() {
 			
 	
 			//deletes the note
-			var objNG=bars[curBar].notes[curNote].noteGroups[nGD];
+			var objNG=bars[args.bar].notes[args.note].noteGroups[nGD];
 			if(objNG.tiesTo!=null) {
 				objNG.tiesTo.objNG.tiedTo=null;
 			} 
 			if(objNG.tiedTo!=null) {
 				objNG.tiedTo.objNG.tiesTo=null;
 			}
-			bars[curBar].notes[curNote].noteGroups.splice(nGD, 1);
+			bars[args.bar].notes[args.note].noteGroups.splice(nGD, 1);
 
-			if(bars[curBar].notes[curNote].noteGroups.length===0) {
-				bars[curBar].notes.splice(curNote, 1);
+			if(bars[args.bar].notes[args.note].noteGroups.length===0) {
+				bars[args.bar].notes.splice(args.note, 1);
 				//if it was a note, it replaces it with a pause (hence the "true")
-				setMarker(true, false);
+				
+				placeNote(information);
 			}
 		} else {
-			bars[curBar].notes.splice(curNote, 1);
-			if(curNote !== 0) {
+			bars[args.bar].notes.splice(args.note, 1);
+			if(args.note !== 0 && args.note==curNote && args.iPage == curIPage) {
 				curNote--;
 			} 
 		}
 
 		
-	} else setMarker(true, false);
+	} else {
+		placeNote(information);
+	}
 	
 	//says the bar is not extended
 	extended = false;
 }
 
-function deleteTie() {
-	var objNG = null;
-	for(var nG=0; nG<bars[curBar].notes[curNote].noteGroups.length; nG++) {
-		if(bars[curBar].notes[curNote].noteGroups[nG].pos===y+2) {
-			objNG = bars[curBar].notes[curNote].noteGroups[nG];
-			break;
-		}
-	}
 
-	if(objNG!==null) {
-		if(objNG.tiesTo!==null) {
-			objNG.tiesTo.objNG.tiedTo=null;
-			objNG.tiesTo=null;
-		} else if(objNG.tiedTo!=null) {
-			objNG.tiedTo.objNG.tiesTo=null;
-			objNG.tiedTo=null;
+
+function keepChangedAtt(bars, bar) {
+	if(bar+1<bars.length) {
+		if(bar-1>=0) {
+			checkTimeSig(bars, bar+1, bars[bar-1].upperSig, bars[bar-1].lowerSig);
+			checkKey(bars, bar+1, bars[bar-1].accidentals, bars[bar-1].sharpOrFlat);
+		} else {
+			if(bars[bar+1].accidentals.length!==0) {
+				bars[bar+1].changedAcc=true;
+			}
+			bars[bar+1].changedTimeSig=true;
 		}
 	}
 }
 
-function deleteBar() {
+function deleteBar(args) {
+	var bars = iPages[args.iPage].bars;
+	var lines = iPages[args.iPage].lines;
+	var tBar = args.bar;
 	//only deletes a bar if it isn"t the first one
-	var line = bars[curBar].line;
-	if(curBar > 0) {
-
+	var line = bars[args.bar].line;
+	if(bars.length!==1) {
+		keepChangedAtt(bars, args.bar);
+		
 		//removes the bar from the current array and effectively deletes it
-		bars.splice(curBar, 1);
-		curBar--;
-		curNote = 0;
+		bars.splice(args.bar, 1);
+		
+
+		lines[args.line].bars -=1;
 
 		//moves all bars after the current one back.
-		moveBars(curBar, false, line);
+		moveBars(bars, args.bar, line);
 
-		lines[curLine].bars -=1;
-		if(lines[curLine].bars===0) lines.splice(curLine, 1);
 		
-		if(lines[lines.length-1].complete || lines[lines.length-1].overflown) {
-			lines[lines.length-1].changedComplete = true;
-		} 
+		if(lines[args.line].bars===0) lines.splice(args.line, 1);
+		if(curIPage===args.iPage && curBar>=bars.length) {
+			curBar--;
+			curNote=0;
+			tBar--;
+		}
 
 		//if the bar before is not in the curentLine then the current line is decreased.
-		if(bars[curBar].line !== curLine) {
+		if(line!==0 && args.iPage===curIPage && curBar===tBar && bars[tBar].line < curLine) {
 			curLine--;
 		} 
 	}
+
+	sendAndUpdateMarker();
 }
 
 function moveLeft() {
@@ -210,26 +223,35 @@ function moveRight() {
 }
 
 //inserts a beat in the form of a rest
-function insertBeat() {
+function insertBeat(args) {
+	var bars = iPages[args.iPage].bars;
 	//so that we don"t place a beat after we have extended, we check if the bar is extended
-	if(!extended) {
+	if(!args.extended) {
 		//if we aren"t at the first note of the bar or if we aren"t at the last note, the markers moves forward and everything with it
-		if((curNote!==0 || curNote < bars[curBar].notes.length)) {
-			for(var nG=0; nG<bars[curBar].notes[curNote].noteGroups.length; nG++) {
-				var objNG = bars[curBar].notes[curNote].noteGroups[nG];
+		if((args.note!==0 || args.note < bars[args.bar].notes.length)) {
+			for(var nG=0; nG<bars[args.bar].notes[args.note].noteGroups.length; nG++) {
+				var objNG = bars[args.bar].notes[args.note].noteGroups[nG];
 				if(objNG.tiesTo!==null) {
 					objNG.tiesTo.objNG.tiedTo=null;
 					objNG.tiesTo=null;
 				}
 			}
-			curNote++;
+			if(curNote==args.note && curIPage == args.iPage) curNote++;
 		}
 		
 		//places the pause
-		setMarker(true, false);
-		Marker.xPos = bars[curBar].notes[curNote].xPos;
+		var information = {
+			functionName: "placeNote", 
+			args: {
+				iPage: args.iPage,
+				bar: args.bar, note:args.note, duration: args.duration,
+				line: args.line, pos: args.y, isSpace: true, newGroup: false
+			},
+			generate:false
+		};
+		placeNote(information.args);
+		sendAndUpdateMarker();
 	}
-	
 }
 
 //y is the y position of the marker
@@ -245,16 +267,18 @@ function changePitch(pitch) {
 	drawMarker(y);
 }
 
-function changeDuration(note, duration) {
+function changeDuration(args) {
 	//if we are over a note, it changes it"s duration
-	if(note>=0 && bars[curBar].notes.length > note) {
-		bars[curBar].notes[note].duration = duration;
+	var bars = iPages[args.iPage].bars;
+
+	if(args.note>=0 && bars[args.bar].notes.length > args.note) {
+		bars[args.bar].notes[args.note].duration = args.duration;
 
 		generateAll();
 	}
 }
 
-function setMarker(isSpace, newGroup) {
+function setMarkerAndSend(isSpace, newGroup) {
 	var information = {functionName: "placeNote", 
 		args: {
 			iPage: curIPage,
@@ -269,6 +293,20 @@ function setMarker(isSpace, newGroup) {
 	generateAll();
 }
 
+function setMarker(isSpace, newGroup) {
+	var information = {functionName: "placeNote", 
+		args: {
+			iPage: curIPage,
+			bar: curBar, note:curNote, duration: curDuration,
+			line: curLine, pos: y+2, isSpace: isSpace, newGroup: newGroup
+		},
+		generate:true
+	};
+	placeNote(information.args);
+	sendAndUpdateMarker();
+	generateAll();
+}
+
 function checkPlay() {
 	for(var i = 0; i<playing.length; i++) {
 		if(playing[i]===true) return true;
@@ -277,19 +315,48 @@ function checkPlay() {
 	return false;
 }
 
+function addIPage(args) {
+	iPages.push(new InstrumentPage());	
+}
+
 document.addEventListener("keydown", function(event) {
 	//simple code that checks what key was pressed and executes a function
+	var inf;
 	if(!checkPlay()) {
 		var dc = document.getElementById("dialogContainer");
 		if(dc.childNodes.length>0) dc.removeChild(dc.childNodes[0]);
 		switch(event.key) {
 		case "+":
-			changeAccidental(bars[curBar], bars[curBar].notes[curNote], y, 1, curNote);
+			inf = {
+				functionName: "changeAccidental",
+				args: {
+					bar: curBar,
+					note: curNote,
+					y: y,
+					value: 1,
+					iPage: curIPage
+				},
+				generate: true
+			};
+			changeAccidental(inf.args);
+			sendData(JSON.stringify(inf));
 
 			generateAll();
 			break;
 		case "-":
-			changeAccidental(bars[curBar], bars[curBar].notes[curNote], y, -1, curNote);
+		inf = {
+			functionName: "changeAccidental",
+			args: {
+				bar: curBar,
+				note: curNote,
+				y: y,
+				value: -1,
+				iPage: curIPage
+			},
+			generate: true
+		};
+		changeAccidental(inf.args);
+		sendData(JSON.stringify(inf));
 
 			generateAll();
 			break;
@@ -297,8 +364,21 @@ document.addEventListener("keydown", function(event) {
 		}
 		switch(event.code) {
 		case "Period":
-			if(ctrlPress) augment(curBar, curNote, y, -1);
-			else augment(curBar, curNote, y, 1);
+			inf = {
+				functionName: "augment",
+				args: {
+					bar: curBar,
+					note: curNote,
+					value: 1,
+					iPage: curIPage
+				},
+				generate: true
+			};
+			if(ctrlPress) {
+				inf.args.value=-1;
+			}
+			augment(inf.args);
+			sendData(JSON.stringify(inf));
 
 			generateAll();
 			break;
@@ -310,34 +390,82 @@ document.addEventListener("keydown", function(event) {
 						if(bars[curBar].notes[curNote].noteGroups[n].pos === y+2) return;
 					}
 						
-					setMarker(false, true);
+					setMarkerAndSend(false, true);
 					generateAll();
 					return;
 				}
 				if(bars[curBar].notes[curNote].isSpace) bars[curBar].notes.splice(curNote, 1);
 			} 
 			extended = false;
-			setMarker(false, false);
+			setMarkerAndSend(false, false);
 				
 			generateAll();
 			break;
 		case "Backspace":
-			deleteNote();
+			inf= {
+				functionName: "deleteNote",
+				args: {
+					bar: curBar,
+					note: curNote,
+					iPage:curIPage,
+					duration: curDuration,
+					line: curLine,
+					y: y+2
+				}, 
+				generate: true
+			};
+			deleteNote(inf.args);
+			sendData(JSON.stringify(inf));
+			sendAndUpdateMarker();
 				
 			generateAll();
 			break;
 		case "Space":
-			insertBeat();
+			inf = {
+				functionName: "insertBeat",
+				args: {
+					iPage: curIPage,
+					bar: curBar, note:curNote, duration: curDuration,
+					line: curLine, y: y+2
+				},
+				generate: true
+			};
 
+			insertBeat(inf.args);
+			sendData(JSON.stringify(inf));
 			generateAll();
 			break;
 		case "Delete":
 			if(ctrlPress) {
-				deleteBar();
+				inf = {
+					functionName: "deleteBar",
+					args: {
+						iPage: curIPage,
+						bar: curBar,
+						line: curLine,
+					},
+					generate: true
+				};
+				
+				deleteBar(inf.args);
+				
+				sendData(JSON.stringify(inf));
 
 				generateAll();
 			} else if(tPress) {
-				deleteTie();
+				inf = {
+					functionName: "deleteTie",
+					args: {
+						iPage: curIPage,
+						note: curNote,
+						bar: curBar,
+						y: y
+					},
+					generate: true
+				};
+				
+				deleteTie(inf.args);
+				sendData(JSON.stringify(inf));
 
 				generateAll();
 			}
@@ -345,7 +473,20 @@ document.addEventListener("keydown", function(event) {
 			break;
 		case "ArrowRight":
 			if(tPress) {
-				tieBeat(curBar, curNote, curNote+1, y);
+				inf = {
+					functionName: "tieBeat",
+					args: {
+						iPage: curIPage,
+						note: curNote,
+						tieTo: curNote+1,
+						bar: curBar,
+						y: y
+					},
+					generate: true
+				};
+				
+				tieBeat(inf.args);
+				sendData(JSON.stringify(inf));
 
 				generateAll();
 			} else if(ctrlPress) {
@@ -355,7 +496,7 @@ document.addEventListener("keydown", function(event) {
 				lines=iPages[curIPage].lines;
 
 				markerOutOfBounds();
-				console.log(curIPage);
+				sendAndUpdateMarker();
 
 				generateAll();
 			} else {
@@ -367,7 +508,21 @@ document.addEventListener("keydown", function(event) {
 			break;
 		case "ArrowLeft":
 			if(tPress) {
-				tieBeat(curBar, curNote, curNote-1, y);
+				console.log(curIPage);
+				inf = {
+					functionName: "tieBeat",
+					args: {
+						iPage: curIPage,
+						note: curNote,
+						tieTo: curNote-1,
+						bar: curBar,
+						y: y
+					},
+					generate: true
+				};
+				
+				tieBeat(inf.args);
+				sendData(JSON.stringify(inf));
 
 				generateAll();
 			} else if(ctrlPress) {
@@ -377,7 +532,7 @@ document.addEventListener("keydown", function(event) {
 				lines=iPages[curIPage].lines;
 
 				markerOutOfBounds();
-				console.log(curIPage);
+				sendAndUpdateMarker();
 
 				generateAll();
 			} else {
@@ -399,37 +554,107 @@ document.addEventListener("keydown", function(event) {
 			break;
 		case "Digit1":
 			curDuration = 1;
-			changeDuration(curNote, curDuration);
+			inf = {
+				functionName: "changeDuration",
+				args: {
+					note: curNote,
+					duration: curDuration,
+					iPage: curIPage,
+					bar: curBar	
+				},
+				generate: false
+			};
+			changeDuration(inf.args);
+			sendData(JSON.stringify(inf));
 			break;
 		case "Digit2":
 			curDuration = 0.5;
-			changeDuration(curNote, curDuration);
+			inf = {
+				functionName: "changeDuration",
+				args: {
+					note: curNote,
+					duration: curDuration,
+					iPage: curIPage,
+					bar: curBar		
+				},
+				generate: false
+			};
+			changeDuration(inf.args);
+			sendData(JSON.stringify(inf));
 			break;
 		case "Digit3":
 			curDuration = 0.25;
-			changeDuration(curNote, curDuration);
+			inf = {
+				functionName: "changeDuration",
+				args: {
+					note: curNote,
+					duration: curDuration,
+					iPage: curIPage,
+					bar: curBar		
+				},
+				generate: false
+			};
+			changeDuration(inf.args);
+			sendData(JSON.stringify(inf));
 			break;
 		case "Digit4":
 			curDuration = 0.125;
-			changeDuration(curNote, curDuration);
+			inf = {
+				functionName: "changeDuration",
+				args: {
+					note: curNote,
+					duration: curDuration,
+					iPage: curIPage,bar: curBar		
+				},
+				generate: false
+			};
+			changeDuration(inf.args);
+			sendData(JSON.stringify(inf));
 			break;
 		case "Digit5":
 			curDuration = 0.0625;
-			changeDuration(curNote, curDuration);
+			inf = {
+				functionName: "changeDuration",
+				args: {
+					note: curNote,
+					duration: curDuration,
+					iPage: curIPage,
+					bar: curBar		
+				},
+				generate: false
+			};
+			changeDuration(inf.args);
+			sendData(JSON.stringify(inf));
 			break;
 		case "Digit6":
 			curDuration = 0.03125;
-			changeDuration(curNote, curDuration);
+			inf = {
+				functionName: "changeDuration",
+				args: {
+					note: curNote,
+					duration: curDuration,
+					iPage: curIPage	,
+					bar: curBar		
+				},
+				generate: false
+			};
+			changeDuration(inf.args);
+			sendData(JSON.stringify(inf));
 			break;
 		case "KeyN":
 			if(ctrlPress) {
-				iPages.push(new InstrumentPage());	
+				inf = {
+					functionName: "addIPage",
+					args: null,
+					generate:false
+				};
+				addIPage();
+				sendData(JSON.stringify(inf));
 				curIPage=iPages.length-1;
 				curNote=0;
 				bars=iPages[curIPage].bars;
 				lines=iPages[curIPage].lines;
-
-				
+				sendAndUpdateMarker();
 			}
 			
 			generateAll();

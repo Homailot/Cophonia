@@ -4,6 +4,7 @@ function Line() { // eslint-disable-line no-unused-vars
 	this.changedComplete = false;
 	this.overflown = false;
 	this.yOffset=0;
+	this.maxBars=4;
 }
 
 function LineFunction(pointAX, pointAY, pointBX, pointBY) { // eslint-disable-line no-unused-vars

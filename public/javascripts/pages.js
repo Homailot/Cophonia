@@ -2,6 +2,7 @@ function InstrumentPage() {  // eslint-disable-line no-unused-vars
 	this.bars=[];
 	this.lines=[];
 	this.lines.push(new Line());
+	this.lines[0].maxBars=3;
 	this.instrument=null;
     
 	var line = 0;
@@ -22,6 +23,7 @@ function InstrumentPage() {  // eslint-disable-line no-unused-vars
 		newBar.changedAcc=bars[bar].changedAcc;
 		newBar.changedClef=bars[bar].changedClef;
 		newBar.changedOrFirstClef=bars[bar].changedOrFirstClef;
+		
 		
 		this.bars.push(newBar);
 	}

@@ -45,8 +45,8 @@ var accidentalOrder = [4, 1, 5, 2, 6, 3, 7]; // eslint-disable-line no-unused-va
 function start() {
 	changeInstrument("https://surikov.github.io/webaudiofontdata/sound/0000_FluidR3_GM_sf2_file.js","_tone_0000_FluidR3_GM_sf2_file");
 
-	console.log(uIndex);
 	lines.push(new Line());
+	lines[0].maxBars=3;
 	lines[0].yOffset=0;
 	iPages.push(new InstrumentPage());
 	bars=iPages[curIPage].bars;

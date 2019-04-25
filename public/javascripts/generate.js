@@ -137,7 +137,7 @@ function getSpace(line) {
 
 function stretch(line) {
 	//we only stretch if the line is complete or if it overflows the canvas
-	if(((lines[line].complete || (bars[curBar].xPos > c.width && curLine === line)) && !lines[line].changedComplete) || lines[line].overflown) {
+	if(((lines[line].complete || (bars[curBar].xPos > c.width && curLine === line))) || lines[line].overflown) {
 		var spaceWidth;
 		var objectsWidth = [];
 		var thisPos = 8;
@@ -228,15 +228,16 @@ function checkBarCompletion(bar) {
 	var objBar = bars[bar];
 	var objLine = lines[objBar.line];
 	
-	if(objLine.bars===4 || (objLine.bars===3 && bars[bar].line === 0)) {
+	if(objLine.bars===objLine.maxBars) {
 		objLine.complete=true;
-	} else if(bars[bar].xPos >= c.width) {
+	} else if(bars[bar].xPos > c.width) {
 		objLine.overflown = true;
 	} else {
 		if(objLine.overflown) {
 			objLine.changedComplete=true;
 		} 
 		objLine.overflown = false;	
+		objLine.complete=false;
 	}
 }
 
