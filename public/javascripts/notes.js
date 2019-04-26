@@ -89,6 +89,7 @@ function placeNote(args) { // eslint-disable-line no-unused-vars
 	noteValue = getNoteValue(scalePos, sP, noteValue);
 
 	acc = getAccidentalFromBar(lBars, barP, sP, acc, pos);
+	if(curBar===args.bar && curNote===args.note && curIPage ===args.iPage) extended = false;
 	
 	
 	if(!args.newGroup) {
@@ -302,9 +303,10 @@ function getNoteDuration(note) { // eslint-disable-line no-unused-vars
 function tieBeat(args) { // eslint-disable-line no-unused-vars
 	var bars = iPages[args.iPage].bars;
 	var barTo=args.bar;
+	var tieTo=args.tieTo;
 	if(args.tieTo>=bars[args.bar].notes.length) {
 		barTo=args.bar+1;
-		args.tieTo=0;
+		tieTo=0;
 
 		if(barTo<bars.length)  {
 			if(bars[barTo].notes.length===0) return;
@@ -313,27 +315,29 @@ function tieBeat(args) { // eslint-disable-line no-unused-vars
 		}
 	} else if(args.tieTo<0) {
 		barTo=args.bar-1;
-		args.tieTo=bars[barTo].notes.length-1;
 
 		if(barTo>=0) {
 			if(bars[barTo].notes.length===0) return;
+
+			
+			tieTo=bars[barTo].notes.length-1;
 		} else {
 			return;
 		}
 	}
-	if(bars[args.bar].notes[args.note].isSpace && !bars[barTo].notes[args.tieTo].isSpace ||
-		!bars[args.bar].notes[args.note].isSpace && bars[barTo].notes[args.tieTo].isSpace) return;
+	if(bars[args.bar].notes[args.note].isSpace && !bars[barTo].notes[tieTo].isSpace ||
+		!bars[args.bar].notes[args.note].isSpace && bars[barTo].notes[tieTo].isSpace) return;
 	var objNoteS;
 	var objNoteE;
 	var objBarS, objBarE;
 
-	if((args.bar!==barTo && barTo>args.bar) || (args.bar===barTo && args.note<args.tieTo)) {
+	if((args.bar!==barTo && barTo>args.bar) || (args.bar===barTo && args.note<tieTo)) {
 		objNoteS=bars[args.bar].notes[args.note];
-		objNoteE=bars[barTo].notes[args.tieTo];
+		objNoteE=bars[barTo].notes[tieTo];
 		objBarS=bars[args.bar];
 		objBarE=bars[barTo];
 	} else {
-		objNoteS=bars[barTo].notes[args.tieTo];
+		objNoteS=bars[barTo].notes[tieTo];
 		objNoteE=bars[args.bar].notes[args.note];
 		objBarE=bars[args.bar];
 		objBarS=bars[barTo];
@@ -389,15 +393,17 @@ function deleteTie(args) {
 function getTied(bars, bar, note, objNG) {
 	var tiesTo = bars[bar].notes[note];
 	var barTo = bar;
+	var noteTo = note+1;
 	var tiesToNG;
 	if(note>=bars[bar].notes.length && bar+1<bars.length) {
 		tiesTo = bars[bar+1].notes[0];
 		barTo++;
+		noteTo=0;
 	} else if(note<0 && bar-1>=0) {
 		tiesTo = bars[bar-1].notes[bars[bar-1].notes.length-1];
 		barTo--;
+		noteTo=bars[bar-1].notes.length-1;
 	}
-
 	for(var nGTo = 0; nGTo< tiesTo.noteGroups.length; nGTo++) {
 		if(tiesTo.noteGroups[nGTo].y===objNG.y) {
 			tiesToNG=tiesTo.noteGroups[nGTo];
@@ -405,5 +411,5 @@ function getTied(bars, bar, note, objNG) {
 		}
 	}
 
-	return {tiesTo: tiesTo, barTo: barTo, tiesToNG:tiesToNG};
+	return {tiesTo: tiesTo, barTo: barTo, tiesToNG:tiesToNG, noteTo: noteTo};
 }

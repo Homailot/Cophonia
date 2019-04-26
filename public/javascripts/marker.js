@@ -8,7 +8,7 @@ function Marker(bar, note, line) {
 	this.y = y;
 }
 
-function setMarkerXPos(bar, note, lBars, def) {
+function setMarkerXPos(bar, note, lBars, def, ext, page) {
 	var xPos;
 	if(note === 0) {
 		xPos = lBars[bar].initPos+10;
@@ -26,10 +26,12 @@ function setMarkerXPos(bar, note, lBars, def) {
 		if(lBars[bar].notes.length>0) {
 			xPos=(lBars[bar].notes[0].xPos);
 		}
-	}else if(!extended || (extended && bar!=curBar)) {
+	}else if(!ext) {
 		xPos = lBars[bar].notes[note].xPos;
-	} else if(!extended && note>=lBars[bar].notes.length || extended) {
-		return def;
+	} else if(ext) {
+		console.log(ext);
+		if(curNote===note && page===curIPage && bar===curBar) xPos = def;
+		else xPos = lBars[bar].notes[lBars[bar].notes.length-1].xPos;
 	}
 	return xPos;
 }
@@ -40,7 +42,7 @@ function newMarker(args) {
 	var page = iPages[args.iPage];
 	var lBars = page.bars;
 
-	marker.xPos = setMarkerXPos(args.bar, args.note, lBars, markers.xPos);
+	marker.xPos = setMarkerXPos(args.bar, args.note, lBars, marker.xPos, args.extended, args.iPage);
 	marker.y = args.y;
 	markers[args.index]=marker;
 	console.log(args.index+ "created!" +  markers[args.index]);
@@ -52,8 +54,9 @@ function updateMarker(args) {
 	markers[args.index].line = args.line;
 	markers[args.index].iPage = args.iPage; 
 	markers[args.index].y  = args.y;
+	markers[args.index].extended = args.extended;
 
-	markers[args.index].xPos = setMarkerXPos(args.bar, args.note, iPages[args.iPage].bars, markers[args.index].xPos);
+	markers[args.index].xPos = setMarkerXPos(args.bar, args.note, iPages[args.iPage].bars, markers[args.index].xPos, args.extended, args.iPage);
 }
 
 function sendMarker() {
@@ -100,6 +103,7 @@ function updateCurMarker() {
 			note: curNote,
 			line: curLine,
 			iPage: curIPage,
+			extended: extended,
 			y: y
 		},
 		generate: true
@@ -109,6 +113,6 @@ function updateCurMarker() {
 
 function updateAllXMarkers() {
 	markers.forEach(function(marker) {
-		marker.xPos=setMarkerXPos(marker.bar, marker.note, iPages[marker.iPage].bars, marker.xPos);
+		marker.xPos=setMarkerXPos(marker.bar, marker.note, iPages[marker.iPage].bars, marker.xPos, marker.extended, marker.iPage);
 	});
 }

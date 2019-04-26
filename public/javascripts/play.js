@@ -8,7 +8,7 @@ var hOffset=0;
 var playLine=0;
 var headerPos = -1;
 
-function play() { // eslint-disable-line no-unused-vars
+function play(context) { // eslint-disable-line no-unused-vars
 	playing=true;
 	playingBar=[];
 	playingNote=[];
@@ -24,13 +24,12 @@ function play() { // eslint-disable-line no-unused-vars
 		playingNote.push(0);
 		playingTime.push(0);
 		playing.push(true);
-		
-		playNotes(iPages[i].bars, i);
+		playNotes(iPages[i].bars, i, context);
 	}
 	
 }
 
-function playNotes(bars, page) {
+function playNotes(bars, page, audioContext) {
 	if(bars.length>0) {
 		if(page===curIPage) restoreCanvas();
 		if(playingBar[page] === bars.length){
@@ -70,7 +69,7 @@ function playNotes(bars, page) {
 
 			playingNote[page] = 0; playingBar[page]++;
 			time[page] = setTimeout(function() {
-				playNotes(bars, page);
+				playNotes(bars, page, audioContext);
 			}, velocity*1000);
 			return;
 		}
@@ -97,7 +96,6 @@ function playNotes(bars, page) {
 			for(var ch = 0; ch<chords.length; ch++) {
 				
 				var d = chords[ch].duration+chords[ch].duration*1/4;
-				console.log(chords[ch].chord);
 				player.queueChord(audioContext, audioContext.destination, _tone_0000_FluidR3_GM_sf2_file, 0, chords[ch].chord, d);
 			}
 			
@@ -105,7 +103,7 @@ function playNotes(bars, page) {
 
 		playingNote[page]++;
 		time[page] = setTimeout(function() {
-			playNotes(bars, page);
+			playNotes(bars, page, audioContext);
 		}, nDuration*1000);
 		
 	}
@@ -118,16 +116,15 @@ function getChords(bars, playingBar, playingNote) {
 	for(var n=0; n<bars[playingBar].notes[playingNote].noteGroups.length; n++) {
 		var chord = [];
 		//if the note is tied to another, it will be already on a chord, so it will be skipped
-		if(bars[playingBar].notes[playingNote].noteGroups[n].tiedTo!==null) continue;
+		if(bars[playingBar].notes[playingNote].noteGroups[n].tiedTo!==false) continue;
 		
 		//we add the note to a temporary chord
-		console.log(bars[playingBar].notes[playingNote].noteGroups[n].accidental)
 		chord.push(bars[playingBar].notes[playingNote].noteGroups[n].noteValue + bars[playingBar].notes[playingNote].noteGroups[n].accidental);
 		
 		//if the note is tied to another, the duration of the chord will be calculated as the full tie group duration
-		if(bars[playingBar].notes[playingNote].noteGroups[n].tiesTo!==null) {
+		if(bars[playingBar].notes[playingNote].noteGroups[n].tiesTo!==false) {
 			var objNG = {objNote: bars[playingBar].notes[playingNote], objNG: bars[playingBar].notes[playingNote].noteGroups[n]};
-			duration = getTieDuration(objNG, duration)  * (1/((tempo/60))*4);
+			duration = getTieDuration(bars, playingBar, playingNote, objNG, duration)  * (1/((tempo/60))*4);
 		
 		//if not, the note duration will be used
 		} else {
@@ -158,11 +155,13 @@ function getIndexOfChord(chords, duration) {
 	return -1;
 }
 
-function getTieDuration(objNG, duration) {
-	if(objNG.objNG.tiesTo===null) {
+function getTieDuration(bars, bar, note, objNG, duration) {
+	var result;
+	if(objNG.objNG.tiesTo===false) {
 		duration=getNoteDuration(objNG.objNote);
 	} else {
-		duration+=getTieDuration(objNG.objNG.tiesTo, duration)+getNoteDuration(objNG.objNote);
+		result = getTied(bars, bar, note, objNG.objNG);
+		duration+=getTieDuration(bars, bar, result.noteTo, {objNote: result.tiesTo, objNG: result.tiesToNG}, duration)+getNoteDuration(objNG.objNote);
 	}
 	
 

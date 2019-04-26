@@ -1,12 +1,13 @@
 var instr=null; // eslint-disable-line no-unused-vars
 var AudioContextFunc = window.AudioContext || window.webkitAudioContext;
-var audioContext = new AudioContextFunc();
+
 var player=new WebAudioFontPlayer();
 
-function changeInstrument(path,name){
-	player.loader.startLoad(audioContext, path, name);
+function changeInstrument(path,name, context){
+	player.loader.startLoad(context, path, name);
 	player.loader.waitLoad(function () {
 		instr=window[name];
+		play(context);
 	});
 }
 
@@ -59,7 +60,7 @@ function getJSON(args) {
 	bars =iPages[curIPage].bars;
 	lines = iPages[curIPage].lines;
 
-	console.log(lines);
+	
 	var mInformation = {
 		functionName: "sendMarker",
 		args: {
@@ -76,6 +77,7 @@ function getJSON(args) {
 			note: curNote,
 			line: curLine,
 			iPage: curIPage,
+			extended: false,
 			y: y
 		},
 		generate: true
@@ -87,8 +89,7 @@ function getJSON(args) {
 }
 
 function start(createNew) {
-	changeInstrument("https://surikov.github.io/webaudiofontdata/sound/0000_FluidR3_GM_sf2_file.js","_tone_0000_FluidR3_GM_sf2_file");
-	console.log(createNew);
+	//changeInstrument("https://surikov.github.io/webaudiofontdata/sound/0000_FluidR3_GM_sf2_file.js","_tone_0000_FluidR3_GM_sf2_file");
 	if(createNew) {
 		lines.push(new Line());
 		lines[0].maxBars=3;

@@ -398,8 +398,11 @@ document.addEventListener("keydown", function(event) {
 					generateAll();
 					return;
 				}
-				if(bars[curBar].notes[curNote].isSpace) bars[curBar].notes.splice(curNote, 1);
+				else if(bars[curBar].notes[curNote].isSpace) bars[curBar].notes.splice(curNote, 1);
 			} 
+			markers.forEach(function(marker) {
+				if(marker.extended && curBar===marker.bar && curNote===marker.note && curIPage===marker.page) marker.extended=false;	
+			});
 			extended = false;
 			setMarkerAndSend(false, false);
 				
@@ -512,7 +515,6 @@ document.addEventListener("keydown", function(event) {
 			break;
 		case "ArrowLeft":
 			if(tPress) {
-				console.log(curIPage);
 				inf = {
 					functionName: "tieBeat",
 					args: {
@@ -674,8 +676,9 @@ document.addEventListener("keydown", function(event) {
 				for(var i=0; i<time.length; i++) {
 					clearTimeout(time[i]);
 				}
+				var audioContext = new AudioContextFunc();
+				changeInstrument("https://surikov.github.io/webaudiofontdata/sound/0000_FluidR3_GM_sf2_file.js","_tone_0000_FluidR3_GM_sf2_file", audioContext);
 				
-				play();
 			}
 				
 			break;
