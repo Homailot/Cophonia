@@ -89,7 +89,9 @@ function placeNote(args) { // eslint-disable-line no-unused-vars
 	noteValue = getNoteValue(scalePos, sP, noteValue);
 
 	acc = getAccidentalFromBar(lBars, barP, sP, acc, pos);
-	if(curBar===args.bar && curNote===args.note && curIPage ===args.iPage) extended = false;
+	if(markers[uIndex].extended && args.bar===curBar && args.note===curNote && args.iPage===curIPage) {
+		markers[uIndex].extended=false;
+	}
 	
 	
 	if(!args.newGroup) {
@@ -114,6 +116,7 @@ function placeNote(args) { // eslint-disable-line no-unused-vars
 	} else {
 		note.inverted=false;
 	}
+	sendAndUpdateMarker();
 }
 
 NoteGroup.prototype.updateAccidental = function(bar, n, j, bars) {

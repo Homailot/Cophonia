@@ -111,7 +111,7 @@ function start(createNew) {
 			sof: 0
 		};
 		newBar(args);
-
+		
 		var lInformation = {
 			functionName: "newMarker",
 			args: {
@@ -120,10 +120,11 @@ function start(createNew) {
 				note: curNote,
 				line: curLine,
 				iPage: curIPage,
+				extended: false,
 				y: y
 			},
 			generate: true
-		}
+		};
 		newMarker(lInformation.args);
 		bars=iPages[curIPage].bars;
 		lines = iPages[curIPage].lines;

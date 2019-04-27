@@ -56,7 +56,8 @@ function deleteNote(args) {
 	}
 	
 	//says the bar is not extended
-	extended = false;
+	markers[uIndex].extended = false;
+	sendAndUpdateMarker();
 }
 
 
@@ -119,9 +120,9 @@ function moveLeft() {
 		drawMarker(y);
 
 		//if the bar was extended, it de-extends it.
-		if(extended) {
+		if(markers[uIndex].extended) {
 
-			extended = false;
+			markers[uIndex].extended = false;
 			generateAll();
 		}
 	// eslint-disable-next-line brace-style
@@ -152,9 +153,9 @@ function moveRight() {
 	//if we"ve reached the end, meaning the bar was extended or when the sum of the duration of the notes matches the time signature
 	if(curNote===bars[curBar].notes.length || (sum === bars[curBar].upperSig/bars[curBar].lowerSig && curNote+1===bars[curBar].notes.length)) {
 		//if it was extended, it de-extends
-		if(extended) {
+		if(markers[uIndex].extended) {
 
-			extended = false;
+			markers[uIndex].extended = false;
 			gen = true;
 		}
 
@@ -206,7 +207,7 @@ function moveRight() {
 			
 			//this extends the bar, in other words, it pushes everything forward so the marker can be placed
 			
-			extended = true;
+			markers[uIndex].extended = true;
 
 			curNote++;
 			sendAndUpdateMarker();
@@ -293,7 +294,6 @@ function setMarkerAndSend(isSpace, newGroup) {
 	};
 	placeNote(information.args);
 	sendData(JSON.stringify(information));
-	sendAndUpdateMarker();
 	generateAll();
 }
 
@@ -400,10 +400,15 @@ document.addEventListener("keydown", function(event) {
 				}
 				else if(bars[curBar].notes[curNote].isSpace) bars[curBar].notes.splice(curNote, 1);
 			} 
-			markers.forEach(function(marker) {
-				if(marker.extended && curBar===marker.bar && curNote===marker.note && curIPage===marker.page) marker.extended=false;	
-			});
-			extended = false;
+			
+
+			markers[uIndex].extended = false;
+			for(var marker in markers) {
+				if(markers[marker].extended && curBar===markers[marker].bar && curNote===markers[marker].note && curIPage===markers[marker].page) {
+					markers[marker].extended=false;	
+					console.log("teste");
+				} 
+			}
 			setMarkerAndSend(false, false);
 				
 			generateAll();
@@ -423,7 +428,7 @@ document.addEventListener("keydown", function(event) {
 			};
 			deleteNote(inf.args);
 			sendData(JSON.stringify(inf));
-			sendAndUpdateMarker();
+			
 				
 			generateAll();
 			break;

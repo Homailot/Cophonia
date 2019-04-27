@@ -27,9 +27,12 @@ function setMarkerXPos(bar, note, lBars, def, ext, page) {
 			xPos=(lBars[bar].notes[0].xPos);
 		}
 	}else if(!ext) {
-		xPos = lBars[bar].notes[note].xPos;
+		if(lBars[bar].notes[note]!==undefined){
+			xPos = lBars[bar].notes[note].xPos;
+		} else {
+			return def;
+		}
 	} else if(ext) {
-		console.log(ext);
 		if(curNote===note && page===curIPage && bar===curBar) xPos = def;
 		else xPos = lBars[bar].notes[lBars[bar].notes.length-1].xPos;
 	}
@@ -39,9 +42,9 @@ function setMarkerXPos(bar, note, lBars, def, ext, page) {
 function newMarker(args) {
 	var marker = new Marker(args.bar, args.note, args.line);
 	marker.iPage = args.iPage;
+	marker.extended=args.extended;
 	var page = iPages[args.iPage];
 	var lBars = page.bars;
-
 	marker.xPos = setMarkerXPos(args.bar, args.note, lBars, marker.xPos, args.extended, args.iPage);
 	marker.y = args.y;
 	markers[args.index]=marker;
@@ -60,6 +63,7 @@ function updateMarker(args) {
 }
 
 function sendMarker() {
+	console.log(markers[uIndex].extended);
 	var mInformation = {
 		functionName: "newMarker",
 		args: {
@@ -86,7 +90,7 @@ function sendAndUpdateMarker() {
 			line: curLine,
 			iPage: curIPage,
 			y: y,
-			extended: extended
+			extended: markers[uIndex].extended
 		},
 		generate: true
 	}
@@ -103,7 +107,7 @@ function updateCurMarker() {
 			note: curNote,
 			line: curLine,
 			iPage: curIPage,
-			extended: extended,
+			extended: markers[uIndex].extended,
 			y: y
 		},
 		generate: true
@@ -112,7 +116,11 @@ function updateCurMarker() {
 }
 
 function updateAllXMarkers() {
-	markers.forEach(function(marker) {
-		marker.xPos=setMarkerXPos(marker.bar, marker.note, iPages[marker.iPage].bars, marker.xPos, marker.extended, marker.iPage);
-	});
+	for(var marker in markers) {
+		// if(markers[marker].extended && iPages[markers[marker].iPage].bars[markers[marker].bar].notes[markers[marker].note]!==undefined) {
+		// 	markers[marker].extended=false;
+		// } 
+		markers[marker].xPos=setMarkerXPos(markers[marker].bar, markers[marker].note, iPages[markers[marker].iPage].bars, markers[marker].xPos, markers[marker].extended, markers[marker].iPage);
+	
+	}
 }

@@ -18,9 +18,10 @@ var clientIdG;
 var idToRespond;
 var curIndex;
 var started=false;
+var socketToIndex=[];
 
 var socket = io.connect();
-console.log(socket);
+
 function startConn() {
 	window.room = prompt("Enter room name:");
 
@@ -40,7 +41,9 @@ socket.on("ipaddr", function (ipaddr) {
 socket.on("created", function (room, clientId) {
 	//console.log("Created room", room, "- my client ID is", clientId);
     isInitiator = true;
-    clientIdG = clientId;
+	clientIdG = clientId;
+	uIndex=clientId;
+	socketToIndex[clientId] = 0;
 	start(true);
 	started=true;
 });
@@ -48,7 +51,7 @@ socket.on("created", function (room, clientId) {
 socket.on("joined", function (idToSend, room, clientId, index) {
 	//console.log("This peer has joined room", room, "with client ID", clientId);
 	isInitiator = false;
-	uIndex = index;
+	uIndex = clientId;
     createPeerConnectionLocal(idToSend, isInitiator, configuration);
 	clientIdG=clientId;
 	
@@ -81,7 +84,7 @@ socket.on("full", function (room) {
 });
 
 socket.on("ready", function (room, socketId) {
-    console.log("Socket is ready");
+    //console.log("Socket is ready");
 	createPeerConnectionRemote(isInitiator, configuration, socketId);
 });
 
@@ -124,7 +127,6 @@ function signalingMessageCallbackLocal(message, dest) {
 		}));
 	}
 }
-
 function createPeerConnectionRemote(isInitiator, config, id) {
 	peerConnLocal[id] = new RTCPeerConnection(config);
 
@@ -141,6 +143,14 @@ function createPeerConnectionRemote(isInitiator, config, id) {
 			});
 		}
 	};
+
+	peerConnLocal[id].oniceconnectionstatechange = function() {
+		if(peerConnLocal[id].iceConnectionState==='disconnected') {
+			delete markers[id];
+
+			generateAll();
+		}
+	}
     
     //console.log("Creating Data Channel");
 	peerConnLocal[id].ondatachannel = function (event) {
@@ -171,6 +181,14 @@ function createPeerConnectionLocal(id, isInitiator, config) {
 		}
 	};
 
+	peerConnLocal[id].oniceconnectionstatechange = function() {
+		if(peerConnLocal[id].iceConnectionState==='disconnected') {
+			delete markers[id];
+
+			generateAll();
+		}
+	}
+
     
     var i = dataChannel.push( peerConnLocal[id].createDataChannel("musicTransfer"))-1;
 	onDataChannelCreated(dataChannel[i]);
@@ -192,7 +210,7 @@ function createPeerConnectionLocal(id, isInitiator, config) {
 
 function onLocalSessionCreated(index, desc) {
     //console.log("local session created:", desc);
-    console.log(index);
+    
 	sendPrivateMessage({
 		type:"offer",
         desc: desc,
@@ -226,7 +244,7 @@ function onDataChannelCreated(channel) {
 	};
 
 	channel.onclose = function () {
-		//console.log("Channel closed.");
+		console.log("Channel closed.");
 		
 	};
 

@@ -48,7 +48,7 @@ function unStretch(line) {
 					
 					startPos+=40+maxDots*10;
 				}
-				if(curBar===bar && (extended || bars[bar].notes.length===0)) {
+				if(curBar===bar && (markers[uIndex].extended || bars[bar].notes.length===0)) {
 					markers[uIndex].xPos=startPos;
 					startPos+=40;
 				} 
@@ -120,7 +120,7 @@ function getSpace(line) {
 				}	
 			}	
 
-			if(bar === curBar && extended) {
+			if(bar === curBar && markers[uIndex].extended) {
 				objectsWidth.push(30);
 				objectWidth+=30;
 				nObjects++;
@@ -172,9 +172,14 @@ function stretch(line) {
 					}
 				}
 
-				if(bar===curBar && extended) {
+				if(bar===curBar && markers[uIndex].extended) {
 					thisPos+=spaceWidth;
-					markers[uIndex].xPos = thisPos+objectsWidth[objectIndex]/2;
+					for(var marker in markers) {
+						if(markers[marker].extended && markers[marker].note===curNote && markers[marker].bar===curBar && markers[marker].iPage === curIPage) {
+							markers[marker].xPos = thisPos+objectsWidth[objectIndex]/2;
+						}
+					}
+					
 					thisPos+=objectsWidth[objectIndex];
 					objectIndex++;
 				}

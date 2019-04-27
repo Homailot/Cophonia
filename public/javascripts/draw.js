@@ -437,14 +437,14 @@ function drawBeam(xStart, yStart, xEnd, yEnd) {// eslint-disable-line no-unused-
 }
 
 function drawMarker(args) {// eslint-disable-line no-unused-vars
-	markers.forEach(function(marker) {
-		if(marker.iPage===curIPage) {
+	for(var marker in markers) {
+		if(markers[marker].iPage===curIPage) {
 			var yOffset=0;
-			for(var line = 0; line<=marker.line; line++) {
+			for(var line = 0; line<=markers[marker].line; line++) {
 				yOffset+=lines[line].yOffset;
 			}
 			ctx.translate(0, yOffset);
-			drawExtraStaff(marker.xPos, marker.y, marker.line, yOffset);
+			drawExtraStaff(markers[marker].xPos, markers[marker].y, markers[marker].line, yOffset);
 
 			ctx.beginPath();
 			ctx.lineWidth = 1;
@@ -452,14 +452,13 @@ function drawMarker(args) {// eslint-disable-line no-unused-vars
 			ctx.globalAlpha = 0.2;
 			ctx.fillStyle = "#00FF3C";
 		
-			ctx.fillRect(marker.xPos, ((marker.line+1)*144) + marker.y * 8 - 5, 20, 26);
-			ctx.rect(marker.xPos, ((marker.line+1)*144) + marker.y * 8 - 5, 20, 26);
+			ctx.fillRect(markers[marker].xPos, ((markers[marker].line+1)*144) + markers[marker].y * 8 - 5, 20, 26);
+			ctx.rect(markers[marker].xPos, ((markers[marker].line+1)*144) + markers[marker].y * 8 - 5, 20, 26);
 			ctx.globalAlpha = 1;
 			ctx.stroke();
 			ctx.translate(0, -yOffset);
 		}
-	});
-	
+	}
 }
 
 function drawHeader(x, line, offset) { // eslint-disable-line no-unused-vars
