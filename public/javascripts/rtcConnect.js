@@ -1,4 +1,4 @@
-"use strict";
+//"use strict";
 
 var uIndex = 0;
 var tempIndex;
@@ -18,7 +18,7 @@ var clientIdG;
 var idToRespond;
 var curIndex;
 var started=false;
-var socketToIndex=[];
+var colors=["#00FF3C", "#C50F1F", "#0037DA", "#881798", "#3A96DD", "#CCCCCC", "#767676", "#C19C00"];
 
 var socket = io.connect();
 
@@ -43,7 +43,6 @@ socket.on("created", function (room, clientId) {
     isInitiator = true;
 	clientIdG = clientId;
 	uIndex=clientId;
-	socketToIndex[clientId] = 0;
 	start(true);
 	started=true;
 });
@@ -54,27 +53,27 @@ socket.on("joined", function (idToSend, room, clientId, index) {
 	uIndex = clientId;
     createPeerConnectionLocal(idToSend, isInitiator, configuration);
 	clientIdG=clientId;
-	
 });
 
 function waitStart() {
 	var starting = false;
 
-	dataChannel.forEach(function(channel) {
+	for(var channel in dataChannel) {
 		starting=true;
 
-		if(channel.readyState!=="open") {
-			setTimeout(waitStart, 300);
+		if(dataChannel[channel].readyState!=="open") {
+			setTimeout(function() {waitStart();}, 300);
 			starting=false;
 			return;
 		}
-	});
+	}
 
 	if(starting) start(false);
 }
 
 socket.on("start", function() {
-	setTimeout(waitStart, 300);
+
+	setTimeout(function() {waitStart();}, 300);
 });
 
 socket.on("full", function (room) {
@@ -155,8 +154,8 @@ function createPeerConnectionRemote(isInitiator, config, id) {
     //console.log("Creating Data Channel");
 	peerConnLocal[id].ondatachannel = function (event) {
 		// console.log("ondatachannel:", event.channel);
-		var i = dataChannel.push(event.channel)-1;
-		onDataChannelCreated(dataChannel[i]);
+		dataChannel[id] = event.channel;
+		onDataChannelCreated(dataChannel[id]);
 	};
 }
 
@@ -190,9 +189,11 @@ function createPeerConnectionLocal(id, isInitiator, config) {
 	}
 
     
-    var i = dataChannel.push( peerConnLocal[id].createDataChannel("musicTransfer"))-1;
-	onDataChannelCreated(dataChannel[i]);
-	
+    // var i = dataChannel.push( peerConnLocal[id].createDataChannel("musicTransfer"))-1;
+	// onDataChannelCreated(dataChannel[i]);
+	dataChannel[id] = peerConnLocal[id].createDataChannel("musicTransfer");
+	onDataChannelCreated(dataChannel[id]);
+
 	peerConnLocal[id].createOffer().then(onLocalSessionCreated.bind(null, id), logError);
 }
 
@@ -250,6 +251,7 @@ function onDataChannelCreated(channel) {
 
 	channel.onmessage = function (event) {
 		//apply corresponding function
+		console.log("teste");
 		receiveData(event);
 	};
 }
@@ -261,18 +263,31 @@ function receiveData(ev) {
 }
 
 function sendData(jsonFunction) {
-    dataChannel.forEach(function(channel) {
-        if (!channel) {
-            logError("Connection has not been initiated. " +
-                "Get two peers in the same room first");
-            return;
-        } else if (channel.readyState === "closed") {
-            //logError("Connection was lost. Peer closed the connection.");
-            return;
-        }
-    
-        channel.send(jsonFunction);
-    });
+	for(var channel in dataChannel) {
+		if(!dataChannel[channel]) {
+			logError("Connection has not been initiated. " +
+				"Get two peers in the same room first");
+			return;
+		} else if (dataChannel[channel].readyState === "closed") {
+			logError("Connection was lost. Peer closed the connection.");
+			return;
+		}
+
+		dataChannel[channel].send(jsonFunction);
+	}
+}
+
+function sendDataTo(jsonFunction, channel) {
+	if(!dataChannel[channel]) {
+		logError("Connection has not been initiated. " +
+			"Get two peers in the same room first");
+		return;
+	} else if (dataChannel[channel].readyState === "closed") {
+		//logError("Connection was lost. Peer closed the connection.");
+		return;
+	}
+	console.log(channel);
+	dataChannel[channel].send(jsonFunction);
 }
 
 function show() {

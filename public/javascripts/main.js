@@ -28,6 +28,7 @@ var lastPos = 180;
 y=0;
 var iPages = [];
 var curIPage=0;
+var colorI;
 var bars = []; // eslint-disable-line no-unused-vars
 var lines = []; // eslint-disable-line no-unused-vars
 var savedBars = []; // eslint-disable-line no-unused-vars
@@ -43,7 +44,7 @@ var time = []; // eslint-disable-line no-unused-vars
 var scrollValue=0; // eslint-disable-line no-unused-vars
 var accidentalOrder = [4, 1, 5, 2, 6, 3, 7]; // eslint-disable-line no-unused-vars
 
-function sendJSON() {
+function sendJSON(args) {
 	var inf={
 		functionName: "getJSON",
 		args: {
@@ -51,7 +52,7 @@ function sendJSON() {
 		},
 		generate: true
 	};
-	sendData(JSON.stringify(inf));
+	sendDataTo(JSON.stringify(inf), args.index);
 }
 
 function getJSON(args) {
@@ -59,15 +60,6 @@ function getJSON(args) {
 	iPages = JSON.parse(args.json);
 	bars =iPages[curIPage].bars;
 	lines = iPages[curIPage].lines;
-
-	
-	var mInformation = {
-		functionName: "sendMarker",
-		args: {
-		},
-		generate: false
-	};
-	sendData(JSON.stringify(mInformation));
 
 	var lInformation = {
 		functionName: "newMarker",
@@ -77,6 +69,7 @@ function getJSON(args) {
 			note: curNote,
 			line: curLine,
 			iPage: curIPage,
+			color: colors[colorI],
 			extended: false,
 			y: y
 		},
@@ -85,11 +78,21 @@ function getJSON(args) {
 	sendData(JSON.stringify(lInformation));
 	newMarker(lInformation.args);
 
+	var mInformation = {
+		functionName: "sendMarker",
+		args: {
+			index: uIndex
+		},
+		generate: false
+	};
+	sendData(JSON.stringify(mInformation));
+
 	generateAll();
 }
 
 function start(createNew) {
 	//changeInstrument("https://surikov.github.io/webaudiofontdata/sound/0000_FluidR3_GM_sf2_file.js","_tone_0000_FluidR3_GM_sf2_file");
+	console.log("rr");
 	if(createNew) {
 		lines.push(new Line());
 		lines[0].maxBars=3;
@@ -121,20 +124,23 @@ function start(createNew) {
 				line: curLine,
 				iPage: curIPage,
 				extended: false,
+				color: colors[0],
 				y: y
 			},
 			generate: true
 		};
 		newMarker(lInformation.args);
+		colorI=0;
 		bars=iPages[curIPage].bars;
 		lines = iPages[curIPage].lines;
 	
 		generateAll();
 	} else {
+		colorI=0;
 		var jInformation = {
 			functionName: "sendJSON",
 			args: {
-	
+				index: uIndex
 			} ,
 			generate: false
 		};

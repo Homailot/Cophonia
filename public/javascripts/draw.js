@@ -449,8 +449,8 @@ function drawMarker(args) {// eslint-disable-line no-unused-vars
 			ctx.beginPath();
 			ctx.lineWidth = 1;
 			ctx.strokeStyle = "#000000";
-			ctx.globalAlpha = 0.2;
-			ctx.fillStyle = "#00FF3C";
+			ctx.globalAlpha = 0.4;
+			ctx.fillStyle = markers[marker].color;
 		
 			ctx.fillRect(markers[marker].xPos, ((markers[marker].line+1)*144) + markers[marker].y * 8 - 5, 20, 26);
 			ctx.rect(markers[marker].xPos, ((markers[marker].line+1)*144) + markers[marker].y * 8 - 5, 20, 26);
