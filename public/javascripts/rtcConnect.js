@@ -55,6 +55,13 @@ socket.on("joined", function (idToSend, room, clientId, index) {
 	clientIdG=clientId;
 });
 
+socket.on("reload", function(room) {
+	peerConnLocal = [];
+	dataChannel = [];
+	markers= [];
+	socket.emit("create or join", room);
+});
+
 function waitStart() {
 	var starting = false;
 
@@ -68,7 +75,10 @@ function waitStart() {
 		}
 	}
 
-	if(starting) start(false);
+	if(starting){
+		start(false);
+		started=true;
+	} 
 }
 
 socket.on("start", function() {
@@ -143,19 +153,31 @@ function createPeerConnectionRemote(isInitiator, config, id) {
 		}
 	};
 
-	peerConnLocal[id].oniceconnectionstatechange = function() {
-		if(peerConnLocal[id].iceConnectionState==='disconnected') {
+	peerConnLocal[id].oniceconnectionstatechange = function(ev) {
+		console.log(id);
+		console.log(peerConnLocal[id].iceConnectionState);
+		console.log("------");
+
+		if(peerConnLocal[id].iceConnectionState==='disconnected' || peerConnLocal[id].iceConnectionState==='failed') {
 			delete markers[id];
+			peerConnLocal[id].close();
 
 			generateAll();
+		}else if(peerConnLocal[id].iceConnectionState==='closed') {
+			if(dataChannel[id]) {
+				dataChannel[id].close();
+			} else {
+				delete peerConnLocal[id];
+				tryReload();
+			}
 		}
-	}
+	};
     
     //console.log("Creating Data Channel");
 	peerConnLocal[id].ondatachannel = function (event) {
 		// console.log("ondatachannel:", event.channel);
 		dataChannel[id] = event.channel;
-		onDataChannelCreated(dataChannel[id]);
+		onDataChannelCreated(id);
 	};
 }
 
@@ -180,19 +202,31 @@ function createPeerConnectionLocal(id, isInitiator, config) {
 		}
 	};
 
-	peerConnLocal[id].oniceconnectionstatechange = function() {
-		if(peerConnLocal[id].iceConnectionState==='disconnected') {
+	peerConnLocal[id].oniceconnectionstatechange = function(ev) {
+		console.log(id);
+		console.log(peerConnLocal[id].iceConnectionState);
+		console.log("------");
+		
+		if(peerConnLocal[id].iceConnectionState==='disconnected' || peerConnLocal[id].iceConnectionState==='failed') {
 			delete markers[id];
+			peerConnLocal[id].close();
 
 			generateAll();
+		}else if(peerConnLocal[id].iceConnectionState==='closed') {
+			if(dataChannel[id]) {
+				dataChannel[id].close();
+			} else {
+				delete peerConnLocal[id];
+				tryReload();
+			}
 		}
-	}
+	};
 
     
     // var i = dataChannel.push( peerConnLocal[id].createDataChannel("musicTransfer"))-1;
 	// onDataChannelCreated(dataChannel[i]);
 	dataChannel[id] = peerConnLocal[id].createDataChannel("musicTransfer");
-	onDataChannelCreated(dataChannel[id]);
+	onDataChannelCreated(id);
 
 	peerConnLocal[id].createOffer().then(onLocalSessionCreated.bind(null, id), logError);
 }
@@ -234,26 +268,38 @@ function onRemoteSessionCreated(index, desc) {
         desc: desc,
         sId: clientIdG,
         id: index
-    })
+    });
 }
 
 function onDataChannelCreated(channel) {
 	//console.log("onDataChannelCreated:", channel);
 
-	channel.onopen = function () {
-		//console.log("CHANNEL opened!!!");
-	};
-
-	channel.onclose = function () {
-		console.log("Channel closed.");
+	dataChannel[channel].onopen = function () {
 		
 	};
 
-	channel.onmessage = function (event) {
+	dataChannel[channel].onclose = function () {
+		delete dataChannel[channel];
+		delete peerConnLocal[channel];
+		tryReload();
+	};
+
+	dataChannel[channel].onmessage = function (event) {
 		//apply corresponding function
-		console.log("teste");
 		receiveData(event);
 	};
+}
+
+function tryReload() {
+	var cnt = 0;
+
+	for(var c in peerConnLocal) {
+		cnt++;
+	}
+
+	if(cnt===0) {
+		socket.emit("check offline", room, 0);
+	}
 }
 
 function receiveData(ev) {
@@ -269,7 +315,8 @@ function sendData(jsonFunction) {
 				"Get two peers in the same room first");
 			return;
 		} else if (dataChannel[channel].readyState === "closed") {
-			logError("Connection was lost. Peer closed the connection.");
+			//alert("Connection was lost. Peer closed the connection.");
+			delete markers[channel];
 			return;
 		}
 
@@ -286,7 +333,6 @@ function sendDataTo(jsonFunction, channel) {
 		//logError("Connection was lost. Peer closed the connection.");
 		return;
 	}
-	console.log(channel);
 	dataChannel[channel].send(jsonFunction);
 }
 

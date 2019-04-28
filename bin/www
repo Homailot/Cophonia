@@ -71,6 +71,22 @@ io.sockets.on("connection", function(socket) {
 		}
 	});
 
+	socket.on("check offline", function(room, connections){
+		var clientsInRoom = io.sockets.adapter.rooms[room];
+		var numClients = 0;
+		
+
+		for(var client in clientsInRoom.sockets) {
+			if(client!==socket.id) numClients++;
+		}
+		debug("number of actual clients: "+ numClients);
+
+		if(connections!==numClients) {
+			socket.leave(room);
+			socket.emit("reload", room);
+		}
+	});
+
 	socket.on("ipaddr", function() {
 		var ifaces = os.networkInterfaces();
 		for (var dev in ifaces) {

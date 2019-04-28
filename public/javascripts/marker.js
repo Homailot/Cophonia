@@ -42,7 +42,6 @@ function setMarkerXPos(bar, note, lBars, def, ext, page) {
 
 function newMarker(args) {
 	var marker = new Marker(args.bar, args.note, args.line);
-	console.log(args.color);
 	marker.color=args.color;
 	marker.iPage = args.iPage;
 	marker.extended=args.extended;
@@ -67,8 +66,6 @@ function updateMarker(args) {
 }
 
 function sendMarker(args) {
-	console.log("Eee");
-	console.log("Sending color: " + markers[uIndex].color)
 	var mInformation = {
 		functionName: "recieveMarker",
 		args: {
