@@ -229,27 +229,30 @@ function moveRight() {
 //inserts a beat in the form of a rest
 function insertBeat(args) {
 	var bars = iPages[args.iPage].bars;
+	var note = args.note;
 	//so that we don"t place a beat after we have extended, we check if the bar is extended
 	if(!args.extended) {
 		//if we aren"t at the first note of the bar or if we aren"t at the last note, the markers moves forward and everything with it
 		if((args.note!==0 || args.note < bars[args.bar].notes.length)) {
 			for(var nG=0; nG<bars[args.bar].notes[args.note].noteGroups.length; nG++) {
 				var objNG = bars[args.bar].notes[args.note].noteGroups[nG];
-				if(objNG.tiesTo!==null) {
+				if(objNG.tiesTo!==false) {
 					result = getTied(bars, args.bar, args.note+1, objNG);
 					result.tiesToNG.tiedTo=false;
 					objNG.tiesTo=false;
 				}
 			}
 			if(curNote==args.note && curIPage == args.iPage) curNote++;
+			note++;
 		}
+		console.log(note);
 		
 		//places the pause
 		var information = {
 			functionName: "placeNote", 
 			args: {
 				iPage: args.iPage,
-				bar: args.bar, note:args.note+1, duration: args.duration,
+				bar: args.bar, note:note, duration: args.duration,
 				line: args.line, pos: args.y, isSpace: true, newGroup: false
 			},
 			generate:false
