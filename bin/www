@@ -46,6 +46,11 @@ io.sockets.on("connection", function(socket) {
 		socket.broadcast.emit("message", message);
 	});
 
+	socket.once("disconnect", function() {
+		debug(socket.id + " has disconnected!");
+
+	});
+
 	socket.on("create or join", function(room) {
 		//log("Received request to create or join room " + room);
 
@@ -114,6 +119,8 @@ io.sockets.on("connection", function(socket) {
   socket.on("private", function(data){
     socket.broadcast.to(data.id).emit("message",data);
   })
+
+  socket.emit("getRoom");
 });
 
 /**

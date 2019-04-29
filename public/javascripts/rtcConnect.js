@@ -22,15 +22,17 @@ var colors=["#00FF3C", "#C50F1F", "#0037DA", "#881798", "#3A96DD", "#CCCCCC", "#
 
 var socket = io.connect();
 
+socket.on("getRoom", function() {
+	setTimeout(startConn, 200);
+});
+
 function startConn() {
-	window.room = prompt("Enter room name:");
+	if(window.room === undefined)window.room = prompt("Enter room name:");
 
 	if (room !== "") {
 		socket.emit("create or join", room);
 		//console.log("Attempted to create or  join room", room);
 	}
-
-
 }
 
 socket.on("ipaddr", function (ipaddr) {
@@ -56,6 +58,7 @@ socket.on("joined", function (idToSend, room, clientId, index) {
 });
 
 socket.on("reload", function(room) {
+	console.log("reloading");
 	peerConnLocal = [];
 	dataChannel = [];
 	markers= [];
@@ -95,6 +98,10 @@ socket.on("full", function (room) {
 socket.on("ready", function (room, socketId) {
     //console.log("Socket is ready");
 	createPeerConnectionRemote(isInitiator, configuration, socketId);
+});
+
+socket.on("disconnect", function() {
+	console.log("disconnected");
 });
 
 socket.on("log", function (array) {
@@ -168,7 +175,7 @@ function createPeerConnectionRemote(isInitiator, config, id) {
 				dataChannel[id].close();
 			} else {
 				delete peerConnLocal[id];
-				tryReload();
+				//tryReload();
 			}
 		}
 	};
@@ -215,9 +222,10 @@ function createPeerConnectionLocal(id, isInitiator, config) {
 		}else if(peerConnLocal[id].iceConnectionState==='closed') {
 			if(dataChannel[id]) {
 				dataChannel[id].close();
+				//tryReload();
 			} else {
 				delete peerConnLocal[id];
-				tryReload();
+				//tryReload();
 			}
 		}
 	};
@@ -281,7 +289,6 @@ function onDataChannelCreated(channel) {
 	dataChannel[channel].onclose = function () {
 		delete dataChannel[channel];
 		delete peerConnLocal[channel];
-		tryReload();
 	};
 
 	dataChannel[channel].onmessage = function (event) {
@@ -292,6 +299,13 @@ function onDataChannelCreated(channel) {
 
 function tryReload() {
 	var cnt = 0;
+	console.log("Socket is connected? " + socket.connected);
+	
+	if(socket.connected===false) {
+		setTimeout(tryReload, 200);
+		console.log("trying to reconnect");
+		return;
+	}
 
 	for(var c in peerConnLocal) {
 		cnt++;

@@ -12,9 +12,9 @@ function changeInstrument(path,name, context){
 }
 
 window.onload = function () {
-
-
-	setTimeout(startConn,200);
+	// setTimeout(function() {
+	// 	socket=io.connect();
+	// },200);
 };
 
 
