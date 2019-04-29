@@ -161,9 +161,6 @@ function createPeerConnectionRemote(isInitiator, config, id) {
 	};
 
 	peerConnLocal[id].oniceconnectionstatechange = function(ev) {
-		console.log(id);
-		console.log(peerConnLocal[id].iceConnectionState);
-		console.log("------");
 
 		if(peerConnLocal[id].iceConnectionState==='disconnected' || peerConnLocal[id].iceConnectionState==='failed') {
 			delete markers[id];
@@ -210,9 +207,6 @@ function createPeerConnectionLocal(id, isInitiator, config) {
 	};
 
 	peerConnLocal[id].oniceconnectionstatechange = function(ev) {
-		console.log(id);
-		console.log(peerConnLocal[id].iceConnectionState);
-		console.log("------");
 		
 		if(peerConnLocal[id].iceConnectionState==='disconnected' || peerConnLocal[id].iceConnectionState==='failed') {
 			delete markers[id];

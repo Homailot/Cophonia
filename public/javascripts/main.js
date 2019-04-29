@@ -92,7 +92,7 @@ function getJSON(args) {
 
 function start(createNew) {
 	//changeInstrument("https://surikov.github.io/webaudiofontdata/sound/0000_FluidR3_GM_sf2_file.js","_tone_0000_FluidR3_GM_sf2_file");
-	console.log("rr");
+
 	if(createNew) {
 		lines.push(new Line());
 		lines[0].maxBars=3;

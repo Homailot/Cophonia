@@ -438,7 +438,7 @@ function drawBeam(xStart, yStart, xEnd, yEnd) {// eslint-disable-line no-unused-
 
 function drawMarker(args) {// eslint-disable-line no-unused-vars
 	for(var marker in markers) {
-		if(markers[marker].iPage===curIPage) {
+		if(markers[marker].iPage===curIPage && lines[markers[marker].line]!==undefined) {
 			var yOffset=0;
 			for(var line = 0; line<=markers[marker].line; line++) {
 				yOffset+=lines[line].yOffset;

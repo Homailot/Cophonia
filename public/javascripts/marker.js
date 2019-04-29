@@ -11,7 +11,8 @@ function Marker(bar, note, line) {
 
 function setMarkerXPos(bar, note, lBars, def, ext, page) {
 	var xPos;
-	if(note === 0) {
+	if(lBars[bar]===undefined) return;
+	if(note === 0 && lBars[bar].notes.length===0) {
 		xPos = lBars[bar].initPos+10;
 
 		if(lBars[bar].changedTimeSig) {
@@ -23,9 +24,6 @@ function setMarkerXPos(bar, note, lBars, def, ext, page) {
 		if(lBars[bar].changedOrFirstClef) xPos += 45;
 		if(lBars[bar].changedAcc || lBars[bar].firstAcc) {
 			xPos += (lBars[bar].accidentals+lBars[bar].naturals.length)*18;
-		}
-		if(lBars[bar].notes.length>0) {
-			xPos=(lBars[bar].notes[0].xPos);
 		}
 	}else if(!ext) {
 		if(lBars[bar].notes[note]!==undefined){
