@@ -326,6 +326,10 @@ function addIPage(args) {
 	iPages.push(new InstrumentPage());	
 }
 
+function recieveIPage(args) {
+	iPages.push(args.iPage);
+}
+
 document.addEventListener("keydown", function(event) {
 	//simple code that checks what key was pressed and executes a function
 	var inf;
@@ -657,14 +661,16 @@ document.addEventListener("keydown", function(event) {
 			break;
 		case "KeyN":
 			if(ctrlPress) {
+				addIPage();
+				curIPage=iPages.length-1;
 				inf = {
-					functionName: "addIPage",
-					args: null,
+					functionName: "recieveIPage",
+					args: {
+						iPage: iPages[curIPage]
+					},
 					generate:false
 				};
-				addIPage();
 				sendData(JSON.stringify(inf));
-				curIPage=iPages.length-1;
 				curNote=0;
 				bars=iPages[curIPage].bars;
 				lines=iPages[curIPage].lines;
