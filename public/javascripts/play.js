@@ -35,7 +35,9 @@ function playNotes(bars, page, audioContext) {
 	if(bars.length>0) {
 		if(page===curIPage) restoreCanvas();
 		if(playingBar[page] === bars.length){
-			if(page===curIPage) drawMarker(y); 
+			if(page===curIPage) {
+				drawMarker({headerOffset: iPages[page].headerOffset});
+			} 
 			playing[page]=false; return;
 		}
 		var totalTime = bars[playingBar[page]].upperSig/bars[playingBar[page]].lowerSig;
@@ -46,7 +48,11 @@ function playNotes(bars, page, audioContext) {
 		} 
 
 		if(playingBar[page] === bars.length){
-			if(page===curIPage) drawMarker(y);
+			
+			if(page===curIPage) {
+				drawMarker({headerOffset:iPages[page].headerOffset});
+			} 
+			
 			playing[page]=false; return;
 		}
 		//set the vertical offsets for the marker that follows along
@@ -96,7 +102,7 @@ function playNotes(bars, page, audioContext) {
 			//player.cancelQueue(audioContext);
 			for(var ch = 0; ch<chords.length; ch++) {
 				
-				var d = chords[ch].duration+chords[ch].duration*1/4+0.1;
+				var d = chords[ch].duration+0.15;
 				player.queueChord(audioContext, audioContext.destination, _tone_0000_FluidR3_GM_sf2_file, 0, chords[ch].chord, d);
 			}
 			

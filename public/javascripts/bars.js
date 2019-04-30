@@ -148,7 +148,7 @@ function changeKey(args) { // eslint-disable-line no-unused-vars
 
 		for(var note = 0; note<bars[args.bar].notes.length; note++) {
 			for(var noteG=0; noteG<bars[args.bar].notes[note].noteGroups.length; noteG++) {
-				bars[args.bar].notes[note].noteGroups[noteG].updateAccidental(args.bar, bars[args.bar].notes[note], note, bars);
+				updateAccidental(args.bar, bars[args.bar].notes[note].noteGroups[noteG], note, bars);
 			}
 		}
 	}
@@ -173,7 +173,7 @@ function setNaturals(oldAcc, oldSof, newBarAcc, newSof) {
 }
 
 function fillBar(args) {
-	var totalTime = getSum(args.bar);
+	var totalTime = getSum(bars, args.bar);
 	var requiredTime = bars[args.bar].upperSig/bars[args.bar].lowerSig;
 	var difference = requiredTime-totalTime;
 	var restsToAdd=[];

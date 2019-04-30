@@ -166,7 +166,7 @@ function moveRight() {
 	var lowerSig = bars[curBar].lowerSig;
 	var acc = bars[curBar].accidentals;
 	var sof = bars[curBar].sharpOrFlat;
-	var sum = getSum(curBar);
+	var sum = getSum(bars, curBar);
 	var gen = false;
 
 	//if we"ve reached the end, meaning the bar was extended or when the sum of the duration of the notes matches the time signature
@@ -314,7 +314,13 @@ function changeDuration(args) {
 	var bars = iPages[args.iPage].bars;
 
 	if(args.note>=0 && bars[args.bar].notes.length > args.note) {
+		var initDuration = bars[args.bar].notes[args.note].duration;
+
 		bars[args.bar].notes[args.note].duration = args.duration;
+		var sum = getSum(bars, args.bar);
+		if(sum>bars[args.bar].upperSig/bars[args.bar].lowerSig) {
+			bars[args.bar].notes[args.note].duration=initDuration;
+		}
 		if(bars[args.bar].notes[args.note].fullRest)  {
 			bars[args.bar].notes[args.note].fullRest=false;
 		}
@@ -442,17 +448,16 @@ document.addEventListener("keydown", function(event) {
 					generateAll();
 					return;
 				}
-				else if(bars[curBar].notes[curNote].isSpace) bars[curBar].notes.splice(curNote, 1);
 			} 
 			
 
-			markers[uIndex].extended = false;
-			for(var marker in markers) {
-				if(markers[marker].extended && curBar===markers[marker].bar && curNote===markers[marker].note && curIPage===markers[marker].page) {
-					markers[marker].extended=false;	
-					console.log("teste");
-				} 
-			}
+			// markers[uIndex].extended = false;
+			// for(var marker in markers) {
+			// 	if(markers[marker].extended && curBar===markers[marker].bar && curNote===markers[marker].note && curIPage===markers[marker].page) {
+			// 		markers[marker].extended=false;	
+			// 		console.log("teste");
+			// 	} 
+			// }
 			setMarkerAndSend(false, false);
 				
 			generateAll();
@@ -755,6 +760,7 @@ document.addEventListener("keydown", function(event) {
 				clearTimeout(time[j]);
 			}
 			restoreCanvas(); playing=false;
+			generateAll();
 			break;
 		case "ShiftLeft":
 		case "ShiftRight":

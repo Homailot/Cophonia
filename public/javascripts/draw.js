@@ -52,7 +52,6 @@ function drawFigure(bar, note) { // eslint-disable-line no-unused-vars
 		}
 		ctx.font = "60px BravuraF";
 		ctx.fillText(text, note.xPos, ((note.line+1)*144)-8-26+pauseOffset);
-
 		drawDot(note, false);
 		return;
 	}

@@ -150,11 +150,13 @@ function stretch(line) {
 		spaceWidth=result.sw;
 
 		var objectIndex = 0;
+		var startingPos=thisPos;
 		for(var bar = 0; bar<bars.length; bar++) {
 			if(bars[bar].line === line) {
 				bars[bar].initPos=thisPos;
 				thisPos+=objectsWidth[objectIndex];
 				objectIndex++;
+				startingPos = thisPos;
 
 				if(bars[bar].notes.length>0) {
 					if(!bars[bar].notes[0].fullRest) {
@@ -193,7 +195,7 @@ function stretch(line) {
 					bars[bar].xPos = thisPos; 
 				}
 				if(bars[bar].notes[0] && bars[bar].notes[0].fullRest) {
-					bars[bar].notes[0].xPos = (bars[bar].initPos+thisPos)/2;
+					bars[bar].notes[0].xPos = ((startingPos-30)+thisPos)/2;
 				}
 			}
 		}

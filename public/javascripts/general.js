@@ -1,9 +1,10 @@
-function getSum(bar) { // eslint-disable-line no-unused-vars
+function getSum(bars, bar) { // eslint-disable-line no-unused-vars
 	var sum = 0;
 
 	for(var note = 0; note < bars[bar].notes.length; note++) {
 		if(bars[bar].notes[note].fullRest) {
 			sum = bars[bar].upperSig/bars[bar].lowerSig;
+			break;
 		} else {
 			sum += getNoteDuration(bars[bar].notes[note]);
 		}

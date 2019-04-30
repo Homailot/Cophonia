@@ -86,14 +86,15 @@ function placeNote(args) { // eslint-disable-line no-unused-vars
 	var note;
 	var lBars = iPages[args.iPage].bars;
 	var acc = 0;
+	var sum = getSum(lBars, barP);
+	var replacedPauseDuration=0;
 	
 	noteValue = getNoteValue(scalePos, sP, noteValue);
+	if(lBars[args.bar].notes[args.note] && lBars[args.bar].notes[args.note].isSpace) {
+		replacedPauseDuration=getNoteDuration(lBars[args.bar].notes[args.note]);
+	}
 
 	acc = getAccidentalFromBar(lBars, barP, sP, acc, pos);
-	if(markers[uIndex].extended && args.bar===curBar && args.note===curNote && args.iPage===curIPage) {
-		markers[uIndex].extended=false;
-	}
-	
 	
 	if(!args.newGroup) {
 		note = new Note(xPos, realPosition, args.line, args.duration, pos, noteValue, args.isSpace, sP, acc);
@@ -101,7 +102,14 @@ function placeNote(args) { // eslint-disable-line no-unused-vars
 			note.fullRest=true;
 			note.duration=1;
 		}
-		lBars[barP].notes.splice(noteP, 0, note); 
+		if(sum+getNoteDuration(note)-replacedPauseDuration<=lBars[barP].upperSig/lBars[barP].lowerSig) {
+			if(lBars[args.bar].notes[args.note] && lBars[args.bar].notes[args.note].isSpace) {
+				lBars[barP].notes.splice(noteP, 1); 
+			}
+			lBars[barP].notes.splice(noteP, 0, note); 
+		} else {
+			return;
+		}
 	} else {
 		lBars[barP].notes[noteP].noteGroups.push(new NoteGroup(realPosition, pos, noteValue, sP, acc));
 		var noteGroupOrder=orderNoteGroup(lBars[barP].notes[noteP]);
@@ -121,12 +129,15 @@ function placeNote(args) { // eslint-disable-line no-unused-vars
 	} else {
 		note.inverted=false;
 	}
+	if(markers[uIndex].extended && args.bar===curBar && args.note===curNote && args.iPage===curIPage) {
+		markers[uIndex].extended=false;
+	}
 	sendAndUpdateMarker();
 }
 
-NoteGroup.prototype.updateAccidental = function(bar, n, j, bars) {
-	determineAccFromBar(bars[bar], null, this, 0);
-	determineAccFromNotes(bars[bar], null, this, j);
+function updateAccidental (bar, n, j, bars) {
+	determineAccFromBar(bars[bar], null, n, 0);
+	determineAccFromNotes(bars[bar], null, n, j);
 
 	getAccWidth(j, bars[bar]);
 };
@@ -287,12 +298,12 @@ function augment(args) { // eslint-disable-line no-unused-vars
 	if(args.note<bars[args.bar].notes.length) {
 		var objNote = bars[args.bar].notes[args.note];
 		objNote.dots+=args.value;
+		if(objNote.fullRest) objNote.fullRest=false;
 		if(objNote.dots<0) objNote.dots=0;
 		else if(objNote.dots>3) objNote.dots=3;
-		else if(args.value>0) {
-			objNote.width+=10;
-		} else {
-			objNote.width-=10;
+
+		if(getSum(bars, args.bar)>bars[args.bar].upperSig/bars[args.bar].lowerSig) {
+			objNote.dots-=1;
 		}
 	}
 }
