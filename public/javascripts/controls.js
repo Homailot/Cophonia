@@ -148,6 +148,8 @@ function moveLeft() {
 			placeNote(information.args);
 			sendData(JSON.stringify(information));
 			generateAll();
+		} else {
+			fillBar({bar: curBar});
 		}
 		curBar--;
 		curNote = bars[curBar].notes.length-1;
@@ -190,6 +192,8 @@ function moveRight() {
 			gen=true;
 			placeNote(lInformation.args);
 			sendData(JSON.stringify(lInformation));
+		} else {
+			fillBar({bar: curBar});
 		}
 		curBar++;
 		curNote = 0;
@@ -311,6 +315,9 @@ function changeDuration(args) {
 
 	if(args.note>=0 && bars[args.bar].notes.length > args.note) {
 		bars[args.bar].notes[args.note].duration = args.duration;
+		if(bars[args.bar].notes[args.note].fullRest)  {
+			bars[args.bar].notes[args.note].fullRest=false;
+		}
 
 		generateAll();
 	}

@@ -2,7 +2,11 @@ function getSum(bar) { // eslint-disable-line no-unused-vars
 	var sum = 0;
 
 	for(var note = 0; note < bars[bar].notes.length; note++) {
-		sum += getNoteDuration(bars[bar].notes[note]);
+		if(bars[bar].notes[note].fullRest) {
+			sum = bars[bar].upperSig/bars[bar].lowerSig;
+		} else {
+			sum += getNoteDuration(bars[bar].notes[note]);
+		}
 	}
 
 	return sum;

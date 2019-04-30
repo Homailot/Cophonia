@@ -171,3 +171,40 @@ function setNaturals(oldAcc, oldSof, newBarAcc, newSof) {
 
 	return naturals;
 }
+
+function fillBar(args) {
+	var totalTime = getSum(args.bar);
+	var requiredTime = bars[args.bar].upperSig/bars[args.bar].lowerSig;
+	var difference = requiredTime-totalTime;
+	var restsToAdd=[];
+	var duration = 1;
+
+	while(difference>0) {
+		if(duration<=difference) {
+			restsToAdd.push(duration);
+			difference-=duration;
+		}
+
+		duration/=2;
+		if(duration<0.03125) duration=1;
+	}
+
+	addRests(restsToAdd);
+	
+	generateAll();
+}
+
+function addRests(rests) {
+	for(var rest=rests.length-1; rest>=0; rest--) {
+		var information = {functionName: "placeNote", 
+			args: {
+				iPage: curIPage,
+				bar: curBar, note:bars[curBar].notes.length, duration: rests[rest],
+				line: curLine, pos: y+2, isSpace: true, newGroup: false
+			},
+			generate:true
+		};
+		placeNote(information.args);
+		sendData(JSON.stringify(information));
+	}
+}
