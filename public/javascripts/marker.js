@@ -33,7 +33,7 @@ function setMarkerXPos(bar, note, lBars, def, ext, page) {
 		}
 	} else if(ext) {
 		if(curNote===note && page===curIPage && bar===curBar) xPos = def;
-		else xPos = lBars[bar].notes[lBars[bar].notes.length-1].xPos;
+		else if(lBars[bar].notes.length>0) xPos = lBars[bar].notes[lBars[bar].notes.length-1].xPos;
 	}
 	return xPos;
 }

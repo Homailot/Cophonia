@@ -27,6 +27,9 @@ socket.on("getRoom", function() {
 });
 
 function startConn() {
+	peerConnLocal = [];
+	dataChannel = [];
+	markers= [];
 	if(window.room === undefined)window.room = prompt("Enter room name:");
 
 	if (room !== "") {

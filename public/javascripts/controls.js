@@ -45,7 +45,7 @@ function deleteNote(args) {
 			}
 		} else {
 			bars[args.bar].notes.splice(args.note, 1);
-			if(args.note !== 0 && args.note==curNote && args.iPage == curIPage) {
+			if(args.note !== 0 && args.note==curNote && args.iPage == curIPage && args.bar===curBar) {
 				curNote--;
 			} 
 		}
@@ -98,9 +98,12 @@ function deleteBar(args) {
 		if(lines[args.line].bars===0) lines.splice(args.line, 1);
 		if(curIPage===args.iPage && curBar>=bars.length) {
 			curBar--;
-			curNote=0;
 			tBar--;
 		}
+		if(curBar===args.bar) {
+			markers[uIndex].extended=false;
+			curNote=0;
+		} 
 
 		//if the bar before is not in the curentLine then the current line is decreased.
 		if(line!==0 && args.iPage===curIPage && curBar===tBar && bars[tBar].line < curLine) {
