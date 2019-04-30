@@ -157,7 +157,9 @@ function stretch(line) {
 				objectIndex++;
 
 				if(bars[bar].notes.length>0) {
-					bars[bar].notes[0].xPos = (thisPos+bars[bar].notes[0].accWidth);
+					if(!bars[bar].notes[0].fullRest) {
+						bars[bar].notes[0].xPos = (thisPos+bars[bar].notes[0].accWidth);
+					}
 					if(bars[bar].notes[0].duration<=0.125  || bars[bar].notes[0].inverted) bars[bar].notes[0].xPos+=10;
 					thisPos+=objectsWidth[objectIndex];
 					objectIndex++;
@@ -189,6 +191,9 @@ function stretch(line) {
 				} else { 
 					thisPos+=spaceWidth; 
 					bars[bar].xPos = thisPos; 
+				}
+				if(bars[bar].notes[0] && bars[bar].notes[0].fullRest) {
+					bars[bar].notes[0].xPos = (bars[bar].initPos+thisPos)/2;
 				}
 			}
 		}
@@ -533,6 +538,7 @@ function getExtremes(line) {
 
 	return {highest: highest, lowest: lowest};
 }
+	
 
 //this is the main update function
 function generateAll() { // eslint-disable-line no-unused-vars
@@ -577,7 +583,6 @@ function generateAll() { // eslint-disable-line no-unused-vars
 	for(var bar = 0; bar < bars.length; bar++) {
 		//the beamGroups define the groups of eigth plus notes to be grouped with beams
 		var beamGroups = [];
-		
 
 		// //sets the color to red if the sum is wrong
 		var color = "#000000";

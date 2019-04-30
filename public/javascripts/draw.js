@@ -41,16 +41,17 @@ function drawFigure(bar, note) { // eslint-disable-line no-unused-vars
 	var turned=false;
 	var text;
 	if(note.isSpace) {
+		var pauseOffset=0;
 		switch(note.duration) {
-		case 1: text = "\uD834\uDD3B"; break;
-		case 0.5: text = "\uD834\uDD3C"; break;
+		case 1: text = "\uD834\uDD3B"; pauseOffset-=14; break;
+		case 0.5: text = "\uD834\uDD3C"; pauseOffset-=6; break;
 		case 0.25: text = "\uD834\uDD3D"; break;
 		case 0.125: text = "\uD834\uDD3E"; break;
 		case 0.0625: text = "\uD834\uDD3F"; break;
 		case 0.03125: text = "\uD834\uDD40"; break;
 		}
-		ctx.font = "69px Musicaf";
-		ctx.fillText(text, note.xPos, ((note.line+1)*144)-8-26 );
+		ctx.font = "60px BravuraF";
+		ctx.fillText(text, note.xPos, ((note.line+1)*144)-8-26+pauseOffset);
 
 		drawDot(note, false);
 		return;

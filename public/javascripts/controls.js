@@ -135,6 +135,20 @@ function moveLeft() {
 		//moves back the current line if the bar before is on a different line.
 		if(bars[curBar-1].line!==curLine) curLine--;
 
+		if(bars[curBar].notes.length===0) {
+			var information = {
+				functionName: "placeNote",
+				args: {
+					iPage: curIPage,
+					bar: curBar, note:0, duration: 1,
+					line: curLine, pos: 0, isSpace: true, newGroup: false, fullRest: true
+				},
+				generate:true
+			};
+			placeNote(information.args);
+			sendData(JSON.stringify(information));
+			generateAll();
+		}
 		curBar--;
 		curNote = bars[curBar].notes.length-1;
 		if(curNote < 0) curNote = 0;
@@ -163,6 +177,20 @@ function moveRight() {
 		}
 
 		//creates a new bar if there are no more bars
+		if(bars[curBar].notes.length===0) {
+			var lInformation = {
+				functionName: "placeNote",
+				args: {
+					iPage: curIPage,
+				bar: curBar, note:0, duration: 1,
+				line: curLine, pos: 0, isSpace: true, newGroup: false, fullRest: true
+				},
+				generate:true
+			};
+			gen=true;
+			placeNote(lInformation.args);
+			sendData(JSON.stringify(lInformation));
+		}
 		curBar++;
 		curNote = 0;
 
@@ -180,7 +208,8 @@ function moveRight() {
 					curLine:curLine,
 					cA: false,
 					acc: acc,
-					sof: sof
+					sof: sof,
+					rested: true
 				},
 				generate: true
 			};
@@ -248,8 +277,6 @@ function insertBeat(args) {
 			if(curNote==args.note && curIPage == args.iPage) curNote++;
 			note++;
 		}
-		console.log(note);
-		
 		//places the pause
 		var information = {
 			functionName: "placeNote", 

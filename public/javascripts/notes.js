@@ -10,6 +10,7 @@ function Note(xPos, yPos, line, duration, pos, noteValue, isSpace, scalePos, acc
 	this.width = 30;
 	this.dots=0;
 	this.inverted=false;
+	this.fullRest=false;
 }
 
 function NoteGroup(yPos, pos, noteValue, scalePos, acc) {
@@ -96,6 +97,10 @@ function placeNote(args) { // eslint-disable-line no-unused-vars
 	
 	if(!args.newGroup) {
 		note = new Note(xPos, realPosition, args.line, args.duration, pos, noteValue, args.isSpace, sP, acc);
+		if(args.fullRest) {
+			note.fullRest=true;
+			note.duration=1;
+		}
 		lBars[barP].notes.splice(noteP, 0, note); 
 	} else {
 		lBars[barP].notes[noteP].noteGroups.push(new NoteGroup(realPosition, pos, noteValue, sP, acc));

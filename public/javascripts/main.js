@@ -133,6 +133,12 @@ function start(createNew) {
 			generate: true
 		};
 		newMarker(lInformation.args);
+		var information = {
+			iPage: curIPage,
+			bar: curBar, note:curNote, duration: 1,
+			line: curLine, pos: y, isSpace: true, newGroup: false, fullRest: true
+		};
+		placeNote(information);
 		colorI=0;
 		bars=iPages[curIPage].bars;
 		lines = iPages[curIPage].lines;

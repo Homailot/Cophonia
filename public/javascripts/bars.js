@@ -39,7 +39,16 @@ function newBar(args) { // eslint-disable-line no-unused-vars
 
 	var lbars = iPages[args.iPage].bars;
 	//we insert the bar in the array at the current position
+	
 	lbars.splice(args.bar, 0, bar);
+	if(args.rested) {
+		var information = {
+			iPage: args.iPage,
+			bar: args.bar, note:0, duration: 1,
+			line: args.line, pos: 0, isSpace: true, newGroup: false, fullRest: true
+		};
+		placeNote(information);
+	}
 }
 
 function checkLineOverflow(line, lines) {
