@@ -36,10 +36,10 @@ function getYFromX(m, b, x) { // eslint-disable-line no-unused-vars
 	return m*x+b;
 }
 
-function moveBars(bar, forward, line) { // eslint-disable-line no-unused-vars
+function moveBars(bars, bar, line) { // eslint-disable-line no-unused-vars
 	var movingLine = line;
 
-	for(bar=bar+1; bar < bars.length; bar++) {
+	for(bar=bar; bar < bars.length; bar++) {
 		var note;
 		if(bars[bar].line !== movingLine) {
 			movingLine++;
@@ -50,24 +50,7 @@ function moveBars(bar, forward, line) { // eslint-disable-line no-unused-vars
 			for(note = 0; note < bars[bar].notes.length; note++) {
 				bars[bar].notes[note].line-=1;
 			}
-		} else {
-			var difference = bars[bar].initPos;
-			var startPos = 0;
-
-			if(bars[bar-1].line !== movingLine) {
-				startPos = 8;
-				bars[bar].xPos = bars[bar].xPos-difference +  startPos;
-				bars[bar].initPos = startPos;
-				//startPos+=45
-			} else {
-				startPos = bars[bar-1].xPos;
-				bars[bar].xPos = bars[bar].xPos-difference +  startPos;			
-				bars[bar].initPos = startPos;
-			} 
-			for(note = 0; note< bars[bar].notes.length; note++) {
-				bars[bar].notes[note].xPos = bars[bar].notes[note].xPos-difference + startPos;
-			}
-		}
+		} 
 	}
 }
 

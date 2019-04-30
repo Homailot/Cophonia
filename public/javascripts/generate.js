@@ -48,8 +48,8 @@ function unStretch(line) {
 					
 					startPos+=40+maxDots*10;
 				}
-				if(curBar===bar && (extended || bars[bar].notes.length===0)) {
-					Marker.xPos=startPos;
+				if(curBar===bar && (markers[uIndex].extended || bars[bar].notes.length===0)) {
+					markers[uIndex].xPos=startPos;
 					startPos+=40;
 				} 
 			} else startPos+=40;
@@ -120,7 +120,7 @@ function getSpace(line) {
 				}	
 			}	
 
-			if(bar === curBar && extended) {
+			if(bar === curBar && markers[uIndex].extended) {
 				objectsWidth.push(30);
 				objectWidth+=30;
 				nObjects++;
@@ -137,7 +137,7 @@ function getSpace(line) {
 
 function stretch(line) {
 	//we only stretch if the line is complete or if it overflows the canvas
-	if(((lines[line].complete || (bars[curBar].xPos > c.width && curLine === line)) && !lines[line].changedComplete) || lines[line].overflown) {
+	if(((lines[line].complete || (bars[curBar].xPos > c.width && curLine === line))) || lines[line].overflown) {
 		var spaceWidth;
 		var objectsWidth = [];
 		var thisPos = 8;
@@ -172,9 +172,14 @@ function stretch(line) {
 					}
 				}
 
-				if(bar===curBar && extended) {
+				if(bar===curBar && markers[uIndex].extended) {
 					thisPos+=spaceWidth;
-					Marker.xPos = thisPos+objectsWidth[objectIndex]/2;
+					for(var marker in markers) {
+						if(markers[marker].extended && markers[marker].note===curNote && markers[marker].bar===curBar && markers[marker].iPage === curIPage) {
+							markers[marker].xPos = thisPos+objectsWidth[objectIndex]/2;
+						}
+					}
+					
 					thisPos+=objectsWidth[objectIndex];
 					objectIndex++;
 				}
@@ -228,15 +233,16 @@ function checkBarCompletion(bar) {
 	var objBar = bars[bar];
 	var objLine = lines[objBar.line];
 	
-	if(objLine.bars===4 || (objLine.bars===3 && bars[bar].line === 0)) {
+	if(objLine.bars===objLine.maxBars) {
 		objLine.complete=true;
-	} else if(bars[bar].xPos >= c.width) {
+	} else if(bars[bar].xPos > c.width) {
 		objLine.overflown = true;
 	} else {
 		if(objLine.overflown) {
 			objLine.changedComplete=true;
 		} 
 		objLine.overflown = false;	
+		objLine.complete=false;
 	}
 }
 
@@ -267,6 +273,7 @@ function getBeamGroups(bar) {
 			if(newGroup) {
 				beamGroups.push([]);
 
+				
 				newGroup = false;
 			}
 
@@ -280,6 +287,8 @@ function getBeamGroups(bar) {
 			//again, just says that we are making a new group
 			newGroup = true;
 		}
+
+		drawTies(bar, note, null);
 	}
 
 	return beamGroups;
@@ -345,7 +354,6 @@ function getYStart(bar, beamGroups, group, inverse, shortest) {
 	var yStart=0;
 
 	for(var note = 0; note < beamGroups[group].length; note++) {
-		drawTies(bar, beamGroups[group][note], inverse);
 		drawHead(beamGroups[group][note], inverse);
 		//finally, we define the y pos of the beam. in this case we check for the note farthest away from all the others, so that the beam isn't drawn on top of the head
 		for(var n=0; n<beamGroups[group][note].noteGroups.length; n++) {
@@ -591,5 +599,7 @@ function generateAll() { // eslint-disable-line no-unused-vars
 
 	saveCanvas();
 	ctx.translate(0, -totalYOffset);
+	updateCurMarker();
+	updateAllXMarkers();
 	drawMarker(y);
 }

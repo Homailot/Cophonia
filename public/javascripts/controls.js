@@ -3,15 +3,21 @@ var tPress=false;
 
 
 //a more fitting name would be place/remove pause
-function deleteNote() {
+function deleteNote(args) {
+	var bars = iPages[args.iPage].bars;
+	var information = {
+		iPage: args.iPage,
+		bar: args.bar, note:args.note, duration: args.duration,
+		line: args.line, pos: args.y, isSpace: true, newGroup: false
+	};
 	//only deletes a note if it exists
-	if(curNote < bars[curBar].notes.length) {
-		var isSpace = bars[curBar].notes[curNote].isSpace;
+	if(args.note < bars[args.bar].notes.length) {
+		var isSpace = bars[args.bar].notes[args.note].isSpace;
 
 		if(!isSpace) {
 			var nGD=null;
-			for(var nG=0; nG<bars[curBar].notes[curNote].noteGroups.length; nG++) {
-				if(bars[curBar].notes[curNote].noteGroups[nG].pos===y+2) {
+			for(var nG=0; nG<bars[args.bar].notes[args.note].noteGroups.length; nG++) {
+				if(bars[args.bar].notes[args.note].noteGroups[nG].pos===args.y) {
 					nGD=nG;
 				}
 			}
@@ -19,93 +25,107 @@ function deleteNote() {
 			
 	
 			//deletes the note
-			var objNG=bars[curBar].notes[curNote].noteGroups[nGD];
-			if(objNG.tiesTo!=null) {
-				objNG.tiesTo.objNG.tiedTo=null;
+			var objNG=bars[args.bar].notes[args.note].noteGroups[nGD];
+			var result;
+			if(objNG.tiesTo!==false) {
+				result = getTied(bars, args.bar, args.note+1, objNG);
+				result.tiesToNG.tiedTo=false;
 			} 
-			if(objNG.tiedTo!=null) {
-				objNG.tiedTo.objNG.tiesTo=null;
+			if(objNG.tiedTo!==false) {
+				result = getTied(bars, args.bar, args.note-1, objNG);
+				result.tiesToNG.tiesTo=false;
 			}
-			bars[curBar].notes[curNote].noteGroups.splice(nGD, 1);
+			bars[args.bar].notes[args.note].noteGroups.splice(nGD, 1);
 
-			if(bars[curBar].notes[curNote].noteGroups.length===0) {
-				bars[curBar].notes.splice(curNote, 1);
+			if(bars[args.bar].notes[args.note].noteGroups.length===0) {
+				bars[args.bar].notes.splice(args.note, 1);
 				//if it was a note, it replaces it with a pause (hence the "true")
-				setMarker(true, false);
+				
+				placeNote(information);
 			}
 		} else {
-			bars[curBar].notes.splice(curNote, 1);
-			if(curNote !== 0) {
+			bars[args.bar].notes.splice(args.note, 1);
+			if(args.note !== 0 && args.note==curNote && args.iPage == curIPage && args.bar===curBar) {
 				curNote--;
 			} 
 		}
 
 		
-	} else setMarker(true, false);
+	} else {
+		placeNote(information);
+	}
 	
 	//says the bar is not extended
-	extended = false;
+	markers[uIndex].extended = false;
+	sendAndUpdateMarker();
 }
 
-function deleteTie() {
-	var objNG = null;
-	for(var nG=0; nG<bars[curBar].notes[curNote].noteGroups.length; nG++) {
-		if(bars[curBar].notes[curNote].noteGroups[nG].pos===y+2) {
-			objNG = bars[curBar].notes[curNote].noteGroups[nG];
-			break;
-		}
-	}
 
-	if(objNG!==null) {
-		if(objNG.tiesTo!==null) {
-			objNG.tiesTo.objNG.tiedTo=null;
-			objNG.tiesTo=null;
-		} else if(objNG.tiedTo!=null) {
-			objNG.tiedTo.objNG.tiesTo=null;
-			objNG.tiedTo=null;
+
+function keepChangedAtt(bars, bar) {
+	if(bar+1<bars.length) {
+		if(bar-1>=0) {
+			checkTimeSig(bars, bar+1, bars[bar-1].upperSig, bars[bar-1].lowerSig);
+			checkKey(bars, bar+1, bars[bar-1].accidentals, bars[bar-1].sharpOrFlat);
+		} else {
+			if(bars[bar+1].accidentals.length!==0) {
+				bars[bar+1].changedAcc=true;
+			}
+			bars[bar+1].changedTimeSig=true;
 		}
 	}
 }
 
-function deleteBar() {
+function deleteBar(args) {
+	var bars = iPages[args.iPage].bars;
+	var lines = iPages[args.iPage].lines;
+	var tBar = args.bar;
 	//only deletes a bar if it isn"t the first one
-	var line = bars[curBar].line;
-	if(curBar > 0) {
-
+	var line = bars[args.bar].line;
+	if(bars.length!==1) {
+		keepChangedAtt(bars, args.bar);
+		
 		//removes the bar from the current array and effectively deletes it
-		bars.splice(curBar, 1);
-		curBar--;
-		curNote = 0;
+		bars.splice(args.bar, 1);
+		
+
+		lines[args.line].bars -=1;
 
 		//moves all bars after the current one back.
-		moveBars(curBar, false, line);
+		moveBars(bars, args.bar, line);
 
-		lines[curLine].bars -=1;
-		if(lines[curLine].bars===0) lines.splice(curLine, 1);
 		
-		if(lines[lines.length-1].complete || lines[lines.length-1].overflown) {
-			lines[lines.length-1].changedComplete = true;
+		if(lines[args.line].bars===0) lines.splice(args.line, 1);
+		if(curIPage===args.iPage && curBar>=bars.length) {
+			curBar--;
+			tBar--;
+		}
+		if(curBar===args.bar) {
+			markers[uIndex].extended=false;
+			curNote=0;
 		} 
 
 		//if the bar before is not in the curentLine then the current line is decreased.
-		if(bars[curBar].line !== curLine) {
+		if(line!==0 && args.iPage===curIPage && curBar===tBar && bars[tBar].line < curLine) {
 			curLine--;
 		} 
 	}
+
+	sendAndUpdateMarker();
 }
 
 function moveLeft() {
 	//if the note isn"t the first, it places the marker at the note before
 	if(curNote > 0) {
-		Marker.xPos = bars[curBar].notes[curNote-1].xPos;
 		curNote--;
 		restoreCanvas();
+		sendAndUpdateMarker();
 		drawMarker(y);
 
 		//if the bar was extended, it de-extends it.
-		if(extended) {
+		if(markers[uIndex].extended) {
 
-			extended = false;
+			markers[uIndex].extended = false;
 			generateAll();
 		}
 	// eslint-disable-next-line brace-style
@@ -114,25 +134,13 @@ function moveLeft() {
 	else if(curBar-1 >= 0) {
 		//moves back the current line if the bar before is on a different line.
 		if(bars[curBar-1].line!==curLine) curLine--;
-		
-		var notes = bars[curBar-1].notes.length;
-
-		//if the bar before has no notes, then the marker is placed at the start of the bar.
-		if(notes === 0) {
-			Marker.xPos = bars[curBar-1].initPos+10;
-			if(bars[curBar-1].changedTimeSig) Marker.xPos +=35;
-			if(bars[curBar-1].changedOrFirstClef) Marker.xPos += 45;
-
-		// eslint-disable-next-line brace-style
-		} 
-		//if it does, it places the marker at the position of the last note of that bar
-		else Marker.xPos = bars[curBar-1].notes[notes-1].xPos;
 
 		curBar--;
 		curNote = bars[curBar].notes.length-1;
 		if(curNote < 0) curNote = 0;
 		
 		restoreCanvas();
+		sendAndUpdateMarker();
 		drawMarker(y);
 	}
 }
@@ -148,9 +156,9 @@ function moveRight() {
 	//if we"ve reached the end, meaning the bar was extended or when the sum of the duration of the notes matches the time signature
 	if(curNote===bars[curBar].notes.length || (sum === bars[curBar].upperSig/bars[curBar].lowerSig && curNote+1===bars[curBar].notes.length)) {
 		//if it was extended, it de-extends
-		if(extended) {
+		if(markers[uIndex].extended) {
 
-			extended = false;
+			markers[uIndex].extended = false;
 			gen = true;
 		}
 
@@ -159,26 +167,41 @@ function moveRight() {
 		curNote = 0;
 
 		if(curBar === bars.length){
-			newBar(upperSig, lowerSig, false, 0, false, bars[curBar-1].xPos, curLine, false, acc, sof); gen = true;
-		} 
-
-		//finally, it sets the marker at the start of the next bar
-		Marker.xPos = bars[curBar].initPos + 10;
-		if(bars[curBar].changedTimeSig) Marker.xPos +=45;
-		if(bars[curBar].changedOrFirstClef) Marker.xPos += 35;
+			var information = {functionName: "newBar", 
+				args: {
+					upperSig: upperSig,
+					lowerSig: lowerSig,
+					cS: false,
+					clef: 0,
+					cC: false,
+					iPage: curIPage,
+					bar: curBar,
+					line: curLine, 
+					curLine:curLine,
+					cA: false,
+					acc: acc,
+					sof: sof
+				},
+				generate: true
+			};
+			newBar(information.args); gen = true;
+			sendData(JSON.stringify(information));
+		}
 
 		//changes the current line if the current bar is in another line
 		if(bars[curBar].line !== curLine) curLine++;	
+
+		sendAndUpdateMarker();
 		if(gen) generateAll();
 		else {
 			restoreCanvas();
 			drawMarker(y);
 		}
+		
 	} else {
 		//if we are at the last note, we extend the bar before we move on to the next bar
 		if(curNote+1===bars[curBar].notes.length) {
 			//this moves the marker right, effectively when the line isn"t complete
-			Marker.xPos += 40;
 			var maxDots=0;
 			for(var n=0; n<bars[curBar].notes[curNote].noteGroups.length; n++) {
 				if(bars[curBar].notes[curNote].noteGroups[n].dots>maxDots) maxDots=bars[curBar].notes[curNote].noteGroups[n].dots;
@@ -187,9 +210,10 @@ function moveRight() {
 			
 			//this extends the bar, in other words, it pushes everything forward so the marker can be placed
 			
-			extended = true;
+			markers[uIndex].extended = true;
 
 			curNote++;
+			sendAndUpdateMarker();
 			generateAll();
 		// eslint-disable-next-line brace-style
 		} 
@@ -199,32 +223,46 @@ function moveRight() {
 
 			curNote++;
 			restoreCanvas();
+			sendAndUpdateMarker();
 			drawMarker(y);
 		} 
 	} 
 }
 
 //inserts a beat in the form of a rest
-function insertBeat() {
+function insertBeat(args) {
+	var bars = iPages[args.iPage].bars;
+	var note = args.note;
 	//so that we don"t place a beat after we have extended, we check if the bar is extended
-	if(!extended) {
+	if(!args.extended) {
 		//if we aren"t at the first note of the bar or if we aren"t at the last note, the markers moves forward and everything with it
-		if((curNote!==0 || curNote < bars[curBar].notes.length)) {
-			for(var nG=0; nG<bars[curBar].notes[curNote].noteGroups.length; nG++) {
-				var objNG = bars[curBar].notes[curNote].noteGroups[nG];
-				if(objNG.tiesTo!==null) {
-					objNG.tiesTo.objNG.tiedTo=null;
-					objNG.tiesTo=null;
+		if((args.note!==0 || args.note < bars[args.bar].notes.length)) {
+			for(var nG=0; nG<bars[args.bar].notes[args.note].noteGroups.length; nG++) {
+				var objNG = bars[args.bar].notes[args.note].noteGroups[nG];
+				if(objNG.tiesTo!==false) {
+					result = getTied(bars, args.bar, args.note+1, objNG);
+					result.tiesToNG.tiedTo=false;
+					objNG.tiesTo=false;
 				}
 			}
-			curNote++;
+			if(curNote==args.note && curIPage == args.iPage) curNote++;
+			note++;
 		}
+		console.log(note);
 		
 		//places the pause
-		setMarker(true, false);
-		Marker.xPos = bars[curBar].notes[curNote].xPos;
+		var information = {
+			functionName: "placeNote", 
+			args: {
+				iPage: args.iPage,
+				bar: args.bar, note:note, duration: args.duration,
+				line: args.line, pos: args.y, isSpace: true, newGroup: false
+			},
+			generate:false
+		};
+		placeNote(information.args);
+		sendAndUpdateMarker();
 	}
-	
 }
 
 //y is the y position of the marker
@@ -236,21 +274,46 @@ function changePitch(pitch) {
 	
 
 	restoreCanvas();
+	sendAndUpdateMarker();
 	drawMarker(y);
 }
 
-function changeDuration(note, duration) {
+function changeDuration(args) {
 	//if we are over a note, it changes it"s duration
-	if(note>=0 && bars[curBar].notes.length > note) {
-		bars[curBar].notes[note].duration = duration;
+	var bars = iPages[args.iPage].bars;
+
+	if(args.note>=0 && bars[args.bar].notes.length > args.note) {
+		bars[args.bar].notes[args.note].duration = args.duration;
 
 		generateAll();
 	}
 }
 
-function setMarker(isSpace, newGroup) {
-	placeNote(curDuration, curLine, y+2, isSpace, newGroup);
+function setMarkerAndSend(isSpace, newGroup) {
+	var information = {functionName: "placeNote", 
+		args: {
+			iPage: curIPage,
+			bar: curBar, note:curNote, duration: curDuration,
+			line: curLine, pos: y+2, isSpace: isSpace, newGroup: newGroup
+		},
+		generate:true
+	};
+	placeNote(information.args);
+	sendData(JSON.stringify(information));
+	generateAll();
+}
 
+function setMarker(isSpace, newGroup) {
+	var information = {functionName: "placeNote", 
+		args: {
+			iPage: curIPage,
+			bar: curBar, note:curNote, duration: curDuration,
+			line: curLine, pos: y+2, isSpace: isSpace, newGroup: newGroup
+		},
+		generate:true
+	};
+	placeNote(information.args);
+	sendAndUpdateMarker();
 	generateAll();
 }
 
@@ -262,19 +325,52 @@ function checkPlay() {
 	return false;
 }
 
+function addIPage(args) {
+	iPages.push(new InstrumentPage());	
+}
+
+function recieveIPage(args) {
+	iPages.push(args.iPage);
+}
+
 document.addEventListener("keydown", function(event) {
 	//simple code that checks what key was pressed and executes a function
+	var inf;
 	if(!checkPlay()) {
 		var dc = document.getElementById("dialogContainer");
 		if(dc.childNodes.length>0) dc.removeChild(dc.childNodes[0]);
 		switch(event.key) {
 		case "+":
-			changeAccidental(bars[curBar], bars[curBar].notes[curNote], y, 1, curNote);
+			inf = {
+				functionName: "changeAccidental",
+				args: {
+					bar: curBar,
+					note: curNote,
+					y: y,
+					value: 1,
+					iPage: curIPage
+				},
+				generate: true
+			};
+			changeAccidental(inf.args);
+			sendData(JSON.stringify(inf));
 
 			generateAll();
 			break;
 		case "-":
-			changeAccidental(bars[curBar], bars[curBar].notes[curNote], y, -1, curNote);
+		inf = {
+			functionName: "changeAccidental",
+			args: {
+				bar: curBar,
+				note: curNote,
+				y: y,
+				value: -1,
+				iPage: curIPage
+			},
+			generate: true
+		};
+		changeAccidental(inf.args);
+		sendData(JSON.stringify(inf));
 
 			generateAll();
 			break;
@@ -282,8 +378,21 @@ document.addEventListener("keydown", function(event) {
 		}
 		switch(event.code) {
 		case "Period":
-			if(ctrlPress) augment(curBar, curNote, y, -1);
-			else augment(curBar, curNote, y, 1);
+			inf = {
+				functionName: "augment",
+				args: {
+					bar: curBar,
+					note: curNote,
+					value: 1,
+					iPage: curIPage
+				},
+				generate: true
+			};
+			if(ctrlPress) {
+				inf.args.value=-1;
+			}
+			augment(inf.args);
+			sendData(JSON.stringify(inf));
 
 			generateAll();
 			break;
@@ -295,34 +404,90 @@ document.addEventListener("keydown", function(event) {
 						if(bars[curBar].notes[curNote].noteGroups[n].pos === y+2) return;
 					}
 						
-					setMarker(false, true);
+					setMarkerAndSend(false, true);
 					generateAll();
 					return;
 				}
-				if(bars[curBar].notes[curNote].isSpace) bars[curBar].notes.splice(curNote, 1);
+				else if(bars[curBar].notes[curNote].isSpace) bars[curBar].notes.splice(curNote, 1);
 			} 
-			extended = false;
-			setMarker(false, false);
+			
+
+			markers[uIndex].extended = false;
+			for(var marker in markers) {
+				if(markers[marker].extended && curBar===markers[marker].bar && curNote===markers[marker].note && curIPage===markers[marker].page) {
+					markers[marker].extended=false;	
+					console.log("teste");
+				} 
+			}
+			setMarkerAndSend(false, false);
 				
 			generateAll();
 			break;
 		case "Backspace":
-			deleteNote();
+			inf= {
+				functionName: "deleteNote",
+				args: {
+					bar: curBar,
+					note: curNote,
+					iPage:curIPage,
+					duration: curDuration,
+					line: curLine,
+					y: y+2
+				}, 
+				generate: true
+			};
+			deleteNote(inf.args);
+			sendData(JSON.stringify(inf));
+			
 				
 			generateAll();
 			break;
 		case "Space":
-			insertBeat();
+			inf = {
+				functionName: "insertBeat",
+				args: {
+					iPage: curIPage,
+					bar: curBar, note:curNote, duration: curDuration,
+					line: curLine, y: y+2
+				},
+				generate: true
+			};
 
+			insertBeat(inf.args);
+			sendData(JSON.stringify(inf));
 			generateAll();
 			break;
 		case "Delete":
 			if(ctrlPress) {
-				deleteBar();
+				inf = {
+					functionName: "deleteBar",
+					args: {
+						iPage: curIPage,
+						bar: curBar,
+						line: curLine,
+					},
+					generate: true
+				};
+				
+				deleteBar(inf.args);
+				
+				sendData(JSON.stringify(inf));
 
 				generateAll();
 			} else if(tPress) {
-				deleteTie();
+				inf = {
+					functionName: "deleteTie",
+					args: {
+						iPage: curIPage,
+						note: curNote,
+						bar: curBar,
+						y: y
+					},
+					generate: true
+				};
+				
+				deleteTie(inf.args);
+				sendData(JSON.stringify(inf));
 
 				generateAll();
 			}
@@ -330,7 +495,20 @@ document.addEventListener("keydown", function(event) {
 			break;
 		case "ArrowRight":
 			if(tPress) {
-				tieBeat(curBar, curNote, curNote+1, y);
+				inf = {
+					functionName: "tieBeat",
+					args: {
+						iPage: curIPage,
+						note: curNote,
+						tieTo: curNote+1,
+						bar: curBar,
+						y: y
+					},
+					generate: true
+				};
+				
+				tieBeat(inf.args);
+				sendData(JSON.stringify(inf));
 
 				generateAll();
 			} else if(ctrlPress) {
@@ -340,7 +518,7 @@ document.addEventListener("keydown", function(event) {
 				lines=iPages[curIPage].lines;
 
 				markerOutOfBounds();
-				console.log(curIPage);
+				sendAndUpdateMarker();
 
 				generateAll();
 			} else {
@@ -352,7 +530,20 @@ document.addEventListener("keydown", function(event) {
 			break;
 		case "ArrowLeft":
 			if(tPress) {
-				tieBeat(curBar, curNote, curNote-1, y);
+				inf = {
+					functionName: "tieBeat",
+					args: {
+						iPage: curIPage,
+						note: curNote,
+						tieTo: curNote-1,
+						bar: curBar,
+						y: y
+					},
+					generate: true
+				};
+				
+				tieBeat(inf.args);
+				sendData(JSON.stringify(inf));
 
 				generateAll();
 			} else if(ctrlPress) {
@@ -362,7 +553,7 @@ document.addEventListener("keydown", function(event) {
 				lines=iPages[curIPage].lines;
 
 				markerOutOfBounds();
-				console.log(curIPage);
+				sendAndUpdateMarker();
 
 				generateAll();
 			} else {
@@ -384,37 +575,109 @@ document.addEventListener("keydown", function(event) {
 			break;
 		case "Digit1":
 			curDuration = 1;
-			changeDuration(curNote, curDuration);
+			inf = {
+				functionName: "changeDuration",
+				args: {
+					note: curNote,
+					duration: curDuration,
+					iPage: curIPage,
+					bar: curBar	
+				},
+				generate: false
+			};
+			changeDuration(inf.args);
+			sendData(JSON.stringify(inf));
 			break;
 		case "Digit2":
 			curDuration = 0.5;
-			changeDuration(curNote, curDuration);
+			inf = {
+				functionName: "changeDuration",
+				args: {
+					note: curNote,
+					duration: curDuration,
+					iPage: curIPage,
+					bar: curBar		
+				},
+				generate: false
+			};
+			changeDuration(inf.args);
+			sendData(JSON.stringify(inf));
 			break;
 		case "Digit3":
 			curDuration = 0.25;
-			changeDuration(curNote, curDuration);
+			inf = {
+				functionName: "changeDuration",
+				args: {
+					note: curNote,
+					duration: curDuration,
+					iPage: curIPage,
+					bar: curBar		
+				},
+				generate: false
+			};
+			changeDuration(inf.args);
+			sendData(JSON.stringify(inf));
 			break;
 		case "Digit4":
 			curDuration = 0.125;
-			changeDuration(curNote, curDuration);
+			inf = {
+				functionName: "changeDuration",
+				args: {
+					note: curNote,
+					duration: curDuration,
+					iPage: curIPage,bar: curBar		
+				},
+				generate: false
+			};
+			changeDuration(inf.args);
+			sendData(JSON.stringify(inf));
 			break;
 		case "Digit5":
 			curDuration = 0.0625;
-			changeDuration(curNote, curDuration);
+			inf = {
+				functionName: "changeDuration",
+				args: {
+					note: curNote,
+					duration: curDuration,
+					iPage: curIPage,
+					bar: curBar		
+				},
+				generate: false
+			};
+			changeDuration(inf.args);
+			sendData(JSON.stringify(inf));
 			break;
 		case "Digit6":
 			curDuration = 0.03125;
-			changeDuration(curNote, curDuration);
+			inf = {
+				functionName: "changeDuration",
+				args: {
+					note: curNote,
+					duration: curDuration,
+					iPage: curIPage	,
+					bar: curBar		
+				},
+				generate: false
+			};
+			changeDuration(inf.args);
+			sendData(JSON.stringify(inf));
 			break;
 		case "KeyN":
 			if(ctrlPress) {
-				iPages.push(new InstrumentPage());	
+				addIPage();
 				curIPage=iPages.length-1;
+				inf = {
+					functionName: "recieveIPage",
+					args: {
+						iPage: iPages[curIPage]
+					},
+					generate:false
+				};
+				sendData(JSON.stringify(inf));
 				curNote=0;
 				bars=iPages[curIPage].bars;
 				lines=iPages[curIPage].lines;
-
-				
+				sendAndUpdateMarker();
 			}
 			
 			generateAll();
@@ -430,8 +693,9 @@ document.addEventListener("keydown", function(event) {
 				for(var i=0; i<time.length; i++) {
 					clearTimeout(time[i]);
 				}
+				var audioContext = new AudioContextFunc();
+				changeInstrument("https://surikov.github.io/webaudiofontdata/sound/0000_FluidR3_GM_sf2_file.js","_tone_0000_FluidR3_GM_sf2_file", audioContext);
 				
-				play();
 			}
 				
 			break;
@@ -492,5 +756,4 @@ document.addEventListener("mousewheel", function(event) {
 		generateAll();
 		
 	}
-	event.preventDefault();
 });

@@ -53,7 +53,6 @@ function drawFigure(bar, note) { // eslint-disable-line no-unused-vars
 		ctx.fillText(text, note.xPos, ((note.line+1)*144)-8-26 );
 
 		drawDot(note, false);
-		drawTies(bar, note, turned);
 		return;
 	}
 	if(note.noteGroups.length>1) {
@@ -102,7 +101,6 @@ function drawFigure(bar, note) { // eslint-disable-line no-unused-vars
 
 		ctx.restore();
 		drawDot(note, turned);
-		drawTies(bar, note, turned);
 	} else {
 		note.noteGroups[0].yPos = ((note.line+1) * 144 - 2 ) + note.noteGroups[0].pos * 8 - 14;
 		drawExtraStaff(note.xPos, note.noteGroups[0].pos-2, note.line);
@@ -136,22 +134,28 @@ function drawFigure(bar, note) { // eslint-disable-line no-unused-vars
 
 		ctx.restore();	
 		drawDot(note, turned);
-		drawTies(bar, note, turned);
 	}	
 }
 
-function drawTies(bar, note, turned) { // eslint-disable-line no-unused-vars
-	for(var nG=0; nG<note.noteGroups.length; nG++) {
-		if(note.noteGroups[nG].tiesTo!=null) {
+function drawTies(bar, note, inverse) { // eslint-disable-line no-unused-vars
+	var objN = bars[bar].notes[note];
+	for(var nG=0; nG<objN.noteGroups.length; nG++) {
+		if(objN.noteGroups[nG].tiesTo!==false) {
+			var result = getTied(bars, bar, note+1, objN.noteGroups[nG]);
+			var tiesTo = result.tiesTo;
+			var tiesToNG = result.tiesToNG;
+			var barTo = result.barTo;
+
+
 			var xCenter, yCenter, radius, startAngle, endAngle;
 			
-			yCenter = note.noteGroups[nG].yPos+15;	
+			yCenter = objN.noteGroups[nG].yPos+15;	
 			startAngle = 0.125*Math.PI;
 			endAngle = 0.875*Math.PI;
 
-			if(note.noteGroups[nG].tiesTo.objNote.line!=note.line) {
+			if(tiesTo.line!=objN.line) {
 				xCenter=bars[bar].xPos;
-				radius=bars[bar].xPos-(note.xPos+10);
+				radius=bars[bar].xPos-(objN.xPos+10);
 
 				ctx.beginPath();
 				ctx.strokeStyle="#000000";
@@ -159,13 +163,12 @@ function drawTies(bar, note, turned) { // eslint-disable-line no-unused-vars
 				ctx.ellipse(xCenter, yCenter, radius, 10, 0, startAngle, endAngle, false);
 				ctx.stroke();
 
-				yCenter=note.noteGroups[nG].tiesTo.objNG.yPos+15+lines[note.noteGroups[nG].tiesTo.objBar.line].yOffset;
-				xCenter=note.noteGroups[nG].tiesTo.objBar.initPos;
-				radius=note.noteGroups[nG].tiesTo.objNote.xPos-note.noteGroups[nG].tiesTo.objBar.initPos;
-				console.log(note.noteGroups[nG].tiesTo.objBar.initPos);
+				yCenter=tiesToNG.yPos+15+lines[bars[barTo].line].yOffset;
+				xCenter=bars[barTo].initPos;
+				radius=tiesTo.xPos-bars[barTo].initPos;
 			} else {
-				xCenter = (note.xPos+10+note.noteGroups[nG].tiesTo.objNote.xPos)/2;
-				radius = note.noteGroups[nG].tiesTo.objNote.xPos-xCenter;
+				xCenter = (objN.xPos+10+tiesTo.xPos)/2;
+				radius = tiesTo.xPos-xCenter;
 			}
 			
 
@@ -433,46 +436,29 @@ function drawBeam(xStart, yStart, xEnd, yEnd) {// eslint-disable-line no-unused-
 	ctx.stroke();
 }
 
-function drawMarker(y) {// eslint-disable-line no-unused-vars
-	if(curNote === 0) {
-		Marker.xPos = bars[curBar].initPos+10;
-
-		if(bars[curBar].changedTimeSig) {
-			Marker.xPos +=35;
-			if(bars[curBar].upperSig.length>1 || bars[curBar].lowerSig.length>1) {
-				Marker.xPos+=15;
+function drawMarker(args) {// eslint-disable-line no-unused-vars
+	for(var marker in markers) {
+		if(markers[marker].iPage===curIPage && lines[markers[marker].line]!==undefined) {
+			var yOffset=0;
+			for(var line = 0; line<=markers[marker].line; line++) {
+				yOffset+=lines[line].yOffset;
 			}
-		}
-		if(bars[curBar].changedOrFirstClef) Marker.xPos += 45;
-		if(bars[curBar].changedAcc || bars[curBar].firstAcc) {
-			Marker.xPos += (bars[curBar].accidentals+bars[curBar].naturals.length)*18;
-		}
-		if(bars[curBar].notes.length>0) {
-			Marker.xPos=(bars[curBar].notes[0].xPos);
-		}
+			ctx.translate(0, yOffset);
+			drawExtraStaff(markers[marker].xPos, markers[marker].y, markers[marker].line, yOffset);
 
-	} else if(!extended) {
-		Marker.xPos = bars[curBar].notes[curNote].xPos;
+			ctx.beginPath();
+			ctx.lineWidth = 1;
+			ctx.strokeStyle = "#000000";
+			ctx.globalAlpha = 0.4;
+			ctx.fillStyle = markers[marker].color;
+		
+			ctx.fillRect(markers[marker].xPos, ((markers[marker].line+1)*144) + markers[marker].y * 8 - 5, 20, 26);
+			ctx.rect(markers[marker].xPos, ((markers[marker].line+1)*144) + markers[marker].y * 8 - 5, 20, 26);
+			ctx.globalAlpha = 1;
+			ctx.stroke();
+			ctx.translate(0, -yOffset);
+		}
 	}
-
-	var yOffset=0;
-	for(var line = 0; line<=curLine; line++) {
-		yOffset+=lines[line].yOffset;
-	}
-	ctx.translate(0, yOffset);
-	drawExtraStaff(Marker.xPos, y, curLine, yOffset);
-
-	ctx.beginPath();
-	ctx.lineWidth = 1;
-	ctx.strokeStyle = "#000000";
-	ctx.globalAlpha = 0.2;
-	ctx.fillStyle = "#00FF3C";
-	
-	ctx.fillRect(Marker.xPos, ((curLine+1)*144) + y * 8 - 5, 20, 26);
-	ctx.rect(Marker.xPos, ((curLine+1)*144) + y * 8 - 5, 20, 26);
-	ctx.globalAlpha = 1;
-	ctx.stroke();
-	ctx.translate(0, -yOffset);
 }
 
 function drawHeader(x, line, offset) { // eslint-disable-line no-unused-vars
