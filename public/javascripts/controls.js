@@ -740,7 +740,10 @@ document.addEventListener("keydown", function(event) {
 			break;
 		case "KeyT":
 			if(ctrlPress) {
+				fillBar({bar: curBar});
 				changeTimeSigPop(curBar);
+
+				sendAndUpdateMarker();
 			} else {
 				tPress=true;
 			}

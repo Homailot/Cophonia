@@ -45,7 +45,11 @@ function changeTimeSigPop(bar) { // eslint-disable-line no-unused-vars
 		sigSel.appendChild(option);
 	}
 
+	var p = document.createElement("p");
+	p.innerHTML="Warning, this operation may delete some notes on the measures selected";
+
 	formDiv.appendChild(sigSel);
+	formDiv.appendChild(p);	
 	form.appendChild(formDiv);
 	
 	var submitButton = document.createElement("input");

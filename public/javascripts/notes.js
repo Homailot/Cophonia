@@ -432,3 +432,9 @@ function getTied(bars, bar, note, objNG) {
 
 	return {tiesTo: tiesTo, barTo: barTo, tiesToNG:tiesToNG, noteTo: noteTo};
 }
+
+function setNoteLines(bars, bar) {
+	for(var note = 0; note<bars[bar].notes.length; note++) {
+		bars[bar].notes[note].line=bars[bar].line;
+	}
+}

@@ -22,7 +22,7 @@ function Bar() {
 }
 
 function newBar(args) { // eslint-disable-line no-unused-vars
-	args.line = checkLineOverflow(args.curLine, iPages[args.iPage].lines);
+	args.line = checkLineOverflow(args.curLine, iPages[args.iPage].lines, args.bar);
 	//creates the new bar and initializes it's xPosition depending on the values.
 	var bar = new Bar();	
 	bar.upperSig = args.upperSig;
@@ -51,25 +51,42 @@ function newBar(args) { // eslint-disable-line no-unused-vars
 	}
 }
 
-function checkLineOverflow(line, lines) {
-	//checks if new line(meaning that we have 3 or more bars on the current line)
-	if( lines[line].bars === lines[line].maxBars) {
-		//if we create a new line, then we check the current one as complete, then initialize the variables.
-		lines.push(new Line());
-		lines[line].complete = true;
-		lines[line+1].bars++;
-		lines[line+1].yOffset=0;
-		//cC = true;
-		line++;
-	} else {
-		lines[line].bars++;
+function checkLineOverflow(line, lines, bar) {
+	var numBars=0;
+	var lastBar;
+	var returnLine=line;
+		
+	for(var lineI=0; lineI<lines.length; lineI++) {
+		if(lines[lineI].bars===lines[lineI].maxBars) {
+			lines[lineI].complete = true;
+			if(lineI===line && bar-numBars>=lines[lineI].maxBars) {
+				returnLine++;
+			} else if(lineI>=line) {
+				lastBar = numBars+lines[lineI].maxBars-1;
+
+				bars[lastBar].line++;
+				setNoteLines(bars, lastBar);
+			}
+
+			if(lineI===lines.length-1) {
+				lines.push(new Line());
+	
+				lines[lines.length-1].bars++;
+				lines[lines.length-1].yOffset=0;
+				break;
+			} 
+		} else {
+			lines[lineI].bars++;
+		}
+
+		numBars+=lines[lineI].bars;
 	}
 
-	return line;
+	return returnLine;
 }
 
 function checkTimeSig(bars, ibar, upperSig, lowerSig) {
-	if(bars[ibar].upperSig !== upperSig && bars[ibar].lowerSig !== lowerSig) {
+	if(bars[ibar].upperSig !== upperSig || bars[ibar].lowerSig !== lowerSig) {
 		bars[ibar].changedTimeSig=true;
 		
 	} else if(bars[ibar].upperSig === upperSig && bars[ibar].lowerSig === lowerSig) {
@@ -98,7 +115,75 @@ function changeTimeSig(args) { // eslint-disable-line no-unused-vars
 		}
 	}
 
+	moveExtraNotes(args);
+
 	generateAll();
+}
+
+function moveExtraNotes(args) {
+	var bars=iPages[args.iPage].bars;
+	var newBarI=args.bar;
+	var newNoteI=0;
+	var maxDuration = bars[args.bar].upperSig/bars[args.bar].lowerSig;
+	var noteDuration;
+	var durationAcum=0;
+	var movedNote;
+	var checkMarker=false;
+	var oldNote=0;
+
+	for(var note=0; note<bars[args.bar].notes.length; note++) {
+		noteDuration = getNoteDuration(bars[args.bar].notes[note]);
+		durationAcum+=noteDuration;
+		if(durationAcum>maxDuration) {
+			movedNote = bars[args.bar].notes.splice(note, 1);
+			note--;
+			newBarI++;
+			newNoteI=0;
+			durationAcum=noteDuration;
+			
+			var inf = {
+				upperSig: args.upperSig,
+				lowerSig: args.lowerSig,
+				cS: false,
+				clef: 0,
+				cC: false,
+				iPage: args.iPage,
+				bar: newBarI,
+				line: bars[newBarI-1].line, 
+				curLine: bars[newBarI-1].line,
+				cA: false,
+				acc: bars[newBarI-1].accidentals,
+				sof:  bars[newBarI-1].sharpOrFlat
+			};
+			newBar(inf);
+			bars[newBarI].notes.push(movedNote[0]);
+			
+
+			checkMarker=true;
+		} else if(newBarI>args.bar) {
+			movedNote = bars[args.bar].notes.splice(note, 1);
+			note--;
+			bars[newBarI].notes.push(movedNote[0]);
+			newNoteI++;
+
+			checkMarker=true;
+		}
+
+		if(checkMarker) {
+			if(curIPage===args.iPage && curBar===args.bar && curNote===oldNote) {
+				curBar=newBarI;
+				curNote=newNoteI;
+				curLine=bars[newBarI].line;
+			}
+			setNoteLines(bars, newBarI);
+			checkMarker=false;
+		}
+		oldNote++;
+	}
+
+	if(args.bar===newBarI) {
+		fillBar({bar: args.bar});
+	}
 }
 
 function checkKey(bars, ibar, accidentals, sharpOrFlat) {
@@ -175,18 +260,35 @@ function setNaturals(oldAcc, oldSof, newBarAcc, newSof) {
 function fillBar(args) {
 	var totalTime = getSum(bars, args.bar);
 	var requiredTime = bars[args.bar].upperSig/bars[args.bar].lowerSig;
-	var difference = requiredTime-totalTime;
+	var difference;
 	var restsToAdd=[];
 	var duration = 1;
+	var sum=0;
+	if(totalTime===requiredTime) return;
 
-	while(difference>0) {
-		if(duration<=difference) {
+	for(note=0; note<bars[args.bar].notes.length; note++) {
+		sum+=getNoteDuration(bars[args.bar].notes[note]);
+		while(sum>=1/bars[args.bar].lowerSig) {
+			sum-=1/bars[args.bar].lowerSig;
+		}
+	}
+	difference=1/bars[args.bar].lowerSig-sum;
+	var aux = difference;
+
+	while(aux>0) {
+		if(duration<=aux) {
 			restsToAdd.push(duration);
-			difference-=duration;
+			aux-=duration;
 		}
 
 		duration/=2;
-		if(duration<0.03125) duration=1;
+	}
+	totalTime+=difference;
+	restsToAdd.sort();
+
+	while(totalTime<requiredTime) {
+		restsToAdd.push(1/bars[args.bar].lowerSig);
+		totalTime+=1/bars[args.bar].lowerSig;
 	}
 
 	addRests(restsToAdd);
@@ -195,7 +297,7 @@ function fillBar(args) {
 }
 
 function addRests(rests) {
-	for(var rest=rests.length-1; rest>=0; rest--) {
+	for(var rest=0; rest<rests.length; rest++) {
 		var information = {functionName: "placeNote", 
 			args: {
 				iPage: curIPage,

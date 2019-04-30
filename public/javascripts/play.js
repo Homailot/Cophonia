@@ -42,10 +42,12 @@ function playNotes(bars, page, audioContext) {
 		}
 		var totalTime = bars[playingBar[page]].upperSig/bars[playingBar[page]].lowerSig;
 		
+		
 		//if we've reached the end of the bar or if the note's duration exceeds the bar's duration, we go on to the next bar
 		if((playingNote[page] === bars[playingBar[page]].notes.length && playingTime[page]===totalTime)||playingTime[page]>totalTime) {
 			playingNote[page] = 0; playingBar[page]++; playingTime[page]=0;
 		} 
+	
 
 		if(playingBar[page] === bars.length){
 			
@@ -55,6 +57,7 @@ function playNotes(bars, page, audioContext) {
 			
 			playing[page]=false; return;
 		}
+		totalTime=bars[playingBar[page]].upperSig/bars[playingBar[page]].lowerSig;
 		//set the vertical offsets for the marker that follows along
 		if(bars[playingBar[page]].line===playLine) {
 			playLine++;
