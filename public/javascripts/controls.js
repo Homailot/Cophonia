@@ -120,7 +120,7 @@ function moveLeft() {
 		curNote--;
 		restoreCanvas();
 		sendAndUpdateMarker();
-		drawMarker(y);
+		drawMarker({headerOffset: iPages[curIPage].headerOffset});
 
 		//if the bar was extended, it de-extends it.
 		if(markers[uIndex].extended) {
@@ -141,7 +141,7 @@ function moveLeft() {
 		
 		restoreCanvas();
 		sendAndUpdateMarker();
-		drawMarker(y);
+		drawMarker({headerOffset: iPages[curIPage].headerOffset});
 	}
 }
 
@@ -195,7 +195,7 @@ function moveRight() {
 		if(gen) generateAll();
 		else {
 			restoreCanvas();
-			drawMarker(y);
+			drawMarker({headerOffset: iPages[curIPage].headerOffset});
 		}
 		
 	} else {
@@ -224,7 +224,7 @@ function moveRight() {
 			curNote++;
 			restoreCanvas();
 			sendAndUpdateMarker();
-			drawMarker(y);
+			drawMarker({headerOffset: iPages[curIPage].headerOffset});
 		} 
 	} 
 }
@@ -275,7 +275,7 @@ function changePitch(pitch) {
 
 	restoreCanvas();
 	sendAndUpdateMarker();
-	drawMarker(y);
+	drawMarker({headerOffset: iPages[curIPage].headerOffset});
 }
 
 function changeDuration(args) {

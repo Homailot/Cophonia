@@ -539,6 +539,7 @@ function generateAll() { // eslint-disable-line no-unused-vars
 	var lineChange = -1;
 	var totalYOffset = 0;
 	var changedYOff=false;
+	var headerOffset=0;
 
 	for(var line = 0; line<lines.length; line++) {
 		var result = getExtremes(line);
@@ -556,7 +557,7 @@ function generateAll() { // eslint-disable-line no-unused-vars
 			changedYOff=true;
 		}
 	}
-
+	
 	for(var barC = 0; barC<bars.length; barC++) {
 		lineChange = updateFirstBars(barC, lineChange);
 		
@@ -568,6 +569,9 @@ function generateAll() { // eslint-disable-line no-unused-vars
 
 	//this will clear everything on the canvas
 	ctx.clearRect(0, 0, c.width, 100000);
+	headerOffset+= drawMarkup();
+	iPages[curIPage].headerOffset=headerOffset;
+	ctx.translate(0, headerOffset);
 	
 	var firstLine=0;
 	for(var bar = 0; bar < bars.length; bar++) {
@@ -599,7 +603,8 @@ function generateAll() { // eslint-disable-line no-unused-vars
 
 	saveCanvas();
 	ctx.translate(0, -totalYOffset);
+	ctx.translate(0, -headerOffset);	
 	updateCurMarker();
 	updateAllXMarkers();
-	drawMarker(y);
+	drawMarker({headerOffset: headerOffset});
 }

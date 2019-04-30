@@ -18,12 +18,14 @@ function play(context) { // eslint-disable-line no-unused-vars
 	playLine=0;
 	headerPos=-1;
 	hOffset=0;
+	tempo = SheetDocument.tempo;
 
 	for(var i = 0; i<iPages.length; i++) {
 		playingBar.push(0);
 		playingNote.push(0);
 		playingTime.push(0);
 		playing.push(true);
+		if(i===curIPage) hOffset=iPages[curIPage].headerOffset;
 		playNotes(iPages[i].bars, i, context);
 	}
 	
@@ -47,7 +49,6 @@ function playNotes(bars, page, audioContext) {
 			if(page===curIPage) drawMarker(y);
 			playing[page]=false; return;
 		}
-
 		//set the vertical offsets for the marker that follows along
 		if(bars[playingBar[page]].line===playLine) {
 			playLine++;
@@ -95,7 +96,7 @@ function playNotes(bars, page, audioContext) {
 			//player.cancelQueue(audioContext);
 			for(var ch = 0; ch<chords.length; ch++) {
 				
-				var d = chords[ch].duration+chords[ch].duration*1/4;
+				var d = chords[ch].duration+chords[ch].duration*1/4+0.1;
 				player.queueChord(audioContext, audioContext.destination, _tone_0000_FluidR3_GM_sf2_file, 0, chords[ch].chord, d);
 			}
 			

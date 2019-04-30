@@ -4,6 +4,7 @@ function InstrumentPage() {  // eslint-disable-line no-unused-vars
 	this.lines.push(new Line());
 	this.lines[0].maxBars=3;
 	this.instrument=null;
+	this.headerOffset=0;
     
 	var line = 0;
 	for(var bar=0; bar<bars.length; bar++) {
@@ -28,3 +29,9 @@ function InstrumentPage() {  // eslint-disable-line no-unused-vars
 		this.bars.push(newBar);
 	}
 }
+
+var SheetDocument = {
+	name: "Untitled",
+	album: "Unknown",
+	tempo: 120
+};

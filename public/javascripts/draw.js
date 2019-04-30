@@ -443,6 +443,7 @@ function drawMarker(args) {// eslint-disable-line no-unused-vars
 			for(var line = 0; line<=markers[marker].line; line++) {
 				yOffset+=lines[line].yOffset;
 			}
+			yOffset+=args.headerOffset;
 			ctx.translate(0, yOffset);
 			drawExtraStaff(markers[marker].xPos, markers[marker].y, markers[marker].line, yOffset);
 
@@ -470,6 +471,33 @@ function drawHeader(x, line, offset) { // eslint-disable-line no-unused-vars
 	ctx.lineTo(x+11, ((line+1)*144)+offset + 30);
 	ctx.stroke();
 	ctx.globalAlpha=1;
+
+	return offset;
+}
+
+function drawMarkup() {
+	var offset = 0;
+
+	ctx.font = "60px BravuraF";
+	ctx.fillStyle="black";
+	ctx.textAlign="center";
+	ctx.fillText(SheetDocument.name, c.width/2, 66);
+	offset+=66;
+
+	ctx.font="35px BravuraF";
+	ctx.fillText(SheetDocument.album, c.width/2, offset+50);
+	ctx.textAlign="start";
+	offset+=50;
+
+	ctx.font="30px BravuraF";
+	ctx.fillText("\uD834\uDD5F", 80, offset+30);
+	ctx.font="20px BravuraF";
+	ctx.fillText(" = "+SheetDocument.tempo, 100, offset+30);
+	ctx.textAlign="end";
+	ctx.fillText("Piano - " + (curIPage+1), c.width-80, offset+30);
+	ctx.textAlign="start";
+	offset+=30;
+
 
 	return offset;
 }

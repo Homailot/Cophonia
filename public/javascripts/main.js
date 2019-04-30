@@ -48,7 +48,8 @@ function sendJSON(args) {
 	var inf={
 		functionName: "getJSON",
 		args: {
-			json: JSON.stringify(iPages)
+			json: JSON.stringify(iPages),
+			sDocument: JSON.stringify(SheetDocument)
 		},
 		generate: true
 	};
@@ -60,6 +61,7 @@ function getJSON(args) {
 	iPages = JSON.parse(args.json);
 	bars =iPages[curIPage].bars;
 	lines = iPages[curIPage].lines;
+	SheetDocument=JSON.parse(args.sDocument);
 
 	var lInformation = {
 		functionName: "newMarker",
@@ -94,6 +96,7 @@ function start(createNew) {
 	//changeInstrument("https://surikov.github.io/webaudiofontdata/sound/0000_FluidR3_GM_sf2_file.js","_tone_0000_FluidR3_GM_sf2_file");
 
 	if(createNew) {
+		
 		lines.push(new Line());
 		lines[0].maxBars=3;
 		lines[0].yOffset=0;
