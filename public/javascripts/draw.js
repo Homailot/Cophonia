@@ -260,34 +260,6 @@ function drawDot(note, inv) {
 	ctx.restore();
 }
 
-function orderNoteGroup(note) { // eslint-disable-line no-unused-vars
-	var noteGroupOrder=[];
-	var firstN=true;
-	for(var n=0; n<note.noteGroups.length; n++) {
-		var objN = note.noteGroups[n];
-
-		if(firstN) {
-			noteGroupOrder.push(objN);
-			firstN=false;
-			continue;
-			
-		}
-		for(var ngo=0; ngo<noteGroupOrder.length; ngo++) {
-			if(noteGroupOrder[ngo].pos<objN.pos) {
-				noteGroupOrder.splice(ngo, 0, objN);
-				break;
-			}
-
-			if(ngo===noteGroupOrder.length-1) {
-				noteGroupOrder.push(objN);
-				break;
-			}
-		}
-	}
-
-	return noteGroupOrder;
-}
-
 function drawNoteAccidental(n, m) {
 	for(var nG=n.noteGroups.length-1; nG>=0; nG--) {
 		ctx.save();
@@ -528,20 +500,22 @@ function drawBar(bar, color) { // eslint-disable-line no-unused-vars
 	timePos+=10;
 	if(bar.changedTimeSig) {
 		ctx.font = "60px BravuraF";
-		if(bar.upperSig.length>1 || bar.lowerSig.length>1) {
+		if(bar.upperSig >=10 || bar.lowerSig>=10) {
 			timePos+=5;
 		}
 
-		if(bar.upperSig.length>1) {
-			ctx.fillText(unescape("%u"+"E08"+bar.upperSig[0]), timePos-11, (bar.line*144) + 95);
-			ctx.fillText(unescape("%u"+"E08"+bar.upperSig[1]), timePos+11, (bar.line*144) + 95);
+		if(bar.upperSig>=10) {
+			ctx.fillText(unescape("%u"+"E08"+(bar.upperSig/10>>0)), timePos-11, (bar.line*144) + 95);
+			ctx.fillText(unescape("%u"+"E08"+bar.upperSig%10), timePos+11, (bar.line*144) + 95);
 		} else {
 			ctx.fillText(unescape("%u"+"E08"+bar.upperSig), timePos, (bar.line*144) + 95);
 		}
 		
-		if(bar.lowerSig.length>1) {
-			ctx.fillText(unescape("%u"+"E08"+bar.lowerSig[0]), timePos-11, (bar.line*144) + 128);
-			ctx.fillText(unescape("%u"+"E08"+bar.lowerSig[1]), timePos+11, (bar.line*144) + 128);
+		if(bar.lowerSig>=10) {
+			console.log(bar.lowerSig/10>>0);
+			console.log(bar.lowerSig%10);
+			ctx.fillText(unescape("%u"+"E08"+(bar.lowerSig/10>>0)), timePos-11, (bar.line*144) + 128);
+			ctx.fillText(unescape("%u"+"E08"+bar.lowerSig%10), timePos+11, (bar.line*144) + 128);
 		} else {
 			ctx.fillText(unescape("%u"+"E08"+bar.lowerSig), timePos, (bar.line*144) + 128);
 		}

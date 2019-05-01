@@ -315,14 +315,14 @@ function changeDuration(args) {
 
 	if(args.note>=0 && bars[args.bar].notes.length > args.note) {
 		var initDuration = bars[args.bar].notes[args.note].duration;
+		var initFullRest = bars[args.bar].notes[args.note].fullRest;
 
 		bars[args.bar].notes[args.note].duration = args.duration;
+		bars[args.bar].notes[args.note].fullRest=false;
 		var sum = getSum(bars, args.bar);
 		if(sum>bars[args.bar].upperSig/bars[args.bar].lowerSig) {
 			bars[args.bar].notes[args.note].duration=initDuration;
-		}
-		if(bars[args.bar].notes[args.note].fullRest)  {
-			bars[args.bar].notes[args.note].fullRest=false;
+			bars[args.bar].notes[args.note].fullRest=initFullRest;
 		}
 
 		generateAll();
@@ -742,8 +742,6 @@ document.addEventListener("keydown", function(event) {
 			if(ctrlPress) {
 				fillBar({bar: curBar});
 				changeTimeSigPop(curBar);
-
-				sendAndUpdateMarker();
 			} else {
 				tPress=true;
 			}

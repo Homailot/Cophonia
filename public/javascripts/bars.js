@@ -106,10 +106,12 @@ function changeTimeSig(args) { // eslint-disable-line no-unused-vars
 	bars[args.bar].upperSig = args.upperSig;
 	bars[args.bar].lowerSig = args.lowerSig;
 	if(args.bar!==0 && (bars[args.bar-1].upperSig!==bars[args.bar].upperSig || bars[args.bar].lowerSig !== bars[args.bar-1].lowerSig)) {
+		console.log("f");
 		if(!bars[args.bar].changedTimeSig) {
 			bars[args.bar].changedTimeSig=true;
 		}
 	} else if(args.bar!==0 && (bars[args.bar-1].upperSig===bars[args.bar].upperSig && bars[args.bar].lowerSig === bars[args.bar-1].lowerSig)) {
+		console.log("w");
 		if(bars[args.bar].changedTimeSig) {
 			bars[args.bar].changedTimeSig=false;
 		}
@@ -117,6 +119,7 @@ function changeTimeSig(args) { // eslint-disable-line no-unused-vars
 
 	moveExtraNotes(args);
 
+	sendAndUpdateMarker();
 	generateAll();
 }
 
@@ -132,7 +135,12 @@ function moveExtraNotes(args) {
 	var oldNote=0;
 
 	for(var note=0; note<bars[args.bar].notes.length; note++) {
-		noteDuration = getNoteDuration(bars[args.bar].notes[note]);
+		if(bars[args.bar].notes[note].fullRest) {
+			noteDuration = bars[args.bar].upperSig/bars[args.bar].lowerSig;
+		} else {
+			noteDuration = getNoteDuration(bars[args.bar].notes[note]);
+		}
+		
 		durationAcum+=noteDuration;
 		if(durationAcum>maxDuration) {
 			movedNote = bars[args.bar].notes.splice(note, 1);
@@ -179,10 +187,6 @@ function moveExtraNotes(args) {
 			checkMarker=false;
 		}
 		oldNote++;
-	}
-
-	if(args.bar===newBarI) {
-		fillBar({bar: args.bar});
 	}
 }
 

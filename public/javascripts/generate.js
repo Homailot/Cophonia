@@ -18,7 +18,7 @@ function unStretch(line) {
 
 			if(bars[bar].changedTimeSig) {
 				startPos+=35;
-				if(bars[bar].upperSig.length>1 || bars[bar].lowerSig.length>1) {
+				if(bars[bar].upperSig>=10 || bars[bar].lowerSig>=10) {
 					startPos+=15;
 				}
 			} 
@@ -90,7 +90,7 @@ function getSpace(line) {
 			if(bars[bar].changedTimeSig) {
 				startWidth+=35;
 
-				if(bars[bar].upperSig.length>1 || bars[bar].lowerSig.length>1) {
+				if(bars[bar].upperSig>=10 || bars[bar].lowerSig>=10) {
 					startWidth+=15;
 				}
 			} 

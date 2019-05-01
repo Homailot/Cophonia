@@ -91,7 +91,12 @@ function placeNote(args) { // eslint-disable-line no-unused-vars
 	
 	noteValue = getNoteValue(scalePos, sP, noteValue);
 	if(lBars[args.bar].notes[args.note] && lBars[args.bar].notes[args.note].isSpace) {
-		replacedPauseDuration=getNoteDuration(lBars[args.bar].notes[args.note]);
+		if(lBars[args.bar].notes[args.note].fullRest) {
+			replacedPauseDuration=lBars[barP].upperSig/lBars[barP].lowerSig;
+		} else {
+			replacedPauseDuration=getNoteDuration(lBars[args.bar].notes[args.note]);
+		}
+		
 	}
 
 	acc = getAccidentalFromBar(lBars, barP, sP, acc, pos);
@@ -101,8 +106,9 @@ function placeNote(args) { // eslint-disable-line no-unused-vars
 		if(args.fullRest) {
 			note.fullRest=true;
 			note.duration=1;
-		}
-		if(sum+getNoteDuration(note)-replacedPauseDuration<=lBars[barP].upperSig/lBars[barP].lowerSig) {
+			lBars[barP].notes.splice(noteP, 0, note); 
+		} 
+		else if(sum+getNoteDuration(note)-replacedPauseDuration<=lBars[barP].upperSig/lBars[barP].lowerSig) {
 			if(lBars[args.bar].notes[args.note] && lBars[args.bar].notes[args.note].isSpace) {
 				lBars[barP].notes.splice(noteP, 1); 
 			}
@@ -437,4 +443,32 @@ function setNoteLines(bars, bar) {
 	for(var note = 0; note<bars[bar].notes.length; note++) {
 		bars[bar].notes[note].line=bars[bar].line;
 	}
+}
+
+function orderNoteGroup(note) { // eslint-disable-line no-unused-vars
+	var noteGroupOrder=[];
+	var firstN=true;
+	for(var n=0; n<note.noteGroups.length; n++) {
+		var objN = note.noteGroups[n];
+
+		if(firstN) {
+			noteGroupOrder.push(objN);
+			firstN=false;
+			continue;
+			
+		}
+		for(var ngo=0; ngo<noteGroupOrder.length; ngo++) {
+			if(noteGroupOrder[ngo].pos<objN.pos) {
+				noteGroupOrder.splice(ngo, 0, objN);
+				break;
+			}
+
+			if(ngo===noteGroupOrder.length-1) {
+				noteGroupOrder.push(objN);
+				break;
+			}
+		}
+	}
+
+	return noteGroupOrder;
 }

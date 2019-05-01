@@ -67,8 +67,8 @@ function changeTimeSigPop(bar) { // eslint-disable-line no-unused-vars
 			functionName: "changeTimeSig",
 			args: {
 				iPage: curIPage,
-				upperSig: upperOptions[upperSelected].text,
-				lowerSig: lowerOptions[lowerSelected].text,
+				upperSig: parseInt(upperOptions[upperSelected].text),
+				lowerSig: parseInt(lowerOptions[lowerSelected].text),
 				bar: bar
 			},
 			generate: false
