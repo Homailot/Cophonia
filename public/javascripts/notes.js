@@ -303,13 +303,25 @@ function augment(args) { // eslint-disable-line no-unused-vars
 	
 	if(args.note<bars[args.bar].notes.length) {
 		var objNote = bars[args.bar].notes[args.note];
+		var initRest=objNote.fullRest;
+		var initDots=objNote.dots;
+		var index=0;
 		objNote.dots+=args.value;
 		if(objNote.fullRest) objNote.fullRest=false;
+
+		for(var duration=0; duration<gDurations.length; duration++) {
+			if(gDurations[duration]===objNote.duration) {
+				index= duration;
+				break;
+			} 
+		}
+
 		if(objNote.dots<0) objNote.dots=0;
-		else if(objNote.dots>3) objNote.dots=3;
+		else if(objNote.dots>dots[index]) objNote.dots=dots[index];
 
 		if(getSum(bars, args.bar)>bars[args.bar].upperSig/bars[args.bar].lowerSig) {
-			objNote.dots-=1;
+			objNote.dots=initDots;
+			objNote.fullRest=initRest;
 		}
 	}
 }

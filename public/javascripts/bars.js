@@ -123,15 +123,24 @@ function changeTimeSig(args) { // eslint-disable-line no-unused-vars
 	generateAll();
 }
 
+function fillWithTies(note, bars, bar, maxDuration, diff) {
+	var duration=0.03125;
+	while(diff!==duration) {
+		
+	}
+}
+
 function moveExtraNotes(args) {
 	var bars=iPages[args.iPage].bars;
 	var newBarI=args.bar;
 	var newNoteI=0;
 	var maxDuration = bars[args.bar].upperSig/bars[args.bar].lowerSig;
+	var difference=0;
 	var noteDuration;
 	var durationAcum=0;
 	var movedNote;
 	var checkMarker=false;
+	var createTies=false;
 	var oldNote=0;
 
 	for(var note=0; note<bars[args.bar].notes.length; note++) {
@@ -140,13 +149,18 @@ function moveExtraNotes(args) {
 		} else {
 			noteDuration = getNoteDuration(bars[args.bar].notes[note]);
 		}
-		
 		durationAcum+=noteDuration;
 		if(durationAcum>maxDuration) {
 			movedNote = bars[args.bar].notes.splice(note, 1);
 			note--;
 			newBarI++;
 			newNoteI=0;
+			if(durationAcum-noteDuration===maxDuration) {
+				createTies=false;
+			} else {
+				createTies=true;
+				difference=maxDuration - (durationAcum-noteDuration)
+			}
 			durationAcum=noteDuration;
 			
 			var inf = {
@@ -164,7 +178,13 @@ function moveExtraNotes(args) {
 				sof:  bars[newBarI-1].sharpOrFlat
 			};
 			newBar(inf);
-			bars[newBarI].notes.push(movedNote[0]);
+			
+			if(!createTies) {
+				bars[newBarI].notes.push(movedNote[0]);
+			} else {
+				fillWithTies(movedNote[0], bars, newBarI-1, maxDuration, difference);
+			}
+			
 			
 
 			checkMarker=true;

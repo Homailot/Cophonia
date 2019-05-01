@@ -43,6 +43,8 @@ var markers=[];
 var time = []; // eslint-disable-line no-unused-vars
 var scrollValue=0; // eslint-disable-line no-unused-vars
 var accidentalOrder = [4, 1, 5, 2, 6, 3, 7]; // eslint-disable-line no-unused-vars
+var gDurations = [1, 0.5, 0.25, 0.125, 0.0625, 0.03125, 0.015625];
+var dots = [3, 3, 3, 3, 2, 1, 0];
 
 function sendJSON(args) {
 	var inf={

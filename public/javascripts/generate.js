@@ -378,6 +378,9 @@ function getYStart(bar, beamGroups, group, inverse, shortest) {
 				case 0.03125:
 					yStart+=20*mult;
 					break;
+				case 0.015625:
+					yStart+=30*mult;
+					break;
 				}
 			}
 		} 		
@@ -407,19 +410,17 @@ function defineStem(beamGroups, group, note, line, inverse) {
 }
 
 function getBeamLimits(beamGroups, group, note, startBeam, endBeam) {
-	var durations=[0.0625, 0.03125];
+	var durations=[0.0625, 0.03125, 0.015625];
 
-	for(var beam=0; beam<2; beam++) {
+	for(var beam=0; beam<3; beam++) {
 		if(beamGroups[group][note].duration <= durations[beam]) {
 			if(startBeam[beam] === -1) startBeam[beam] = beamGroups[group][note].xPos+15;
 			if(startBeam[beam] !== -1 && note+1<beamGroups[group].length && beamGroups[group][note+1].duration > durations[beam]) endBeam[beam] = beamGroups[group][note].xPos+15;
 		}
-	}
-	
-	
-	if(note===beamGroups[group].length-1) {
-		if(startBeam[1]!==-1) endBeam[1] = beamGroups[group][note].xPos+15;
-		if(startBeam[0]!==-1)  endBeam[0] = beamGroups[group][note].xPos+15;
+
+		if(note===beamGroups[group].length-1) {
+			if(startBeam[beam]!==-1) endBeam[beam]=beamGroups[group][note].xPos+15;
+		}
 	}
 }
 
@@ -435,15 +436,15 @@ function defineSmallBeams(beamGroups, group, note, startBeam, endBeam, beam) {
 }
 
 function defineLowerBeams(beamGroups, group, line, inverse) {
-	var startBeam = new Array(-1, -1);
-	var endBeam = new Array(-1, -1);
+	var startBeam = new Array(-1, -1, -1);
+	var endBeam = new Array(-1, -1, -1);
 
 	for(var note = 0; note<beamGroups[group].length; note++) {
 		defineStem(beamGroups, group, note, line, inverse);
 
 		getBeamLimits(beamGroups, group, note, startBeam, endBeam);
 
-		for(var beam = 0; beam<2; beam++) {
+		for(var beam = 0; beam<3; beam++) {
 			if(endBeam[beam]!==-1) {
 				defineSmallBeams(beamGroups, group, note, startBeam, endBeam, beam);
 

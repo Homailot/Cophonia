@@ -49,6 +49,7 @@ function drawFigure(bar, note) { // eslint-disable-line no-unused-vars
 		case 0.125: text = "\uD834\uDD3E"; break;
 		case 0.0625: text = "\uD834\uDD3F"; break;
 		case 0.03125: text = "\uD834\uDD40"; break;
+		case 0.015625: text= "𝅁"; break;
 		}
 		ctx.font = "60px BravuraF";
 		ctx.fillText(text, note.xPos, ((note.line+1)*144)-8-26+pauseOffset);
@@ -93,6 +94,7 @@ function drawFigure(bar, note) { // eslint-disable-line no-unused-vars
 		case 0.125: text = "\uD834\uDD6E"; break;
 		case 0.0625: text = "\uD834\uDD6F"; break;
 		case 0.03125: text = "\uD834\uDD70"; break;
+		case 0.015625: text = "\uD834\uDD71"; break;
 		default: text = ""; break;
 		}
 
@@ -125,6 +127,7 @@ function drawFigure(bar, note) { // eslint-disable-line no-unused-vars
 		case 0.125: text = "\uD834\uDD60"; break;
 		case 0.0625: text = "\uD834\uDD61"; break;
 		case 0.03125: text = "\uD834\uDD62"; break;
+		case 0.015625: text= "𝅘𝅥𝅱"; break;
 		default: text = "\uD834\uDD5F"; break;
 		}
 

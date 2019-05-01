@@ -323,6 +323,15 @@ function changeDuration(args) {
 		if(sum>bars[args.bar].upperSig/bars[args.bar].lowerSig) {
 			bars[args.bar].notes[args.note].duration=initDuration;
 			bars[args.bar].notes[args.note].fullRest=initFullRest;
+		} else {
+			for(var d=0; d<gDurations.length; d++) {
+				if(gDurations[d]===args.duration) {
+					if(bars[args.bar].notes[args.note].dots>dots[d]) {
+						bars[args.bar].notes[args.note].dots=dots[d];
+					}
+					break;
+				}
+			}
 		}
 
 		generateAll();
@@ -701,6 +710,22 @@ document.addEventListener("keydown", function(event) {
 			changeDuration(inf.args);
 			sendData(JSON.stringify(inf));
 			break;
+		case "Digit7": {
+			curDuration = 0.015625;
+			inf = {
+				functionName: "changeDuration",
+				args: {
+					note: curNote,
+					duration: curDuration,
+					iPage: curIPage	,
+					bar: curBar		
+				},
+				generate: false
+			};
+			changeDuration(inf.args);
+			sendData(JSON.stringify(inf));
+			break;
+		}
 		case "KeyN":
 			if(ctrlPress) {
 				addIPage();
