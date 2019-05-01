@@ -152,7 +152,7 @@ function drawTies(bar, note, inverse) { // eslint-disable-line no-unused-vars
 
 			var xCenter, yCenter, radius, startAngle, endAngle;
 			
-			yCenter = objN.noteGroups[nG].yPos+15;	
+			yCenter = objN.noteGroups[nG].yPos+15;
 			startAngle = 0.125*Math.PI;
 			endAngle = 0.875*Math.PI;
 
@@ -338,7 +338,7 @@ function drawHead(note, inverse) {
 	for(var n = 0; n<noteGroupOrder.length; n++) {
 		
 		drawExtraStaff(note.xPos, noteGroupOrder[n].pos-2, note.line);
-		noteGroupOrder[n].yPos = ((note.line+1) * 144 - 2 ) +  noteGroupOrder[n].pos * 8 - 14;
+		
 
 		ctx.save();
 		ctx.translate(note.xPos,  noteGroupOrder[n].yPos);

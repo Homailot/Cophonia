@@ -73,9 +73,9 @@ function getAccidentalFromBar(bars, barP, sP, acc, pos) {
 }
 
 function placeNote(args) { // eslint-disable-line no-unused-vars
-	var realPosition = ((args.line+1) * 144 - 2 ) + pos * 8;
+	var realPosition = ((args.line+1) * 144 - 2 ) + args.pos * 8;
 	if(args.isSpace) realPosition=((args.line+1) * 144) - 48;
-	var xPos = Marker.xPos;
+	var xPos = 0;
 	var noteValue = 71;
 	if(args.iPage==1)noteValue-=12;
 	var pos = args.pos;
@@ -138,6 +138,7 @@ function placeNote(args) { // eslint-disable-line no-unused-vars
 	if(markers[uIndex].extended && args.bar===curBar && args.note===curNote && args.iPage===curIPage) {
 		markers[uIndex].extended=false;
 	}
+	setNoteLines(lBars, barP);
 	sendAndUpdateMarker();
 }
 
@@ -430,7 +431,7 @@ function deleteTie(args) {
 function getTied(bars, bar, note, objNG) {
 	var tiesTo = bars[bar].notes[note];
 	var barTo = bar;
-	var noteTo = note+1;
+	var noteTo = note;
 	var tiesToNG;
 	if(note>=bars[bar].notes.length && bar+1<bars.length) {
 		tiesTo = bars[bar+1].notes[0];
@@ -442,7 +443,7 @@ function getTied(bars, bar, note, objNG) {
 		noteTo=bars[bar-1].notes.length-1;
 	}
 	for(var nGTo = 0; nGTo< tiesTo.noteGroups.length; nGTo++) {
-		if(tiesTo.noteGroups[nGTo].y===objNG.y) {
+		if(tiesTo.noteGroups[nGTo].pos===objNG.pos) {
 			tiesToNG=tiesTo.noteGroups[nGTo];
 			break;
 		}

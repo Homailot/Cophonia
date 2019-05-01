@@ -125,6 +125,7 @@ function getChords(bars, playingBar, playingNote) {
 	//foreach note in the current note group we will get the chords to play
 	for(var n=0; n<bars[playingBar].notes[playingNote].noteGroups.length; n++) {
 		var chord = [];
+		duration=0;
 		//if the note is tied to another, it will be already on a chord, so it will be skipped
 		if(bars[playingBar].notes[playingNote].noteGroups[n].tiedTo!==false) continue;
 		
@@ -135,7 +136,7 @@ function getChords(bars, playingBar, playingNote) {
 		if(bars[playingBar].notes[playingNote].noteGroups[n].tiesTo!==false) {
 			var objNG = {objNote: bars[playingBar].notes[playingNote], objNG: bars[playingBar].notes[playingNote].noteGroups[n]};
 			duration = getTieDuration(bars, playingBar, playingNote, objNG, duration)  * (1/((tempo/60))*4);
-		
+			
 		//if not, the note duration will be used
 		} else {
 			duration = getNoteDuration(bars[playingBar].notes[playingNote]) * (1/((tempo/60))*4);
@@ -151,7 +152,6 @@ function getChords(bars, playingBar, playingNote) {
 			chords[index].chord.push(bars[playingBar].notes[playingNote].noteGroups[n].noteValue + bars[playingBar].notes[playingNote].noteGroups[n].accidental);
 		}
 	}
-
 	return chords;
 }
 
@@ -170,8 +170,8 @@ function getTieDuration(bars, bar, note, objNG, duration) {
 	if(objNG.objNG.tiesTo===false) {
 		duration=getNoteDuration(objNG.objNote);
 	} else {
-		result = getTied(bars, bar, note, objNG.objNG);
-		duration+=getTieDuration(bars, bar, result.noteTo, {objNote: result.tiesTo, objNG: result.tiesToNG}, duration)+getNoteDuration(objNG.objNote);
+		result = getTied(bars, bar, note+1, objNG.objNG);
+		duration+=getTieDuration(bars, result.barTo, result.noteTo, {objNote: result.tiesTo, objNG: result.tiesToNG}, duration)+getNoteDuration(objNG.objNote);
 	}
 	
 

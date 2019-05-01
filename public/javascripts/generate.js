@@ -33,6 +33,7 @@ function unStretch(line) {
 			if(bars[bar].notes.length>0) {
 				for(var note = 0; note<bars[bar].notes.length; note++) {
 					maxDots=bars[bar].notes[note].dots;
+					bars[bar].notes[note].line=bars[bar].line;
 					hasAcc=false;
 
 					for(var nG=0; nG<bars[bar].notes[note].noteGroups.length; nG++) {
@@ -40,9 +41,10 @@ function unStretch(line) {
 						if(objNG.hideAcc===false) {
 							hasAcc=true;
 						}
-						
+						objNG.yPos = ((bars[bar].notes[note].line+1) * 144 - 2 ) +  objNG.pos * 8 - 14;
 					}
 					startPos+=5;
+					
 					if(hasAcc) startPos+=bars[bar].notes[note].accWidth;
 					bars[bar].notes[note].xPos = startPos;
 					
