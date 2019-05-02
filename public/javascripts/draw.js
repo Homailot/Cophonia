@@ -167,8 +167,9 @@ function drawTies(bar, note, inverse) { // eslint-disable-line no-unused-vars
 				ctx.stroke();
 
 				yCenter=tiesToNG.yPos+15+lines[bars[barTo].line].yOffset;
-				xCenter=bars[barTo].initPos;
-				radius=tiesTo.xPos-bars[barTo].initPos;
+				xCenter=getBarStart(bars, barTo)+bars[barTo].initPos;
+				console.log(xCenter);
+				radius=tiesTo.xPos-xCenter;
 			} else {
 				xCenter = (objN.xPos+10+tiesTo.xPos)/2;
 				radius = tiesTo.xPos-xCenter;

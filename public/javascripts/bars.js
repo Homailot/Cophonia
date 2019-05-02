@@ -140,11 +140,49 @@ function placeNotes(note, bars, bar, diff, iPage, n) {
 	}
 }
 
+function checkForDots(diff) {
+	var d;
+	var nDots=0;
+	var duration;
+	var lastDuration;
+
+	for(d=gDurations.length-1; d>=0; d--) {
+		if(gDurations[d]>diff) {
+			d++;
+			break;
+		} 
+	}
+	
+	duration=gDurations[d];
+	lastDuration=duration;
+
+	while(duration!==diff && nDots<3) {
+		lastDuration/=2;
+		duration+=lastDuration;
+		nDots++;
+	}
+
+	return {duration: gDurations[d], nDots: nDots};
+}
+
 function fillWithTies(note, bars, bar, diff, iPage, n) {
 	var newNote;
 	var lDiff = getNoteDuration(note);
 	var nG;
-	placeNotes(note, bars, bar, diff, iPage, n);
+	var result = checkForDots(diff);
+	var dot;
+	var inf;
+
+	placeNotes(note, bars, bar, result.duration, iPage, n);
+	for(dot=0; dot<result.nDots; dot++) {
+		inf = {
+			bar: bar,
+			note: n,
+			value: 1,
+			iPage: iPage
+		};
+		augment(inf);
+	}
 	note = bars[bar].notes[n];
 
 	//note.duration = diff;
@@ -175,8 +213,6 @@ function fillWithTies(note, bars, bar, diff, iPage, n) {
 		bar++;
 		
 		//newNote = JSON.parse(JSON.stringify(note));
-		
-		console.log(lDiff);
 		if (lDiff > bars[bar].upperSig / bars[bar].lowerSig) {
 			diff = bars[bar].upperSig / bars[bar].lowerSig;
 
@@ -188,8 +224,18 @@ function fillWithTies(note, bars, bar, diff, iPage, n) {
 			}
 		} else {
 			diff= lDiff;
+			result = checkForDots(diff);
 
-			placeNotes(note, bars, bar, diff, iPage, 0);
+			placeNotes(note, bars, bar, result.duration, iPage, 0);
+			for(dot=0; dot<result.nDots; dot++) {
+				inf = {
+					bar: bar,
+					note: n,
+					value: 1,
+					iPage: iPage
+				};
+				augment(inf);
+			}
 			newNote=bars[bar].notes[0];
 		}
 

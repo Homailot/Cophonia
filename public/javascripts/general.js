@@ -37,6 +37,25 @@ function moveNext(offset, note, bar, line) {
 	}
 }
 
+function getBarStart(bars, bar) {
+	var startPos=0;
+
+	if(bars[bar].changedTimeSig) {
+		startPos+=35;
+		if(bars[bar].upperSig>=10 || bars[bar].lowerSig>=10) {
+			startPos+=15;
+		}
+	} 
+	if(bars[bar].changedOrFirstClef) {
+		startPos+=45;
+	} 
+	if(bars[bar].firstAcc || bars[bar].changedAcc) {
+		startPos+=(bars[bar].accidentals+bars[bar].naturals.length)*18;
+	}
+
+	return startPos;
+}
+
 function getYFromX(m, b, x) { // eslint-disable-line no-unused-vars
 	return m*x+b;
 }

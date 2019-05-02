@@ -56,7 +56,7 @@ function deleteNote(args) {
 	}
 	
 	//says the bar is not extended
-	markers[uIndex].extended = false;
+	
 	sendAndUpdateMarker();
 }
 
