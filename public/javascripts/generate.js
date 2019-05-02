@@ -16,23 +16,13 @@ function unStretch(line) {
 			bars[bar].initPos = startPos;
 			startPos += 10;
 
-			if(bars[bar].changedTimeSig) {
-				startPos+=35;
-				if(bars[bar].upperSig.length>1 || bars[bar].lowerSig.length>1) {
-					startPos+=15;
-				}
-			} 
-			if(bars[bar].changedOrFirstClef) {
-				startPos+=45;
-			} 
-			if(bars[bar].firstAcc || bars[bar].changedAcc) {
-				startPos+=(bars[bar].accidentals+bars[bar].naturals.length)*18;
-			}
+			startPos+= getBarStart(bars, bar);
 			var maxDots;
 			var hasAcc;
 			if(bars[bar].notes.length>0) {
 				for(var note = 0; note<bars[bar].notes.length; note++) {
 					maxDots=bars[bar].notes[note].dots;
+					bars[bar].notes[note].line=bars[bar].line;
 					hasAcc=false;
 
 					for(var nG=0; nG<bars[bar].notes[note].noteGroups.length; nG++) {
@@ -40,9 +30,10 @@ function unStretch(line) {
 						if(objNG.hideAcc===false) {
 							hasAcc=true;
 						}
-						
+						objNG.yPos = ((bars[bar].notes[note].line+1) * 144 - 2 ) +  objNG.pos * 8 - 14;
 					}
 					startPos+=5;
+					
 					if(hasAcc) startPos+=bars[bar].notes[note].accWidth;
 					bars[bar].notes[note].xPos = startPos;
 					
@@ -90,7 +81,7 @@ function getSpace(line) {
 			if(bars[bar].changedTimeSig) {
 				startWidth+=35;
 
-				if(bars[bar].upperSig.length>1 || bars[bar].lowerSig.length>1) {
+				if(bars[bar].upperSig>=10 || bars[bar].lowerSig>=10) {
 					startWidth+=15;
 				}
 			} 
@@ -150,14 +141,18 @@ function stretch(line) {
 		spaceWidth=result.sw;
 
 		var objectIndex = 0;
+		var startingPos=thisPos;
 		for(var bar = 0; bar<bars.length; bar++) {
 			if(bars[bar].line === line) {
 				bars[bar].initPos=thisPos;
 				thisPos+=objectsWidth[objectIndex];
 				objectIndex++;
+				startingPos = thisPos;
 
 				if(bars[bar].notes.length>0) {
-					bars[bar].notes[0].xPos = (thisPos+bars[bar].notes[0].accWidth);
+					if(!bars[bar].notes[0].fullRest) {
+						bars[bar].notes[0].xPos = (thisPos+bars[bar].notes[0].accWidth);
+					}
 					if(bars[bar].notes[0].duration<=0.125  || bars[bar].notes[0].inverted) bars[bar].notes[0].xPos+=10;
 					thisPos+=objectsWidth[objectIndex];
 					objectIndex++;
@@ -189,6 +184,9 @@ function stretch(line) {
 				} else { 
 					thisPos+=spaceWidth; 
 					bars[bar].xPos = thisPos; 
+				}
+				if(bars[bar].notes[0] && bars[bar].notes[0].fullRest) {
+					bars[bar].notes[0].xPos = ((startingPos-30)+thisPos)/2;
 				}
 			}
 		}
@@ -371,6 +369,9 @@ function getYStart(bar, beamGroups, group, inverse, shortest) {
 				case 0.03125:
 					yStart+=20*mult;
 					break;
+				case 0.015625:
+					yStart+=30*mult;
+					break;
 				}
 			}
 		} 		
@@ -400,19 +401,17 @@ function defineStem(beamGroups, group, note, line, inverse) {
 }
 
 function getBeamLimits(beamGroups, group, note, startBeam, endBeam) {
-	var durations=[0.0625, 0.03125];
+	var durations=[0.0625, 0.03125, 0.015625];
 
-	for(var beam=0; beam<2; beam++) {
+	for(var beam=0; beam<3; beam++) {
 		if(beamGroups[group][note].duration <= durations[beam]) {
 			if(startBeam[beam] === -1) startBeam[beam] = beamGroups[group][note].xPos+15;
 			if(startBeam[beam] !== -1 && note+1<beamGroups[group].length && beamGroups[group][note+1].duration > durations[beam]) endBeam[beam] = beamGroups[group][note].xPos+15;
 		}
-	}
-	
-	
-	if(note===beamGroups[group].length-1) {
-		if(startBeam[1]!==-1) endBeam[1] = beamGroups[group][note].xPos+15;
-		if(startBeam[0]!==-1)  endBeam[0] = beamGroups[group][note].xPos+15;
+
+		if(note===beamGroups[group].length-1) {
+			if(startBeam[beam]!==-1) endBeam[beam]=beamGroups[group][note].xPos+15;
+		}
 	}
 }
 
@@ -428,15 +427,15 @@ function defineSmallBeams(beamGroups, group, note, startBeam, endBeam, beam) {
 }
 
 function defineLowerBeams(beamGroups, group, line, inverse) {
-	var startBeam = new Array(-1, -1);
-	var endBeam = new Array(-1, -1);
+	var startBeam = new Array(-1, -1, -1);
+	var endBeam = new Array(-1, -1, -1);
 
 	for(var note = 0; note<beamGroups[group].length; note++) {
 		defineStem(beamGroups, group, note, line, inverse);
 
 		getBeamLimits(beamGroups, group, note, startBeam, endBeam);
 
-		for(var beam = 0; beam<2; beam++) {
+		for(var beam = 0; beam<3; beam++) {
 			if(endBeam[beam]!==-1) {
 				defineSmallBeams(beamGroups, group, note, startBeam, endBeam, beam);
 
@@ -533,6 +532,7 @@ function getExtremes(line) {
 
 	return {highest: highest, lowest: lowest};
 }
+	
 
 //this is the main update function
 function generateAll() { // eslint-disable-line no-unused-vars
@@ -577,7 +577,6 @@ function generateAll() { // eslint-disable-line no-unused-vars
 	for(var bar = 0; bar < bars.length; bar++) {
 		//the beamGroups define the groups of eigth plus notes to be grouped with beams
 		var beamGroups = [];
-		
 
 		// //sets the color to red if the sum is wrong
 		var color = "#000000";

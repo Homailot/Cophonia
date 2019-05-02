@@ -56,7 +56,7 @@ function deleteNote(args) {
 	}
 	
 	//says the bar is not extended
-	markers[uIndex].extended = false;
+	
 	sendAndUpdateMarker();
 }
 
@@ -135,6 +135,22 @@ function moveLeft() {
 		//moves back the current line if the bar before is on a different line.
 		if(bars[curBar-1].line!==curLine) curLine--;
 
+		if(bars[curBar].notes.length===0) {
+			var information = {
+				functionName: "placeNote",
+				args: {
+					iPage: curIPage,
+					bar: curBar, note:0, duration: 1,
+					line: curLine, pos: 0, isSpace: true, newGroup: false, fullRest: true
+				},
+				generate:true
+			};
+			placeNote(information.args);
+			sendData(JSON.stringify(information));
+			generateAll();
+		} else {
+			fillBar({bar: curBar});
+		}
 		curBar--;
 		curNote = bars[curBar].notes.length-1;
 		if(curNote < 0) curNote = 0;
@@ -150,7 +166,7 @@ function moveRight() {
 	var lowerSig = bars[curBar].lowerSig;
 	var acc = bars[curBar].accidentals;
 	var sof = bars[curBar].sharpOrFlat;
-	var sum = getSum(curBar);
+	var sum = getSum(bars, curBar);
 	var gen = false;
 
 	//if we"ve reached the end, meaning the bar was extended or when the sum of the duration of the notes matches the time signature
@@ -163,6 +179,22 @@ function moveRight() {
 		}
 
 		//creates a new bar if there are no more bars
+		if(bars[curBar].notes.length===0) {
+			var lInformation = {
+				functionName: "placeNote",
+				args: {
+					iPage: curIPage,
+				bar: curBar, note:0, duration: 1,
+				line: curLine, pos: 0, isSpace: true, newGroup: false, fullRest: true
+				},
+				generate:true
+			};
+			gen=true;
+			placeNote(lInformation.args);
+			sendData(JSON.stringify(lInformation));
+		} else {
+			fillBar({bar: curBar});
+		}
 		curBar++;
 		curNote = 0;
 
@@ -180,7 +212,8 @@ function moveRight() {
 					curLine:curLine,
 					cA: false,
 					acc: acc,
-					sof: sof
+					sof: sof,
+					rested: true
 				},
 				generate: true
 			};
@@ -248,8 +281,6 @@ function insertBeat(args) {
 			if(curNote==args.note && curIPage == args.iPage) curNote++;
 			note++;
 		}
-		console.log(note);
-		
 		//places the pause
 		var information = {
 			functionName: "placeNote", 
@@ -283,7 +314,25 @@ function changeDuration(args) {
 	var bars = iPages[args.iPage].bars;
 
 	if(args.note>=0 && bars[args.bar].notes.length > args.note) {
+		var initDuration = bars[args.bar].notes[args.note].duration;
+		var initFullRest = bars[args.bar].notes[args.note].fullRest;
+
 		bars[args.bar].notes[args.note].duration = args.duration;
+		bars[args.bar].notes[args.note].fullRest=false;
+		var sum = getSum(bars, args.bar);
+		if(sum>bars[args.bar].upperSig/bars[args.bar].lowerSig) {
+			bars[args.bar].notes[args.note].duration=initDuration;
+			bars[args.bar].notes[args.note].fullRest=initFullRest;
+		} else {
+			for(var d=0; d<gDurations.length; d++) {
+				if(gDurations[d]===args.duration) {
+					if(bars[args.bar].notes[args.note].dots>dots[d]) {
+						bars[args.bar].notes[args.note].dots=dots[d];
+					}
+					break;
+				}
+			}
+		}
 
 		generateAll();
 	}
@@ -408,17 +457,16 @@ document.addEventListener("keydown", function(event) {
 					generateAll();
 					return;
 				}
-				else if(bars[curBar].notes[curNote].isSpace) bars[curBar].notes.splice(curNote, 1);
 			} 
 			
 
-			markers[uIndex].extended = false;
-			for(var marker in markers) {
-				if(markers[marker].extended && curBar===markers[marker].bar && curNote===markers[marker].note && curIPage===markers[marker].page) {
-					markers[marker].extended=false;	
-					console.log("teste");
-				} 
-			}
+			// markers[uIndex].extended = false;
+			// for(var marker in markers) {
+			// 	if(markers[marker].extended && curBar===markers[marker].bar && curNote===markers[marker].note && curIPage===markers[marker].page) {
+			// 		markers[marker].extended=false;	
+			// 		console.log("teste");
+			// 	} 
+			// }
 			setMarkerAndSend(false, false);
 				
 			generateAll();
@@ -662,6 +710,22 @@ document.addEventListener("keydown", function(event) {
 			changeDuration(inf.args);
 			sendData(JSON.stringify(inf));
 			break;
+		case "Digit7": {
+			curDuration = 0.015625;
+			inf = {
+				functionName: "changeDuration",
+				args: {
+					note: curNote,
+					duration: curDuration,
+					iPage: curIPage	,
+					bar: curBar		
+				},
+				generate: false
+			};
+			changeDuration(inf.args);
+			sendData(JSON.stringify(inf));
+			break;
+		}
 		case "KeyN":
 			if(ctrlPress) {
 				addIPage();
@@ -701,6 +765,7 @@ document.addEventListener("keydown", function(event) {
 			break;
 		case "KeyT":
 			if(ctrlPress) {
+				fillBar({bar: curBar});
 				changeTimeSigPop(curBar);
 			} else {
 				tPress=true;
@@ -721,6 +786,7 @@ document.addEventListener("keydown", function(event) {
 				clearTimeout(time[j]);
 			}
 			restoreCanvas(); playing=false;
+			generateAll();
 			break;
 		case "ShiftLeft":
 		case "ShiftRight":

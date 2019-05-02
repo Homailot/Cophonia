@@ -41,17 +41,18 @@ function drawFigure(bar, note) { // eslint-disable-line no-unused-vars
 	var turned=false;
 	var text;
 	if(note.isSpace) {
+		var pauseOffset=0;
 		switch(note.duration) {
-		case 1: text = "\uD834\uDD3B"; break;
-		case 0.5: text = "\uD834\uDD3C"; break;
+		case 1: text = "\uD834\uDD3B"; pauseOffset-=14; break;
+		case 0.5: text = "\uD834\uDD3C"; pauseOffset-=6; break;
 		case 0.25: text = "\uD834\uDD3D"; break;
 		case 0.125: text = "\uD834\uDD3E"; break;
 		case 0.0625: text = "\uD834\uDD3F"; break;
 		case 0.03125: text = "\uD834\uDD40"; break;
+		case 0.015625: text= "𝅁"; break;
 		}
-		ctx.font = "69px Musicaf";
-		ctx.fillText(text, note.xPos, ((note.line+1)*144)-8-26 );
-
+		ctx.font = "60px BravuraF";
+		ctx.fillText(text, note.xPos, ((note.line+1)*144)-8-26+pauseOffset);
 		drawDot(note, false);
 		return;
 	}
@@ -93,6 +94,7 @@ function drawFigure(bar, note) { // eslint-disable-line no-unused-vars
 		case 0.125: text = "\uD834\uDD6E"; break;
 		case 0.0625: text = "\uD834\uDD6F"; break;
 		case 0.03125: text = "\uD834\uDD70"; break;
+		case 0.015625: text = "\uD834\uDD71"; break;
 		default: text = ""; break;
 		}
 
@@ -125,6 +127,7 @@ function drawFigure(bar, note) { // eslint-disable-line no-unused-vars
 		case 0.125: text = "\uD834\uDD60"; break;
 		case 0.0625: text = "\uD834\uDD61"; break;
 		case 0.03125: text = "\uD834\uDD62"; break;
+		case 0.015625: text= "𝅘𝅥𝅱"; break;
 		default: text = "\uD834\uDD5F"; break;
 		}
 
@@ -149,7 +152,7 @@ function drawTies(bar, note, inverse) { // eslint-disable-line no-unused-vars
 
 			var xCenter, yCenter, radius, startAngle, endAngle;
 			
-			yCenter = objN.noteGroups[nG].yPos+15;	
+			yCenter = objN.noteGroups[nG].yPos+15;
 			startAngle = 0.125*Math.PI;
 			endAngle = 0.875*Math.PI;
 
@@ -164,8 +167,9 @@ function drawTies(bar, note, inverse) { // eslint-disable-line no-unused-vars
 				ctx.stroke();
 
 				yCenter=tiesToNG.yPos+15+lines[bars[barTo].line].yOffset;
-				xCenter=bars[barTo].initPos;
-				radius=tiesTo.xPos-bars[barTo].initPos;
+				xCenter=getBarStart(bars, barTo)+bars[barTo].initPos;
+				console.log(xCenter);
+				radius=tiesTo.xPos-xCenter;
 			} else {
 				xCenter = (objN.xPos+10+tiesTo.xPos)/2;
 				radius = tiesTo.xPos-xCenter;
@@ -260,34 +264,6 @@ function drawDot(note, inv) {
 	ctx.restore();
 }
 
-function orderNoteGroup(note) { // eslint-disable-line no-unused-vars
-	var noteGroupOrder=[];
-	var firstN=true;
-	for(var n=0; n<note.noteGroups.length; n++) {
-		var objN = note.noteGroups[n];
-
-		if(firstN) {
-			noteGroupOrder.push(objN);
-			firstN=false;
-			continue;
-			
-		}
-		for(var ngo=0; ngo<noteGroupOrder.length; ngo++) {
-			if(noteGroupOrder[ngo].pos<objN.pos) {
-				noteGroupOrder.splice(ngo, 0, objN);
-				break;
-			}
-
-			if(ngo===noteGroupOrder.length-1) {
-				noteGroupOrder.push(objN);
-				break;
-			}
-		}
-	}
-
-	return noteGroupOrder;
-}
-
 function drawNoteAccidental(n, m) {
 	for(var nG=n.noteGroups.length-1; nG>=0; nG--) {
 		ctx.save();
@@ -363,7 +339,7 @@ function drawHead(note, inverse) {
 	for(var n = 0; n<noteGroupOrder.length; n++) {
 		
 		drawExtraStaff(note.xPos, noteGroupOrder[n].pos-2, note.line);
-		noteGroupOrder[n].yPos = ((note.line+1) * 144 - 2 ) +  noteGroupOrder[n].pos * 8 - 14;
+		
 
 		ctx.save();
 		ctx.translate(note.xPos,  noteGroupOrder[n].yPos);
@@ -528,20 +504,22 @@ function drawBar(bar, color) { // eslint-disable-line no-unused-vars
 	timePos+=10;
 	if(bar.changedTimeSig) {
 		ctx.font = "60px BravuraF";
-		if(bar.upperSig.length>1 || bar.lowerSig.length>1) {
+		if(bar.upperSig >=10 || bar.lowerSig>=10) {
 			timePos+=5;
 		}
 
-		if(bar.upperSig.length>1) {
-			ctx.fillText(unescape("%u"+"E08"+bar.upperSig[0]), timePos-11, (bar.line*144) + 95);
-			ctx.fillText(unescape("%u"+"E08"+bar.upperSig[1]), timePos+11, (bar.line*144) + 95);
+		if(bar.upperSig>=10) {
+			ctx.fillText(unescape("%u"+"E08"+(bar.upperSig/10>>0)), timePos-11, (bar.line*144) + 95);
+			ctx.fillText(unescape("%u"+"E08"+bar.upperSig%10), timePos+11, (bar.line*144) + 95);
 		} else {
 			ctx.fillText(unescape("%u"+"E08"+bar.upperSig), timePos, (bar.line*144) + 95);
 		}
 		
-		if(bar.lowerSig.length>1) {
-			ctx.fillText(unescape("%u"+"E08"+bar.lowerSig[0]), timePos-11, (bar.line*144) + 128);
-			ctx.fillText(unescape("%u"+"E08"+bar.lowerSig[1]), timePos+11, (bar.line*144) + 128);
+		if(bar.lowerSig>=10) {
+			console.log(bar.lowerSig/10>>0);
+			console.log(bar.lowerSig%10);
+			ctx.fillText(unescape("%u"+"E08"+(bar.lowerSig/10>>0)), timePos-11, (bar.line*144) + 128);
+			ctx.fillText(unescape("%u"+"E08"+bar.lowerSig%10), timePos+11, (bar.line*144) + 128);
 		} else {
 			ctx.fillText(unescape("%u"+"E08"+bar.lowerSig), timePos, (bar.line*144) + 128);
 		}

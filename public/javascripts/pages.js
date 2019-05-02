@@ -24,6 +24,10 @@ function InstrumentPage() {  // eslint-disable-line no-unused-vars
 		newBar.changedAcc=bars[bar].changedAcc;
 		newBar.changedClef=bars[bar].changedClef;
 		newBar.changedOrFirstClef=bars[bar].changedOrFirstClef;
+		var note = new Note(0, 0, line, 1, 0, 0, true, 0,0);
+		note.fullRest=true;
+
+		newBar.notes.push(note);
 		
 		
 		this.bars.push(newBar);

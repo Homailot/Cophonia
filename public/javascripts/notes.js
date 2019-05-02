@@ -10,6 +10,7 @@ function Note(xPos, yPos, line, duration, pos, noteValue, isSpace, scalePos, acc
 	this.width = 30;
 	this.dots=0;
 	this.inverted=false;
+	this.fullRest=false;
 }
 
 function NoteGroup(yPos, pos, noteValue, scalePos, acc) {
@@ -72,9 +73,9 @@ function getAccidentalFromBar(bars, barP, sP, acc, pos) {
 }
 
 function placeNote(args) { // eslint-disable-line no-unused-vars
-	var realPosition = ((args.line+1) * 144 - 2 ) + pos * 8;
+	var realPosition = ((args.line+1) * 144 - 2 ) + args.pos * 8;
 	if(args.isSpace) realPosition=((args.line+1) * 144) - 48;
-	var xPos = Marker.xPos;
+	var xPos = 0;
 	var noteValue = 71;
 	if(args.iPage==1)noteValue-=12;
 	var pos = args.pos;
@@ -85,18 +86,36 @@ function placeNote(args) { // eslint-disable-line no-unused-vars
 	var note;
 	var lBars = iPages[args.iPage].bars;
 	var acc = 0;
+	var sum = getSum(lBars, barP);
+	var replacedPauseDuration=0;
 	
 	noteValue = getNoteValue(scalePos, sP, noteValue);
+	if(lBars[args.bar].notes[args.note] && lBars[args.bar].notes[args.note].isSpace) {
+		if(lBars[args.bar].notes[args.note].fullRest) {
+			replacedPauseDuration=lBars[barP].upperSig/lBars[barP].lowerSig;
+		} else {
+			replacedPauseDuration=getNoteDuration(lBars[args.bar].notes[args.note]);
+		}
+		
+	}
 
 	acc = getAccidentalFromBar(lBars, barP, sP, acc, pos);
-	if(markers[uIndex].extended && args.bar===curBar && args.note===curNote && args.iPage===curIPage) {
-		markers[uIndex].extended=false;
-	}
-	
 	
 	if(!args.newGroup) {
 		note = new Note(xPos, realPosition, args.line, args.duration, pos, noteValue, args.isSpace, sP, acc);
-		lBars[barP].notes.splice(noteP, 0, note); 
+		if(args.fullRest) {
+			note.fullRest=true;
+			note.duration=1;
+			lBars[barP].notes.splice(noteP, 0, note); 
+		} 
+		else if(sum+getNoteDuration(note)-replacedPauseDuration<=lBars[barP].upperSig/lBars[barP].lowerSig) {
+			if(lBars[args.bar].notes[args.note] && lBars[args.bar].notes[args.note].isSpace) {
+				lBars[barP].notes.splice(noteP, 1); 
+			}
+			lBars[barP].notes.splice(noteP, 0, note); 
+		} else {
+			return;
+		}
 	} else {
 		lBars[barP].notes[noteP].noteGroups.push(new NoteGroup(realPosition, pos, noteValue, sP, acc));
 		var noteGroupOrder=orderNoteGroup(lBars[barP].notes[noteP]);
@@ -116,12 +135,16 @@ function placeNote(args) { // eslint-disable-line no-unused-vars
 	} else {
 		note.inverted=false;
 	}
+	if(markers[uIndex].extended && args.bar===curBar && args.note===curNote && args.iPage===curIPage) {
+		markers[uIndex].extended=false;
+	}
+	setNoteLines(lBars, barP);
 	sendAndUpdateMarker();
 }
 
-NoteGroup.prototype.updateAccidental = function(bar, n, j, bars) {
-	determineAccFromBar(bars[bar], null, this, 0);
-	determineAccFromNotes(bars[bar], null, this, j);
+function updateAccidental (bar, n, j, bars) {
+	determineAccFromBar(bars[bar], null, n, 0);
+	determineAccFromNotes(bars[bar], null, n, j);
 
 	getAccWidth(j, bars[bar]);
 };
@@ -281,13 +304,25 @@ function augment(args) { // eslint-disable-line no-unused-vars
 	
 	if(args.note<bars[args.bar].notes.length) {
 		var objNote = bars[args.bar].notes[args.note];
+		var initRest=objNote.fullRest;
+		var initDots=objNote.dots;
+		var index=0;
 		objNote.dots+=args.value;
+		if(objNote.fullRest) objNote.fullRest=false;
+
+		for(var duration=0; duration<gDurations.length; duration++) {
+			if(gDurations[duration]===objNote.duration) {
+				index= duration;
+				break;
+			} 
+		}
+
 		if(objNote.dots<0) objNote.dots=0;
-		else if(objNote.dots>3) objNote.dots=3;
-		else if(args.value>0) {
-			objNote.width+=10;
-		} else {
-			objNote.width-=10;
+		else if(objNote.dots>dots[index]) objNote.dots=dots[index];
+
+		if(getSum(bars, args.bar)>bars[args.bar].upperSig/bars[args.bar].lowerSig) {
+			objNote.dots=initDots;
+			objNote.fullRest=initRest;
 		}
 	}
 }
@@ -396,7 +431,7 @@ function deleteTie(args) {
 function getTied(bars, bar, note, objNG) {
 	var tiesTo = bars[bar].notes[note];
 	var barTo = bar;
-	var noteTo = note+1;
+	var noteTo = note;
 	var tiesToNG;
 	if(note>=bars[bar].notes.length && bar+1<bars.length) {
 		tiesTo = bars[bar+1].notes[0];
@@ -408,11 +443,45 @@ function getTied(bars, bar, note, objNG) {
 		noteTo=bars[bar-1].notes.length-1;
 	}
 	for(var nGTo = 0; nGTo< tiesTo.noteGroups.length; nGTo++) {
-		if(tiesTo.noteGroups[nGTo].y===objNG.y) {
+		if(tiesTo.noteGroups[nGTo].pos===objNG.pos) {
 			tiesToNG=tiesTo.noteGroups[nGTo];
 			break;
 		}
 	}
 
 	return {tiesTo: tiesTo, barTo: barTo, tiesToNG:tiesToNG, noteTo: noteTo};
+}
+
+function setNoteLines(bars, bar) {
+	for(var note = 0; note<bars[bar].notes.length; note++) {
+		bars[bar].notes[note].line=bars[bar].line;
+	}
+}
+
+function orderNoteGroup(note) { // eslint-disable-line no-unused-vars
+	var noteGroupOrder=[];
+	var firstN=true;
+	for(var n=0; n<note.noteGroups.length; n++) {
+		var objN = note.noteGroups[n];
+
+		if(firstN) {
+			noteGroupOrder.push(objN);
+			firstN=false;
+			continue;
+			
+		}
+		for(var ngo=0; ngo<noteGroupOrder.length; ngo++) {
+			if(noteGroupOrder[ngo].pos<objN.pos) {
+				noteGroupOrder.splice(ngo, 0, objN);
+				break;
+			}
+
+			if(ngo===noteGroupOrder.length-1) {
+				noteGroupOrder.push(objN);
+				break;
+			}
+		}
+	}
+
+	return noteGroupOrder;
 }
