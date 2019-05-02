@@ -21,8 +21,6 @@ window.onload = function () {
 
 var c = document.getElementById("principal");
 var ctx = c.getContext("2d");
-c.width = window.innerWidth - 50;
-c.height = window.innerHeight - 20;
 ctx.translate(0.5, 0.5);
 var lastPos = 180;
 y=0;
@@ -96,7 +94,8 @@ function getJSON(args) {
 
 function start(createNew) {
 	//changeInstrument("https://surikov.github.io/webaudiofontdata/sound/0000_FluidR3_GM_sf2_file.js","_tone_0000_FluidR3_GM_sf2_file");
-
+	c.height = window.innerHeight-98;
+	c.width = window.innerWidth-70;
 	if(createNew) {
 		
 		lines.push(new Line());

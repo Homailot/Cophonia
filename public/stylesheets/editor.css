@@ -1,0 +1,67 @@
+
+canvas { 
+    font-family: "Musicaf";
+ }
+ .load {
+     font-family: "Musicaf";
+    visibility: hidden;
+    height: 0px;
+ }
+
+.load2{
+    font-family: "BravuraF";
+    visibility: hidden;
+    height: 0px;
+}
+html, body {
+    height: 100%;
+    padding: 0px;
+    margin: 0px;
+    font-family: "Musicaf";
+    background-color: #D1D0D0!important;
+    box-sizing: border-box;
+}
+#dialog{
+    transition: top 300ms ease-out;
+}
+canvas.principal {
+    z-index: 1;
+    background-color: white;
+    margin-top: 90px;
+    margin-left: 60px;
+}
+canvas.save {
+    z-index: 0;
+    position: fixed;
+    display: none;
+}
+
+/* INTERFACE */
+
+.overlay{
+    position: absolute;
+    left: 0;
+    top: 0;
+    z-index: 10;
+    display: grid;
+    width: 100%;
+    height: 100%;
+    grid-template-columns: 50px auto;
+    grid-template-rows: 80px auto;
+    grid-template-areas: "topbar topbar"
+    "leftbar sheet"
+}
+
+.leftbar {
+    grid-area: leftbar;
+    justify-self: stretch;
+    align-self: stretch;
+    background-color: #2d2a2e;
+}
+
+.topbar{
+    grid-area:topbar;
+    justify-self: stretch;
+    align-self: stretch;
+    background-color: #3d373e;
+}

@@ -2,50 +2,17 @@
 <html>
 <head>
 	<title>Cophonia - Editing</title>
-	<style> 
+	<style>
 		@font-face {
-		    font-family: "Musicaf";
-		    src: url('./Musica.ttf') format("truetype");
+			font-family: "Musicaf";
+			src: url('./Musica.ttf') format("truetype");
 		}
 		@font-face {
 			font-family: "BravuraF";
 			src: url("./Bravura.otf") format("opentype")
 		}
-		canvas { 
-			font-family: "Musicaf";
-		 }
-		 .load {
-		 	font-family: "Musicaf";
-            visibility: hidden;
-            height: 0px;
-		 }
-
-		.load2{
-			font-family: "BravuraF";
-			visibility: hidden;
-            height: 0px;
-		}
-		html, body {
-			height: 96%;
-			padding: 0px;
-			margin: 0px;
-			font-family: "Musicaf";
-			background-color: #D1D0D0!important;
-			box-sizing: border-box;
-		}
-		#dialog{
-			transition: top 300ms ease-out;
-		}
-		canvas.principal {
-			z-index: 1;
-			background-color: white
-		}
-		canvas.save {
-			z-index: 0;
-			position: fixed;
-			display: none;
-		}
 	</style>
+	<link rel="stylesheet" href="/stylesheets/editor.css"
 	<!-- Bootstrap -->
 	<link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.1.3/css/bootstrap.min.css" integrity="sha384-MCw98/SFnGE8fJT3GXwEOngsV7Zt27NXFoaoApmYm81iuXoPkFOJwJ8ERdknLPMO" crossorigin="anonymous">
 	<script src="https://code.jquery.com/jquery-3.3.1.slim.min.js" integrity="sha384-q8i/X+965DzO0rT7abK41JStQIAqVgRVzpbzo5smXKp4YfRvH+8abtTE1Pi6jizo" crossorigin="anonymous"></script>
@@ -62,9 +29,13 @@
 	<canvas class="save" id="save">
 
 	</canvas>
-	<canvas width="1000" height="900" id="principal" class="principal shadow ml-4">
+	<canvas width="0" height="0" id="principal" class="principal">
 	
 	</canvas>
+	<div class="overlay">
+		<div class="topbar"></div>
+		<div class="leftbar"></div>
+	</div>
 	<div style="position: fixed; top: 0px; left: 0px; margin: 0px; padding: 0px; z-index: 5;" id="dialogContainer"></div>
 
 	<script src="/socket.io/socket.io.js"></script>
