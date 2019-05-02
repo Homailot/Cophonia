@@ -215,8 +215,18 @@ function fillWithTies(note, bars, bar, diff, iPage, n) {
 		//newNote = JSON.parse(JSON.stringify(note));
 		if (lDiff > bars[bar].upperSig / bars[bar].lowerSig) {
 			diff = bars[bar].upperSig / bars[bar].lowerSig;
+			result = checkForDots(diff);
 
-			placeNotes(note, bars, bar, diff, iPage, 0);
+			placeNotes(note, bars, bar,result.duration, iPage, 0);
+			for(dot=0; dot<result.nDots; dot++) {
+				inf = {
+					bar: bar,
+					note: 0,
+					value: 1,
+					iPage: iPage
+				};
+				augment(inf);
+			}
 			newNote=bars[bar].notes[0];
 
 			for(nG=0; nG<newNote.noteGroups.length; nG++) {
@@ -240,8 +250,6 @@ function fillWithTies(note, bars, bar, diff, iPage, n) {
 		}
 
 		lDiff -= diff;
-
-		newNote.duration = diff;
 		
 		for(nG=0; nG<newNote.noteGroups.length; nG++) {
 			newNote.noteGroups[nG].tiedTo=true;
@@ -340,7 +348,7 @@ function moveExtraNotes(args) {
 		oldNote++;
 		newNoteI++;
 	}
-	fillBar({bar: newBarI})
+	fillBar({bar: newBarI});
 }
 
 function checkKey(bars, ibar, accidentals, sharpOrFlat) {
@@ -448,19 +456,19 @@ function fillBar(args) {
 		totalTime += 1 / bars[args.bar].lowerSig;
 	}
 
-	addRests(restsToAdd);
+	addRests(restsToAdd, args);
 
 	generateAll();
 }
 
-function addRests(rests) {
+function addRests(rests, args) {
 	for (var rest = 0; rest < rests.length; rest++) {
 		var information = {
 			functionName: "placeNote",
 			args: {
 				iPage: curIPage,
-				bar: curBar, note: bars[curBar].notes.length, duration: rests[rest],
-				line: curLine, pos: y + 2, isSpace: true, newGroup: false
+				bar: args.bar, note: bars[args.bar].notes.length, duration: rests[rest],
+				line: bars[args.bar].line, pos: y + 2, isSpace: true, newGroup: false
 			},
 			generate: true
 		};

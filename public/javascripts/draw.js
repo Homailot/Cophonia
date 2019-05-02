@@ -168,7 +168,6 @@ function drawTies(bar, note, inverse) { // eslint-disable-line no-unused-vars
 
 				yCenter=tiesToNG.yPos+15+lines[bars[barTo].line].yOffset;
 				xCenter=getBarStart(bars, barTo)+bars[barTo].initPos;
-				console.log(xCenter);
 				radius=tiesTo.xPos-xCenter;
 			} else {
 				xCenter = (objN.xPos+10+tiesTo.xPos)/2;
@@ -516,8 +515,6 @@ function drawBar(bar, color) { // eslint-disable-line no-unused-vars
 		}
 		
 		if(bar.lowerSig>=10) {
-			console.log(bar.lowerSig/10>>0);
-			console.log(bar.lowerSig%10);
 			ctx.fillText(unescape("%u"+"E08"+(bar.lowerSig/10>>0)), timePos-11, (bar.line*144) + 128);
 			ctx.fillText(unescape("%u"+"E08"+bar.lowerSig%10), timePos+11, (bar.line*144) + 128);
 		} else {
