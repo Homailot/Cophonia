@@ -11,13 +11,6 @@ function changeInstrument(path,name, context){
 	});
 }
 
-window.onload = function () {
-	// setTimeout(function() {
-	// 	socket=io.connect();
-	// },200);
-};
-
-
 
 var c = document.getElementById("principal");
 var ctx = c.getContext("2d");
@@ -88,14 +81,25 @@ function getJSON(args) {
 		generate: false
 	};
 	sendData(JSON.stringify(mInformation));
+	Mouse.lastLeft=markers[uIndex].xPos;
+	Mouse.lastRight=markers[uIndex].xPos;
 
 	generateAll();
 }
 
 function start(createNew) {
+	c=document.getElementById("principal");
 	//changeInstrument("https://surikov.github.io/webaudiofontdata/sound/0000_FluidR3_GM_sf2_file.js","_tone_0000_FluidR3_GM_sf2_file");
 	c.height = window.innerHeight-98;
 	c.width = window.innerWidth-70;
+
+	document.getElementById("principal").addEventListener('mousemove', debounce(function(event) {
+		if(!checkPlay()) checkMousePosition(event);
+	}, 8), false);
+	document.getElementById("principal").addEventListener('click', function(event) {
+		if(!checkPlay()) clickMouse();
+	}, false);
+	console.log("w");
 	if(createNew) {
 		
 		lines.push(new Line());
@@ -143,6 +147,8 @@ function start(createNew) {
 		colorI=0;
 		bars=iPages[curIPage].bars;
 		lines = iPages[curIPage].lines;
+		Mouse.lastLeft=markers[uIndex].xPos;
+		Mouse.lastRight=markers[uIndex].xPos;
 	
 		generateAll();
 	} else {
@@ -156,4 +162,5 @@ function start(createNew) {
 		};
 		sendData(JSON.stringify(jInformation));
 	}
+	
 }

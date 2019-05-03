@@ -11,3 +11,13 @@ function LineFunction(pointAX, pointAY, pointBX, pointBY) { // eslint-disable-li
 	this.m = (pointAY-pointBY) / (pointAX - pointBX);
 	this.b = pointAY - this.m * pointAX;
 }
+
+function calculateYLine(lineTo, headerOffset) {
+	var yOffset=0;
+	for(var line = 0; line<=lineTo; line++) {
+		yOffset+=lines[line].yOffset;
+	}
+	yOffset+=headerOffset;
+
+	return yOffset;
+}

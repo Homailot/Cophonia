@@ -29,13 +29,14 @@
 	<canvas class="save" id="save">
 
 	</canvas>
-	<canvas width="0" height="0" id="principal" class="principal">
-	
-	</canvas>
-	<div class="overlay">
+	<div class="overlay" id="p">
 		<div class="topbar"></div>
 		<div class="leftbar"></div>
 	</div>
+	<canvas width="0" height="0" id="principal" class="principal">
+	
+	</canvas>
+	
 	<div style="position: fixed; top: 0px; left: 0px; margin: 0px; padding: 0px; z-index: 5;" id="dialogContainer"></div>
 
 	<script src="/socket.io/socket.io.js"></script>
@@ -52,6 +53,7 @@
 	<script type="text/javascript" src="/javascripts/pages.js"></script>
 	<script type="text/javascript" src="/javascripts/htmlDialogs.js"></script>
 	<script type="text/javascript" src="/javascripts/play.js"></script>
+	<script type="text/javascript" src="/javascripts/mouseMovement.js"></script>
 	
 </body>
 </html>

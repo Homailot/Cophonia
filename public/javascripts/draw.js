@@ -414,11 +414,7 @@ function drawBeam(xStart, yStart, xEnd, yEnd) {// eslint-disable-line no-unused-
 function drawMarker(args) {// eslint-disable-line no-unused-vars
 	for(var marker in markers) {
 		if(markers[marker].iPage===curIPage && lines[markers[marker].line]!==undefined) {
-			var yOffset=0;
-			for(var line = 0; line<=markers[marker].line; line++) {
-				yOffset+=lines[line].yOffset;
-			}
-			yOffset+=args.headerOffset;
+			var yOffset = calculateYLine(markers[marker].line, args.headerOffset);
 			ctx.translate(0, yOffset);
 			drawExtraStaff(markers[marker].xPos, markers[marker].y, markers[marker].line, yOffset);
 
@@ -427,6 +423,7 @@ function drawMarker(args) {// eslint-disable-line no-unused-vars
 			ctx.strokeStyle = "#000000";
 			ctx.globalAlpha = 0.4;
 			ctx.fillStyle = markers[marker].color;
+			markers[marker].yPos=(markers[marker].line+1)*144+yOffset+ markers[marker].y * 8 - 5;
 		
 			ctx.fillRect(markers[marker].xPos, ((markers[marker].line+1)*144) + markers[marker].y * 8 - 5, 20, 26);
 			ctx.rect(markers[marker].xPos, ((markers[marker].line+1)*144) + markers[marker].y * 8 - 5, 20, 26);

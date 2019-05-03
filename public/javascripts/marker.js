@@ -7,6 +7,7 @@ function Marker(bar, note, line) {
 	this.iPage;
 	this.color;
 	this.y = y;
+	this.yPos;
 }
 
 function setMarkerXPos(bar, note, lBars, def, ext, page) {
@@ -59,6 +60,9 @@ function updateMarker(args) {
 	markers[args.index].y  = args.y;
 	markers[args.index].extended = args.extended;
 	markers[args.index].color = args.color;
+	var yOffset= calculateYLine(markers[args.index].line, iPages[args.iPage].headerOffset);
+
+	markers[args.index].yPos=(markers[args.index].line+1)*144+yOffset+ markers[args.index].y * 8 - 5;
 
 	markers[args.index].xPos = setMarkerXPos(args.bar, args.note, iPages[args.iPage].bars, markers[args.index].xPos, args.extended, args.iPage);
 }
