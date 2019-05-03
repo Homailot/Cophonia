@@ -405,8 +405,6 @@ function enterNotes() {
 			}
 
 			setMarkerAndSend(false, true);
-			Mouse.lastLeft = markers[uIndex].xPos + 20;
-			Mouse.lastRight = markers[uIndex].xPos;
 			return;
 		}
 	}
@@ -420,8 +418,6 @@ function enterNotes() {
 	// 	} 
 	// }
 	setMarkerAndSend(false, false);
-	Mouse.lastLeft = markers[uIndex].xPos + 20;
-	Mouse.lastRight = markers[uIndex].xPos;
 }
 
 function recieveIPage(args) {
@@ -595,8 +591,6 @@ document.addEventListener("keydown", function (event) {
 					generateAll();
 				} else {
 					moveRight(true);
-					Mouse.lastLeft = markers[uIndex].xPos + 20;
-					Mouse.lastRight = markers[uIndex].xPos;
 				}
 
 
@@ -632,9 +626,6 @@ document.addEventListener("keydown", function (event) {
 					generateAll();
 				} else {
 					moveLeft();
-
-					Mouse.lastLeft = markers[uIndex].xPos + 20;
-					Mouse.lastRight = markers[uIndex].xPos;
 				}
 
 
