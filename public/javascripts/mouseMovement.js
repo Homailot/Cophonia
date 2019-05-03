@@ -113,6 +113,7 @@ function mouseVertical(mousePosition) {
             if(bars[curBar].line===ogLine) break;
 
             ogLine=bars[curBar].line;
+            markers[uIndex].extended=false;
         } else if(markers[uIndex].y===-17) {
             if(lines[curLine-1] && calculateYLine(curLine-1, iPages[curIPage].headerOffset)+(curLine)*144>mousePosition.y) {
                 moveMouseToLine(-1, mousePosition);
@@ -121,6 +122,7 @@ function mouseVertical(mousePosition) {
             if(bars[curBar].line===ogLine) break;
 
             ogLine=bars[curBar].line;
+            markers[uIndex].extended=false;
         }
     }
     
