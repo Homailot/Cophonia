@@ -255,3 +255,27 @@ function slideElement(content) {
 function moveElement() {
 	curContent.style.top=(window.innerHeight-curContent.scrollHeight)+"px";
 }
+
+function menuDuration(menu) {
+	for(var m = 0; m<=6; m++) {
+		if(menu===m) {
+			document.getElementById("duration"+m).classList.add("focus");
+		} else {
+			document.getElementById("duration"+m).classList.remove("focus");
+		}
+	}
+	
+	curDuration = gDurations[menu];
+	var inf = {
+		functionName: "changeDuration",
+		args: {
+			note: curNote,
+			duration: curDuration,
+			iPage: curIPage,
+			bar: curBar
+		},
+		generate: false
+	};
+	changeDuration(inf.args);
+	sendData(JSON.stringify(inf));
+}

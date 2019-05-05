@@ -642,108 +642,25 @@ document.addEventListener("keydown", function (event) {
 				event.preventDefault();
 				break;
 			case "Digit1":
-				curDuration = 1;
-				inf = {
-					functionName: "changeDuration",
-					args: {
-						note: curNote,
-						duration: curDuration,
-						iPage: curIPage,
-						bar: curBar
-					},
-					generate: false
-				};
-				changeDuration(inf.args);
-				sendData(JSON.stringify(inf));
+				menuDuration(0);
 				break;
 			case "Digit2":
-				curDuration = 0.5;
-				inf = {
-					functionName: "changeDuration",
-					args: {
-						note: curNote,
-						duration: curDuration,
-						iPage: curIPage,
-						bar: curBar
-					},
-					generate: false
-				};
-				changeDuration(inf.args);
-				sendData(JSON.stringify(inf));
+				menuDuration(1);
 				break;
 			case "Digit3":
-				curDuration = 0.25;
-				inf = {
-					functionName: "changeDuration",
-					args: {
-						note: curNote,
-						duration: curDuration,
-						iPage: curIPage,
-						bar: curBar
-					},
-					generate: false
-				};
-				changeDuration(inf.args);
-				sendData(JSON.stringify(inf));
+				menuDuration(2);
 				break;
 			case "Digit4":
-				curDuration = 0.125;
-				inf = {
-					functionName: "changeDuration",
-					args: {
-						note: curNote,
-						duration: curDuration,
-						iPage: curIPage, bar: curBar
-					},
-					generate: false
-				};
-				changeDuration(inf.args);
-				sendData(JSON.stringify(inf));
+				menuDuration(3);
 				break;
 			case "Digit5":
-				curDuration = 0.0625;
-				inf = {
-					functionName: "changeDuration",
-					args: {
-						note: curNote,
-						duration: curDuration,
-						iPage: curIPage,
-						bar: curBar
-					},
-					generate: false
-				};
-				changeDuration(inf.args);
-				sendData(JSON.stringify(inf));
+				menuDuration(4);
 				break;
 			case "Digit6":
-				curDuration = 0.03125;
-				inf = {
-					functionName: "changeDuration",
-					args: {
-						note: curNote,
-						duration: curDuration,
-						iPage: curIPage,
-						bar: curBar
-					},
-					generate: false
-				};
-				changeDuration(inf.args);
-				sendData(JSON.stringify(inf));
+				menuDuration(5);
 				break;
 			case "Digit7": {
-				curDuration = 0.015625;
-				inf = {
-					functionName: "changeDuration",
-					args: {
-						note: curNote,
-						duration: curDuration,
-						iPage: curIPage,
-						bar: curBar
-					},
-					generate: false
-				};
-				changeDuration(inf.args);
-				sendData(JSON.stringify(inf));
+				menuDuration(6);
 				break;
 			}
 			case "KeyN":

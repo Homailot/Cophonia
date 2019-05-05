@@ -1,5 +1,6 @@
 
 canvas { 
+    box-sizing: border-box;
     font-family: "Musicaf";
  }
  .load {
@@ -57,10 +58,65 @@ canvas.save {
 
 .leftbar {
     grid-area: leftbar;
+    display: grid;
     justify-self: stretch;
+    position: relative;
     align-self: stretch;
     background-color: #2d2a2e;
+    grid-template-columns: 50px;
+    grid-template-rows: 50px 50px 50px 50px 50px 50px 50px 50px 50px 50px 50px;
+    grid-row-gap: 4px;
 }
+
+.optn{
+    /* padding: 5px; */
+    position: relative;
+    background-color: #ffd866;
+    color: #19181a;
+    font-family: 'MusicaF';
+    font-size: 30px;
+    text-align: center;
+    border-radius: 3px;
+    margin: 4px;
+    cursor: pointer;
+    border: none;
+    
+}
+
+.optn.dot {
+    font-size: 50px;
+}
+
+.optn.dot span {
+    margin: 0px;
+    right: 22px;
+    bottom: 2px;
+}
+
+.optn.tie span{
+    margin: 0px;
+    left: 7px;
+}
+
+.optn.acc span {
+    bottom: 8px; 
+}
+
+.optn span {
+    position: absolute;
+    bottom:5px;
+    margin: -4px;
+}
+
+.optn.focus {
+    background-color: #e8e8e8;
+    outline: none !important;
+}
+
+.optn:focus {
+    outline: none !important;
+}
+
 
 .topbar{
     grid-area:topbar;

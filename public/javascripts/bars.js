@@ -195,7 +195,7 @@ function fillWithTies(note, bars, bar, diff, iPage, n) {
 	
 	lDiff -= diff;
 	while (lDiff > 0) {
-		var inf = {
+		inf = {
 			upperSig: bars[bar].upperSig,
 			lowerSig: bars[bar].lowerSig,
 			cS: false,
