@@ -1,23 +1,46 @@
 function getMousePos(canvas, evt) {
     var rect = canvas.getBoundingClientRect();
     return {
-      x: evt.clientX - rect.left,
-      y: evt.clientY - rect.top + scrollValue
+        x: evt.clientX - rect.left,
+        y: evt.clientY - rect.top + scrollValue
     };
 }
 
-var Mouse = {
+var MouseSelection = function () {
+    this.note = null;
+    this.bar = null;
+    this.iPage = null;
+    this.pos = null;
 };
+
+function selectNote(note, bar, iPage, pos) {
+    if(!iPages[iPage].bars[bar].notes[note]) return;
+    if(getNote(iPages[iPage].bars[bar].notes[note], pos)===-1 && !iPages[iPage].bars[bar].notes[note].isSpace) {
+        if(selectedNotes[0]) return;
+        else {
+            pos = iPages[iPage].bars[bar].notes[note].noteGroups[0].pos-2;
+        }
+        
+    } 
+
+    selectedNotes[0] = new MouseSelection();
+    selectedNotes[0].note = note;
+    selectedNotes[0].bar = bar;
+    selectedNotes[0].iPage = iPage;
+    selectedNotes[0].pos = pos;
+
+    
+}
 
 
 function checkMousePosition(evt) {
     var mousePosition = getMousePos(c, evt);
 
-    if(mousePosition.x>markers[uIndex].xPos+20) {
+    if (mousePosition.x > markers[uIndex].xPos + 20) {
         mouseRight(mousePosition);
         sendAndUpdateMarker();
-       
-    } else if(mousePosition.x<markers[uIndex].xPos) {
+
+    } else if (mousePosition.x < markers[uIndex].xPos) {
         mouseLeft(mousePosition);
         sendAndUpdateMarker();
     }
@@ -27,46 +50,47 @@ function checkMousePosition(evt) {
 
 function getClosestNote(x, bar) {
     var note;
-    var lowerBound=0, upperBound=bars[bar].notes.length-1, middlePos=(upperBound+lowerBound)/2>>0;
-    while(lowerBound<=upperBound) {
-        
-        if(bars[bar].notes[middlePos].xPos>x) {
-            upperBound=middlePos-1;
+    var lowerBound = 0, upperBound = bars[bar].notes.length - 1, middlePos = (upperBound + lowerBound) / 2 >> 0;
+    while (lowerBound <= upperBound) {
 
-        } else if(bars[bar].notes[middlePos].xPos<x) {
-            lowerBound=middlePos+1;
-            
+        if (bars[bar].notes[middlePos].xPos > x) {
+            upperBound = middlePos - 1;
+
+        } else if (bars[bar].notes[middlePos].xPos < x) {
+            lowerBound = middlePos + 1;
+
         } else return middlePos;
-        middlePos=(upperBound+lowerBound)/2>>0;
+        middlePos = (upperBound + lowerBound) / 2 >> 0;
     }
-    if(upperBound<0) {
-        upperBound=0;
+    if (upperBound < 0) {
+        upperBound = 0;
     }
-    if(lowerBound>=bars[bar].notes.length) {
-        lowerBound=bars[bar].notes.length-1;
+    if (lowerBound >= bars[bar].notes.length) {
+        lowerBound = bars[bar].notes.length - 1;
     }
 
-    return Math.abs(bars[bar].notes[lowerBound].xPos-x) < Math.abs(bars[bar].notes[upperBound].xPos-x)? lowerBound:upperBound;
+    return Math.abs(bars[bar].notes[lowerBound].xPos - x) < Math.abs(bars[bar].notes[upperBound].xPos - x) ? lowerBound : upperBound;
 }
 
 function mouseRight(mousePosition) {
-    for(; curBar+1<bars.length && bars[curBar].xPos<mousePosition.x && bars[curBar+1].line===curLine; curBar++,curNote=0, markers[uIndex].extended=false) {
-        fillBar({bar: curBar});
+    for (; curBar + 1 < bars.length && bars[curBar].xPos < mousePosition.x && bars[curBar + 1].line === curLine; curBar++ , curNote = 0, markers[uIndex].extended = false) {
+        fillBar({ bar: curBar });
     }
-    
-    
+
+
     var note = getClosestNote(mousePosition.x, curBar);
     curNote = note;
 
-    var diff=Math.abs(bars[curBar].notes[curNote].xPos-mousePosition.x)>Math.abs(bars[curBar].xPos-mousePosition.x);
-    if(curNote+1>=bars[curBar].notes.length) {
-        curNote++;
+    var diff = Math.abs(bars[curBar].notes[curNote].xPos - mousePosition.x) > Math.abs(bars[curBar].xPos - mousePosition.x);
+    if (curNote + 1 >= bars[curBar].notes.length) {
+        if (diff && getSum(bars, curBar) < bars[curBar].upperSig / bars[curBar].lowerSig) {
+            curNote++;
 
-        if(diff && !markers[uIndex].extended && getSum(bars, curBar)<bars[curBar].upperSig/bars[curBar].lowerSig) {
-            markers[uIndex].extended=true;
-        } else if(!diff){
+            if (!markers[uIndex].extended) {
+                markers[uIndex].extended = true;
+            }
+        } else if (!diff) {
             markers[uIndex].extended = false;
-            curNote--;
         }
         updateCurMarker();
         generateAll();
@@ -74,84 +98,88 @@ function mouseRight(mousePosition) {
     }
 
     restoreCanvas();
+    drawSelected();
     updateCurMarker();
     drawMarker({ headerOffset: iPages[curIPage].headerOffset });
 }
 
 function mouseLeft(mousePosition) {
-    if(curBar===0 && curNote===0 && !markers[uIndex].extended) return;
-    for(; curBar-1>=0 && bars[curBar].initPos>mousePosition.x && bars[curBar-1].line===curLine; curBar--,curNote=0) {
-        fillBar({bar: curBar});
+    if (curBar === 0 && curNote === 0 && !markers[uIndex].extended) return;
+    for (; curBar - 1 >= 0 && bars[curBar].initPos > mousePosition.x && bars[curBar - 1].line === curLine; curBar-- , curNote = 0) {
+        fillBar({ bar: curBar });
     }
     var note = getClosestNote(mousePosition.x, curBar);
-   
-    if(Math.abs(markers[uIndex].xPos - mousePosition.x) > Math.abs(bars[curBar].notes[note].xPos - mousePosition.x) && markers[uIndex].extended) {
-        markers[uIndex].extended=false;
 
-        curNote=note;
+    if (Math.abs(markers[uIndex].xPos - mousePosition.x) > Math.abs(bars[curBar].notes[note].xPos - mousePosition.x) && markers[uIndex].extended) {
+        markers[uIndex].extended = false;
+
+        curNote = note;
 
         updateCurMarker();
         generateAll();
         return;
     }
 
-    if(markers[uIndex].extended) return;
+    if (markers[uIndex].extended) return;
 
-    curNote=note;
-    
+    curNote = note;
+
 
     restoreCanvas();
+    drawSelected();
     updateCurMarker();
     drawMarker({ headerOffset: iPages[curIPage].headerOffset });
 }
 
 function mouseVertical(mousePosition) {
-    var v=0;
-    var ogLine=curLine;
+    var v = 0;
+    var ogLine = curLine;
 
-    while(true) {
-        if(mousePosition.y>markers[uIndex].yPos+26) v=1;
-        else if(mousePosition.y<markers[uIndex].yPos) v=-1;
+    while (true) {
+        if (mousePosition.y > markers[uIndex].yPos + 26) v = 1;
+        else if (mousePosition.y < markers[uIndex].yPos) v = -1;
         else break;
 
         temporaryChangePitch(v);
 
-        if(markers[uIndex].y===6) {
-            if(lines[curLine+1] && calculateYLine(curLine+1, iPages[curIPage].headerOffset)+(curLine+1)*144<mousePosition.y) {
+        if (markers[uIndex].y === 6) {
+            if (lines[curLine + 1] && calculateYLine(curLine + 1, iPages[curIPage].headerOffset) + (curLine + 1) * 144 < mousePosition.y) {
                 moveMouseToLine(1, mousePosition);
             } else break;
 
-            if(bars[curBar].line===ogLine) break;
+            if (bars[curBar].line === ogLine) break;
 
-            ogLine=bars[curBar].line;
+            ogLine = bars[curBar].line;
             curNote = getClosestNote(mousePosition.x, curBar);
-            markers[uIndex].extended=false;
-        } else if(markers[uIndex].y===-17) {
-            if(lines[curLine-1] && calculateYLine(curLine-1, iPages[curIPage].headerOffset)+(curLine)*144>mousePosition.y) {
+            markers[uIndex].extended = false;
+        } else if (markers[uIndex].y === -17) {
+            if (lines[curLine - 1] && calculateYLine(curLine - 1, iPages[curIPage].headerOffset) + (curLine) * 144 > mousePosition.y) {
                 moveMouseToLine(-1, mousePosition);
             } else break;
 
-            if(bars[curBar].line===ogLine) break;
+            if (bars[curBar].line === ogLine) break;
 
-            ogLine=bars[curBar].line;
+            ogLine = bars[curBar].line;
             curNote = getClosestNote(mousePosition.x, curBar);
-            markers[uIndex].extended=false;
+            markers[uIndex].extended = false;
         }
     }
-    
-    if(v!==0) {
+
+    if (v !== 0) {
         restoreCanvas();
-	    sendAndUpdateMarker();
-	    drawMarker({ headerOffset: iPages[curIPage].headerOffset });
+        drawSelected();
+        sendAndUpdateMarker();
+        drawMarker({ headerOffset: iPages[curIPage].headerOffset });
     }
 }
 
 function moveMouseToLine(direction, mousePosition) {
-    for(var bar=curBar+direction; bar>=0 && bar<bars.length; bar+=direction) {
-        if(bars[bar].line!==curLine && bars[bar].initPos<=mousePosition.x && bars[bar].xPos>=mousePosition.x){
-            curNote=0;
-            curBar=bar;
-            curLine=bars[bar].line;
+    for (var bar = curBar + direction; bar >= 0 && bar < bars.length; bar += direction) {
+        if (bars[bar].line !== curLine && bars[bar].initPos <= mousePosition.x && bars[bar].xPos >= mousePosition.x) {
+            curNote = 0;
+            fillBar({ bar: curBar });
+            curBar = bar;
+            curLine = bars[bar].line;
             break;
         }
     }
@@ -160,5 +188,15 @@ function moveMouseToLine(direction, mousePosition) {
 }
 
 function clickMouse() {
-    enterNotes();
+    if (insertionTool) {
+        enterNotes();
+    } else if (bars[curBar].notes[curNote]) {
+        selectNote(curNote, curBar, curIPage, y);
+
+        restoreCanvas();
+        drawSelected();
+        drawMarker({ headerOffset: iPages[curIPage].headerOffset });
+    }
+
+
 }

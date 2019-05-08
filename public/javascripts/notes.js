@@ -74,7 +74,10 @@ function getAccidentalFromBar(bars, barP, sP, acc, pos) {
 
 function placeNote(args) { // eslint-disable-line no-unused-vars
 	var realPosition = ((args.line+1) * 144 - 2 ) + args.pos * 8;
-	if(args.isSpace) realPosition=((args.line+1) * 144) - 48;
+	if(args.isSpace)  {
+		realPosition=((args.line+1) * 144) - 48;
+		args.pos=3;
+	}
 	var xPos = 0;
 	var noteValue = 71;
 	if(args.iPage==1)noteValue-=12;
@@ -122,6 +125,7 @@ function placeNote(args) { // eslint-disable-line no-unused-vars
 		lBars[barP].notes[noteP].noteGroups=noteGroupOrder;
 	}
 	note = lBars[barP].notes[noteP];
+	
 	var inverse;
 	for(var nG=0; nG<note.noteGroups.length; nG++) {
 		if(nG===0) inverse = note.noteGroups[0].pos;
@@ -161,11 +165,11 @@ function hideAccidental(nG, hide) {
 
 function getNote(note, y) {
 	//see if we are on a note, and selects the note if we are on one.
-	var n = null;
+	var n = -1;
 	for(var noteGroup=0; noteGroup<note.noteGroups.length; noteGroup++) {
 		if(note.noteGroups[noteGroup].pos===y+2) {
 			
-			n=note.noteGroups[noteGroup];
+			n=noteGroup;
 			break;
 		}
 	}
@@ -235,18 +239,19 @@ function changeAccidental(args) { // eslint-disable-line no-unused-vars
 	
 	if(args.note<bar.notes.length && !bar.notes[args.note].isSpace) {
 		var n = getNote(bar.notes[args.note], args.y);
+		var objNG = bar.notes[args.note].noteGroups[n];
 
 		//if we found a note then
-		if(n!==null) {
+		if(objNG!==null) {
 			
 			//we change it's value
-			n.accidental += args.value;
-			if(n.accidental>1) n.accidental=1;
-			else if(n.accidental<-1) n.accidental=-1;
+			objNG.accidental += args.value;
+			if(objNG.accidental>1) objNG.accidental=1;
+			else if(objNG.accidental<-1) objNG.accidental=-1;
 			else {
-				determineAccFromBar(bar,null, n, args.note);
+				determineAccFromBar(bar,null, objNG, args.note);
 
-				determineAccFromNotes(bar,null, n, args.note);
+				determineAccFromNotes(bar,null, objNG, args.note);
 			}
 
 			getAccWidth(args.note, bar);

@@ -99,6 +99,7 @@ function markerOutOfBounds() {  // eslint-disable-line no-unused-vars
 function restoreCanvas() { // eslint-disable-line no-unused-vars
 	ctx.clearRect(0, 0, c.width, 100000);
 	ctx.drawImage(savedCanvas, 0, scrollValue);
+	
 }
 
 function debounce(func, wait, immediate) {

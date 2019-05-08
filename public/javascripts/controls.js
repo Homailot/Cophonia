@@ -35,6 +35,9 @@ function deleteNote(args) {
 				result = getTied(bars, args.bar, args.note - 1, objNG);
 				result.tiesToNG.tiesTo = false;
 			}
+			if (selectedNotes[0] && selectedNotes[0].iPage === args.iPage && selectedNotes[0].bar === args.bar && selectedNotes[0].note === args.note && selectedNotes[0].pos == args.y) {
+				delete selectedNotes[0];
+			}
 			bars[args.bar].notes[args.note].noteGroups.splice(nGD, 1);
 
 			if (bars[args.bar].notes[args.note].noteGroups.length === 0) {
@@ -45,6 +48,7 @@ function deleteNote(args) {
 			}
 		} else {
 			bars[args.bar].notes.splice(args.note, 1);
+			delete selectedNotes[0];
 			if (args.note !== 0 && args.note == curNote && args.iPage == curIPage && args.bar === curBar) {
 				curNote--;
 			}
@@ -87,6 +91,9 @@ function deleteBar(args) {
 
 		//removes the bar from the current array and effectively deletes it
 		bars.splice(args.bar, 1);
+		if (selectedNotes[0] && selectedNotes[0].bar === args.bar && selectedNotes[0].iPage === args.iPage) {
+			delete selectedNotes[0];
+		}
 
 
 		lines[args.line].bars -= 1;
@@ -96,19 +103,27 @@ function deleteBar(args) {
 
 
 		if (lines[args.line].bars === 0) lines.splice(args.line, 1);
-		if (curIPage === args.iPage && curBar >= bars.length) {
-			curBar--;
-			tBar--;
+		if (curIPage === args.iPage) {
+			if (curBar >= bars.length) {
+				curBar--;
+				tBar--;
+			}
+
+
+			if (curBar === args.bar) {
+				markers[uIndex].extended = false;
+				curNote = 0;
+			}
+
+			selectNote(curNote, curBar, curIPage, y);
 		}
-		if (curBar === args.bar) {
-			markers[uIndex].extended = false;
-			curNote = 0;
-		}
+
 
 		//if the bar before is not in the curentLine then the current line is decreased.
 		if (line !== 0 && args.iPage === curIPage && curBar === tBar && bars[tBar].line < curLine) {
 			curLine--;
 		}
+
 	}
 
 	sendAndUpdateMarker();
@@ -125,10 +140,8 @@ function moveLeft() {
 
 			markers[uIndex].extended = false;
 			generateAll();
-		} else {
-			restoreCanvas();
-			sendAndUpdateMarker();
-			drawMarker({ headerOffset: iPages[curIPage].headerOffset });
+
+			return;
 		}
 		// eslint-disable-next-line brace-style
 	}
@@ -156,11 +169,13 @@ function moveLeft() {
 		curBar--;
 		curNote = bars[curBar].notes.length - 1;
 		if (curNote < 0) curNote = 0;
-
-		restoreCanvas();
-		sendAndUpdateMarker();
-		drawMarker({ headerOffset: iPages[curIPage].headerOffset });
 	}
+	selectNote(curNote, curBar, curIPage, y);
+
+	restoreCanvas();
+	drawSelected();
+	sendAndUpdateMarker();
+	drawMarker({ headerOffset: iPages[curIPage].headerOffset });
 }
 
 function moveRight(createBar) {
@@ -174,7 +189,6 @@ function moveRight(createBar) {
 	//if we"ve reached the end, meaning the bar was extended or when the sum of the duration of the notes matches the time signature
 	if (curNote === bars[curBar].notes.length || (sum === bars[curBar].upperSig / bars[curBar].lowerSig && curNote + 1 === bars[curBar].notes.length)) {
 		//if it was extended, it de-extends
-		if (curBar + 1 < bars.length && bars[curBar + 1].line !== bars[curBar].line && !createBar) return;
 
 		if (markers[uIndex].extended) {
 
@@ -183,29 +197,27 @@ function moveRight(createBar) {
 		}
 
 		//creates a new bar if there are no more bars
-		if (createBar || curBar + 1 < bars.length) {
-			if (bars[curBar].notes.length === 0) {
-				var lInformation = {
-					functionName: "placeNote",
-					args: {
-						iPage: curIPage,
-						bar: curBar, note: 0, duration: 1,
-						line: curLine, pos: 0, isSpace: true, newGroup: false, fullRest: true
-					},
-					generate: true
-				};
-				gen = true;
-				placeNote(lInformation.args);
-				sendData(JSON.stringify(lInformation));
-			} else {
-				fillBar({ bar: curBar });
-			}
-			curBar++;
-			curNote = 0;
+		if (bars[curBar].notes.length === 0) {
+			var lInformation = {
+				functionName: "placeNote",
+				args: {
+					iPage: curIPage,
+					bar: curBar, note: 0, duration: 1,
+					line: curLine, pos: 0, isSpace: true, newGroup: false, fullRest: true
+				},
+				generate: true
+			};
+			gen = true;
+			placeNote(lInformation.args);
+			sendData(JSON.stringify(lInformation));
+		} else {
+			fillBar({ bar: curBar });
 		}
+		curBar++;
+		curNote = 0;
 
 
-		if (curBar === bars.length && createBar) {
+		if (curBar === bars.length) {
 			var information = {
 				functionName: "newBar",
 				args: {
@@ -231,11 +243,12 @@ function moveRight(createBar) {
 
 		//changes the current line if the current bar is in another line
 		if (bars[curBar].line !== curLine) curLine++;
-
+		selectNote(curNote, curBar, curIPage, y);
 		sendAndUpdateMarker();
 		if (gen) generateAll();
 		else {
 			restoreCanvas();
+			drawSelected();
 			drawMarker({ headerOffset: iPages[curIPage].headerOffset });
 		}
 
@@ -263,7 +276,9 @@ function moveRight(createBar) {
 			Marker.xPos = bars[curBar].notes[curNote + 1].xPos;
 
 			curNote++;
+			selectNote(curNote, curBar, curIPage, y);
 			restoreCanvas();
+			drawSelected();
 			sendAndUpdateMarker();
 			drawMarker({ headerOffset: iPages[curIPage].headerOffset });
 		}
@@ -310,9 +325,10 @@ function changePitch(pitch) {
 	y += pitch;
 	if (y > 6) y = 6;
 	if (y < -17) y = -17;
-
+	selectNote(curNote, curBar, curIPage, y);
 
 	restoreCanvas();
+	drawSelected();
 	sendAndUpdateMarker();
 	drawMarker({ headerOffset: iPages[curIPage].headerOffset });
 }
@@ -366,6 +382,8 @@ function setMarkerAndSend(isSpace, newGroup) {
 	};
 	placeNote(information.args);
 	sendData(JSON.stringify(information));
+	selectNote(curNote, curBar, curIPage, y);
+	console.log(curNote);
 	generateAll();
 }
 
@@ -401,10 +419,24 @@ function enterNotes() {
 	if (curNote < bars[curBar].notes.length) {
 		if (!bars[curBar].notes[curNote].isSpace) {
 			for (var n = 0; n < bars[curBar].notes[curNote].noteGroups.length; n++) {
-				if (bars[curBar].notes[curNote].noteGroups[n].pos === y + 2) return;
+				if (bars[curBar].notes[curNote].noteGroups[n].pos === y + 2) {
+					if (selectedNotes[0] && selectedNotes[0].bar === curBar && selectedNotes[0].note === curNote && selectedNotes[0].pos === y) {
+						delete selectedNotes[0];
+					} else {
+						selectNote(curNote, curBar, curIPage, y);
+
+					}
+
+					restoreCanvas();
+					drawSelected();
+					drawMarker({ headerOffset: iPages[curIPage].headerOffset });
+					return;
+
+				}
 			}
 
 			setMarkerAndSend(false, true);
+
 			return;
 		}
 	}
@@ -642,25 +674,25 @@ document.addEventListener("keydown", function (event) {
 				event.preventDefault();
 				break;
 			case "Digit1":
-				menuDuration(0);
+				menuDuration(0, true);
 				break;
 			case "Digit2":
-				menuDuration(1);
+				menuDuration(1, true);
 				break;
 			case "Digit3":
-				menuDuration(2);
+				menuDuration(2, true);
 				break;
 			case "Digit4":
-				menuDuration(3);
+				menuDuration(3, true);
 				break;
 			case "Digit5":
-				menuDuration(4);
+				menuDuration(4, true);
 				break;
 			case "Digit6":
-				menuDuration(5);
+				menuDuration(5, true);
 				break;
 			case "Digit7": {
-				menuDuration(6);
+				menuDuration(6, true);
 				break;
 			}
 			case "KeyN":
@@ -723,6 +755,7 @@ document.addEventListener("keydown", function (event) {
 					clearTimeout(time[j]);
 				}
 				restoreCanvas(); playing = false;
+				drawSelected();
 				generateAll();
 				break;
 			case "ShiftLeft":

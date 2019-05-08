@@ -30,12 +30,14 @@ var curDuration = 0.5; // eslint-disable-line no-unused-vars
 var curLine = 0; // eslint-disable-line no-unused-vars
 var extended = false; // eslint-disable-line no-unused-vars
 var markers=[];
+var selectedNotes=[];
 
 var time = []; // eslint-disable-line no-unused-vars
 var scrollValue=0; // eslint-disable-line no-unused-vars
 var accidentalOrder = [4, 1, 5, 2, 6, 3, 7]; // eslint-disable-line no-unused-vars
 var gDurations = [1, 0.5, 0.25, 0.125, 0.0625, 0.03125, 0.015625];
 var dots = [3, 3, 3, 3, 2, 1, 0];
+var insertionTool=true;
 
 function sendJSON(args) {
 	var inf={
@@ -81,8 +83,6 @@ function getJSON(args) {
 		generate: false
 	};
 	sendData(JSON.stringify(mInformation));
-	Mouse.lastLeft=markers[uIndex].xPos;
-	Mouse.lastRight=markers[uIndex].xPos;
 
 	generateAll();
 }
@@ -147,8 +147,6 @@ function start(createNew) {
 		colorI=0;
 		bars=iPages[curIPage].bars;
 		lines = iPages[curIPage].lines;
-		Mouse.lastLeft=markers[uIndex].xPos;
-		Mouse.lastRight=markers[uIndex].xPos;
 	
 		generateAll();
 	} else {
