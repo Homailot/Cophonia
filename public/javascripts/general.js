@@ -98,5 +98,21 @@ function markerOutOfBounds() {  // eslint-disable-line no-unused-vars
 
 function restoreCanvas() { // eslint-disable-line no-unused-vars
 	ctx.clearRect(0, 0, c.width, 100000);
-	ctx.drawImage(savedCanvas, -0.5, -0.5+scrollValue);
+	ctx.drawImage(savedCanvas, 0, scrollValue);
+	
+}
+
+function debounce(func, wait, immediate) {
+	var timeout;
+	return function() {
+		var context = this, args = arguments;
+		var later = function() {
+			timeout = null;
+			if (!immediate) func.apply(context, args);
+		};
+		var callNow = immediate && !timeout;
+		clearTimeout(timeout);
+		timeout = setTimeout(later, wait);
+		if (callNow) func.apply(context, args);
+	};
 }

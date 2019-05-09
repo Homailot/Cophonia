@@ -195,7 +195,7 @@ function fillWithTies(note, bars, bar, diff, iPage, n) {
 	
 	lDiff -= diff;
 	while (lDiff > 0) {
-		var inf = {
+		inf = {
 			upperSig: bars[bar].upperSig,
 			lowerSig: bars[bar].lowerSig,
 			cS: false,
@@ -288,6 +288,15 @@ function moveExtraNotes(args) {
 			noteDuration = getNoteDuration(ogNotes[note]);
 		}
 		durationAcum += noteDuration;
+
+		for(var nG=0; nG<ogNotes[note].noteGroups.length; nG++) {
+			var objNG=ogNotes[note].noteGroups[nG];
+			
+			if (objNG.tiesTo !== false) {
+				objNG.tiesTo=false;
+				objNG.tiedTo=false;
+			}
+		}
 		if (durationAcum > maxDuration) {
 			movedNote = ogNotes[note];
 
@@ -336,12 +345,17 @@ function moveExtraNotes(args) {
 		} else {
 			movedNote = ogNotes[note];
 			bars[newBarI].notes.push(movedNote);
+			
 		}
 
 		if (curIPage === args.iPage && curBar === args.bar && curNote === oldNote) {
 			curBar = newBarI;
 			curNote = newNoteI;
 			curLine = bars[newBarI].line;
+		}
+
+		if(selectedNotes[0] && selectedNotes[0].iPage ===args.iPage) {
+			delete selectedNotes[0];
 		}
 		setNoteLines(bars, newBarI);
 		
@@ -430,6 +444,17 @@ function fillBar(args) {
 	var duration = 1;
 	var sum = 0;
 	if (totalTime === requiredTime) return;
+
+	var lastNote = bars[args.bar].notes.length-1;
+
+	for (var nG = 0; nG < bars[args.bar].notes[lastNote].noteGroups.length; nG++) {
+		var objNG = bars[args.bar].notes[lastNote].noteGroups[nG];
+		if (objNG.tiesTo !== false) {
+			result = getTied(bars, args.bar, lastNote + 1, objNG);
+			result.tiesToNG.tiedTo = false;
+			objNG.tiesTo = false;
+		}
+	}
 
 	for (note = 0; note < bars[args.bar].notes.length; note++) {
 		sum += getNoteDuration(bars[args.bar].notes[note]);

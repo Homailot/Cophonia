@@ -3,9 +3,9 @@
 var uIndex = 0;
 var tempIndex;
 // This client receives a message
-var peerConnLocal=[];
+var peerConnLocal = [];
 var peerConnRemote;
-var dataChannel=[];
+var dataChannel = [];
 
 var configuration = {
 	"iceServers": [{
@@ -17,20 +17,34 @@ var isInitiator;
 var clientIdG;
 var idToRespond;
 var curIndex;
-var started=false;
-var colors=["#00FF3C", "#C50F1F", "#0037DA", "#881798", "#3A96DD", "#CCCCCC", "#767676", "#C19C00"];
+var started = false;
+var colors = ["#00FF3C", "#C50F1F", "#0037DA", "#881798", "#3A96DD", "#CCCCCC", "#767676", "#C19C00"];
 
-var socket = io.connect();
+var socket;
+function waitStart() {
+	var starting = false;
 
-socket.on("getRoom", function() {
-	setTimeout(startConn, 200);
-});
+	for (var channel in dataChannel) {
+		starting = true;
+
+		if (dataChannel[channel].readyState !== "open") {
+			setTimeout(function () { waitStart(); }, 300);
+			starting = false;
+			return;
+		}
+	}
+
+	if (starting) {
+		start(false);
+		started = true;
+	}
+}
 
 function startConn() {
 	peerConnLocal = [];
 	dataChannel = [];
-	markers= [];
-	if(window.room === undefined)window.room = prompt("Enter room name:");
+	markers = [];
+	if (window.room === undefined) window.room = prompt("Enter room name:");
 
 	if (room !== "") {
 		socket.emit("create or join", room);
@@ -38,90 +52,81 @@ function startConn() {
 	}
 }
 
-socket.on("ipaddr", function (ipaddr) {
-	//console.log("Server IP address is: " + ipaddr);
-	// updateRoomURL(ipaddr);
-});
+document.addEventListener('DOMContentLoaded', function () {
+	socket=io.connect();
 
-socket.on("created", function (room, clientId) {
-	//console.log("Created room", room, "- my client ID is", clientId);
-    isInitiator = true;
-	clientIdG = clientId;
-	uIndex=clientId;
-	start(true);
-	started=true;
-});
+	socket.on("getRoom", function () {
+		setTimeout(startConn, 200);
+	});
 
-socket.on("joined", function (idToSend, room, clientId, index) {
-	//console.log("This peer has joined room", room, "with client ID", clientId);
-	isInitiator = false;
-	uIndex = clientId;
-    createPeerConnectionLocal(idToSend, isInitiator, configuration);
-	clientIdG=clientId;
-});
+	
 
-socket.on("reload", function(room) {
-	console.log("reloading");
-	peerConnLocal = [];
-	dataChannel = [];
-	markers= [];
-	socket.emit("create or join", room);
-});
+	socket.on("ipaddr", function (ipaddr) {
+		//console.log("Server IP address is: " + ipaddr);
+		// updateRoomURL(ipaddr);
+	});
 
-function waitStart() {
-	var starting = false;
+	socket.on("created", function (room, clientId) {
+		//console.log("Created room", room, "- my client ID is", clientId);
+		isInitiator = true;
+		clientIdG = clientId;
+		uIndex = clientId;
+		start(true);
+		started = true;
+	});
 
-	for(var channel in dataChannel) {
-		starting=true;
+	socket.on("joined", function (idToSend, room, clientId, index) {
+		//console.log("This peer has joined room", room, "with client ID", clientId);
+		isInitiator = false;
+		uIndex = clientId;
+		createPeerConnectionLocal(idToSend, isInitiator, configuration);
+		clientIdG = clientId;
+	});
 
-		if(dataChannel[channel].readyState!=="open") {
-			setTimeout(function() {waitStart();}, 300);
-			starting=false;
-			return;
-		}
-	}
+	socket.on("reload", function (room) {
+		console.log("reloading");
+		peerConnLocal = [];
+		dataChannel = [];
+		markers = [];
+		socket.emit("create or join", room);
+	});
 
-	if(starting){
-		start(false);
-		started=true;
-	} 
-}
+	socket.on("start", function () {
 
-socket.on("start", function() {
+		setTimeout(function () { waitStart(); }, 300);
+	});
 
-	setTimeout(function() {waitStart();}, 300);
-});
+	socket.on("full", function (room) {
+		alert("Room " + room + " is full. We will create a new room for you.");
+		window.location.hash = "";
+		window.location.reload();
+	});
 
-socket.on("full", function (room) {
-	alert("Room " + room + " is full. We will create a new room for you.");
-	window.location.hash = "";
-	window.location.reload();
-});
+	socket.on("ready", function (room, socketId) {
+		//console.log("Socket is ready");
+		createPeerConnectionRemote(isInitiator, configuration, socketId);
+	});
 
-socket.on("ready", function (room, socketId) {
-    //console.log("Socket is ready");
-	createPeerConnectionRemote(isInitiator, configuration, socketId);
-});
+	socket.on("disconnect", function () {
+		console.log("disconnected");
+	});
 
-socket.on("disconnect", function() {
-	console.log("disconnected");
-});
+	socket.on("log", function (array) {
+		//console.log.apply(console, array);
+	});
 
-socket.on("log", function (array) {
-	//console.log.apply(console, array);
-});
-
-socket.on("message", function (message) {
-	//console.log("Client received message:", message);
-	signalingMessageCallbackLocal(message);
-});
+	socket.on("message", function (message) {
+		//console.log("Client received message:", message);
+		signalingMessageCallbackLocal(message);
+	});
+}, false); 
 
 function sendMessage(message) {
 	socket.emit("broadcast", message, window.room);
 }
 
 function sendPrivateMessage(message) {
-    socket.emit("private", message);
+	socket.emit("private", message);
 }
 
 function iceSuccess() {
@@ -130,12 +135,12 @@ function iceSuccess() {
 function signalingMessageCallbackLocal(message, dest) {
 	if (message.type === "offer") {
 		//console.log("Got offer. Sending answer to peer.");
-        peerConnLocal[message.sId].setRemoteDescription(message.desc).then(function() {}, logError);
+		peerConnLocal[message.sId].setRemoteDescription(message.desc).then(function () { }, logError);
 		peerConnLocal[message.sId].createAnswer().then(onRemoteSessionCreated.bind(null, message.sId), logError);
 
 	} else if (message.type === "answer") {
 		//console.log("Got answer.");
-		peerConnLocal[message.sId].setRemoteDescription(message.desc).then( function () { },
+		peerConnLocal[message.sId].setRemoteDescription(message.desc).then(function () { },
 			logError);
 
 	} else if (message.type === "candidate") {
@@ -156,22 +161,22 @@ function createPeerConnectionRemote(isInitiator, config, id) {
 				type: "candidate",
 				label: event.candidate.sdpMLineIndex,
 				mid: event.candidate.sdpMid,
-                candidate: event.candidate.candidate,
-                id: id,
-                sId: clientIdG
+				candidate: event.candidate.candidate,
+				id: id,
+				sId: clientIdG
 			});
 		}
 	};
 
-	peerConnLocal[id].oniceconnectionstatechange = function(ev) {
+	peerConnLocal[id].oniceconnectionstatechange = function (ev) {
 
-		if(peerConnLocal[id].iceConnectionState==='disconnected' || peerConnLocal[id].iceConnectionState==='failed') {
+		if (peerConnLocal[id].iceConnectionState === 'disconnected' || peerConnLocal[id].iceConnectionState === 'failed') {
 			delete markers[id];
 			peerConnLocal[id].close();
 
 			generateAll();
-		}else if(peerConnLocal[id].iceConnectionState==='closed') {
-			if(dataChannel[id]) {
+		} else if (peerConnLocal[id].iceConnectionState === 'closed') {
+			if (dataChannel[id]) {
 				dataChannel[id].close();
 			} else {
 				delete peerConnLocal[id];
@@ -179,8 +184,8 @@ function createPeerConnectionRemote(isInitiator, config, id) {
 			}
 		}
 	};
-    
-    //console.log("Creating Data Channel");
+
+	//console.log("Creating Data Channel");
 	peerConnLocal[id].ondatachannel = function (event) {
 		// console.log("ondatachannel:", event.channel);
 		dataChannel[id] = event.channel;
@@ -202,22 +207,22 @@ function createPeerConnectionLocal(id, isInitiator, config) {
 				type: "candidate",
 				label: event.candidate.sdpMLineIndex,
 				mid: event.candidate.sdpMid,
-                candidate: event.candidate.candidate,
-                id: id,
-                sId: clientIdG
+				candidate: event.candidate.candidate,
+				id: id,
+				sId: clientIdG
 			});
 		}
 	};
 
-	peerConnLocal[id].oniceconnectionstatechange = function(ev) {
-		
-		if(peerConnLocal[id].iceConnectionState==='disconnected' || peerConnLocal[id].iceConnectionState==='failed') {
+	peerConnLocal[id].oniceconnectionstatechange = function (ev) {
+
+		if (peerConnLocal[id].iceConnectionState === 'disconnected' || peerConnLocal[id].iceConnectionState === 'failed') {
 			delete markers[id];
 			peerConnLocal[id].close();
 
 			generateAll();
-		}else if(peerConnLocal[id].iceConnectionState==='closed') {
-			if(dataChannel[id]) {
+		} else if (peerConnLocal[id].iceConnectionState === 'closed') {
+			if (dataChannel[id]) {
 				dataChannel[id].close();
 				//tryReload();
 			} else {
@@ -227,8 +232,8 @@ function createPeerConnectionLocal(id, isInitiator, config) {
 		}
 	};
 
-    
-    // var i = dataChannel.push( peerConnLocal[id].createDataChannel("musicTransfer"))-1;
+
+	// var i = dataChannel.push( peerConnLocal[id].createDataChannel("musicTransfer"))-1;
 	// onDataChannelCreated(dataChannel[i]);
 	dataChannel[id] = peerConnLocal[id].createDataChannel("musicTransfer");
 	onDataChannelCreated(id);
@@ -239,23 +244,23 @@ function createPeerConnectionLocal(id, isInitiator, config) {
 // function createPeerConnectionRemote(isInitiator, config) {
 // 	//console.log("Creating Peer connection as initiator?", isInitiator, "config:",
 // 	//	config);
-	
+
 
 // 	// send any ice candidates to the other peer
-	
 
-    
-    
+
+
+
 // }
 
 function onLocalSessionCreated(index, desc) {
-    //console.log("local session created:", desc);
-    
+	//console.log("local session created:", desc);
+
 	sendPrivateMessage({
-		type:"offer",
-        desc: desc,
-        sId: clientIdG,
-        id: index
+		type: "offer",
+		desc: desc,
+		sId: clientIdG,
+		id: index
 	});
 	peerConnLocal[index].setLocalDescription(desc);
 	// peerConnRemote.setRemoteDescription(desc);
@@ -267,20 +272,20 @@ function onLocalSessionCreated(index, desc) {
 }
 
 function onRemoteSessionCreated(index, desc) {
-    peerConnLocal[index].setLocalDescription(desc);
-    sendPrivateMessage({
-        type: "answer",
-        desc: desc,
-        sId: clientIdG,
-        id: index
-    });
+	peerConnLocal[index].setLocalDescription(desc);
+	sendPrivateMessage({
+		type: "answer",
+		desc: desc,
+		sId: clientIdG,
+		id: index
+	});
 }
 
 function onDataChannelCreated(channel) {
 	//console.log("onDataChannelCreated:", channel);
 
 	dataChannel[channel].onopen = function () {
-		
+
 	};
 
 	dataChannel[channel].onclose = function () {
@@ -297,18 +302,18 @@ function onDataChannelCreated(channel) {
 function tryReload() {
 	var cnt = 0;
 	console.log("Socket is connected? " + socket.connected);
-	
-	if(socket.connected===false) {
+
+	if (socket.connected === false) {
 		setTimeout(tryReload, 200);
 		console.log("trying to reconnect");
 		return;
 	}
 
-	for(var c in peerConnLocal) {
+	for (var c in peerConnLocal) {
 		cnt++;
 	}
 
-	if(cnt===0) {
+	if (cnt === 0) {
 		socket.emit("check offline", room, 0);
 	}
 }
@@ -320,8 +325,8 @@ function receiveData(ev) {
 }
 
 function sendData(jsonFunction) {
-	for(var channel in dataChannel) {
-		if(!dataChannel[channel]) {
+	for (var channel in dataChannel) {
+		if (!dataChannel[channel]) {
 			logError("Connection has not been initiated. " +
 				"Get two peers in the same room first");
 			return;
@@ -336,7 +341,7 @@ function sendData(jsonFunction) {
 }
 
 function sendDataTo(jsonFunction, channel) {
-	if(!dataChannel[channel]) {
+	if (!dataChannel[channel]) {
 		logError("Connection has not been initiated. " +
 			"Get two peers in the same room first");
 		return;
@@ -371,3 +376,4 @@ function logError(err) {
 		console.warn(err.toString(), err);
 	}
 }
+

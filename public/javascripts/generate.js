@@ -603,6 +603,7 @@ function generateAll() { // eslint-disable-line no-unused-vars
 	saveCanvas();
 	ctx.translate(0, -totalYOffset);
 	ctx.translate(0, -headerOffset);	
+	drawSelected();
 	updateCurMarker();
 	updateAllXMarkers();
 	drawMarker({headerOffset: headerOffset});

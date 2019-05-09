@@ -10,19 +10,19 @@ function changeTimeSigPop(bar) { // eslint-disable-line no-unused-vars
 	sigSel.id = "upperSig";
 
 	var label = document.createElement("label");
-	label.innerHTML="Upper Number:";
-	label.for="upperSig";
+	label.innerHTML = "Upper Number:";
+	label.for = "upperSig";
 	formDiv.appendChild(label);
 	var option;
 
-	for(var num = 1; num<=32; num++) {
+	for (var num = 1; num <= 32; num++) {
 		option = document.createElement("option");
 		option.innerHTML = num;
-		option.value=num;
+		option.value = num;
 		sigSel.appendChild(option);
 	}
 
-	form.style.height="auto";
+	form.style.height = "auto";
 	formDiv.appendChild(sigSel);
 	form.appendChild(formDiv);
 
@@ -34,30 +34,30 @@ function changeTimeSigPop(bar) { // eslint-disable-line no-unused-vars
 	sigSel.id = "lowerSig";
 
 	label = document.createElement("label");
-	label.innerHTML="Lower Number:";
-	label.for="lowerSig";
+	label.innerHTML = "Lower Number:";
+	label.for = "lowerSig";
 	formDiv.appendChild(label);
 
-	for(var nums=1; nums<=32; nums*=2) {
+	for (var nums = 1; nums <= 32; nums *= 2) {
 		option = document.createElement("option");
 		option.innerHTML = nums;
-		option.value=nums;
+		option.value = nums;
 		sigSel.appendChild(option);
 	}
 
 	var p = document.createElement("p");
-	p.innerHTML="Warning, this operation may delete some notes on the measures selected";
+	p.innerHTML = "Warning, this operation may delete some notes on the measures selected";
 
 	formDiv.appendChild(sigSel);
-	formDiv.appendChild(p);	
+	formDiv.appendChild(p);
 	form.appendChild(formDiv);
-	
+
 	var submitButton = document.createElement("input");
 	submitButton.type = "button";
 	submitButton.classList.add("btn");
 	submitButton.classList.add("btn-primary");
 	submitButton.value = "Confirm";
-	submitButton.addEventListener("click", function() {
+	submitButton.addEventListener("click", function () {
 		var upperOptions = document.getElementById("upperSig").options;
 		var lowerOptions = document.getElementById("lowerSig").options;
 		var upperSelected = document.getElementById("upperSig").selectedIndex;
@@ -97,83 +97,83 @@ function changeKeyPop(bar) { // eslint-disable-line no-unused-vars
 	keySel.id = "keySel";
 
 	var label = document.createElement("label");
-	label.innerHTML="Key Signature:";
-	label.for="keySel";
+	label.innerHTML = "Key Signature:";
+	label.for = "keySel";
 	formDiv.appendChild(label);
 
 	var option = document.createElement("option");
 	option.innerHTML = "Cb (bbbbbbb)";
-	option.value="7:-1";
+	option.value = "7:-1";
 	keySel.appendChild(option);
 
 	option = document.createElement("option");
 	option.innerHTML = "Gb (bbbbbb)";
-	option.value="6:-1";
+	option.value = "6:-1";
 	keySel.appendChild(option);
 
-	option = document.createElement("option");	
+	option = document.createElement("option");
 	option.innerHTML = "Db (bbbbb)";
-	option.value="5:-1";
+	option.value = "5:-1";
 	keySel.appendChild(option);
 
-	option = document.createElement("option");	
+	option = document.createElement("option");
 	option.innerHTML = "Ab (bbbb)";
-	option.value="4:-1";
+	option.value = "4:-1";
 	keySel.appendChild(option);
 
-	option = document.createElement("option");	
+	option = document.createElement("option");
 	option.innerHTML = "Eb (bbb)";
-	option.value="3:-1";
+	option.value = "3:-1";
 	keySel.appendChild(option);
 
-	option = document.createElement("option");	
+	option = document.createElement("option");
 	option.innerHTML = "Bb (bb)";
-	option.value="2:-1";
+	option.value = "2:-1";
 	keySel.appendChild(option);
 
-	option = document.createElement("option");	
+	option = document.createElement("option");
 	option.innerHTML = "F (b)";
-	option.value="1:-1";
+	option.value = "1:-1";
 	keySel.appendChild(option);
 
-	option = document.createElement("option");	
+	option = document.createElement("option");
 	option.innerHTML = "C";
-	option.value="0:0";
+	option.value = "0:0";
 	keySel.appendChild(option);
 
-	option = document.createElement("option");	
+	option = document.createElement("option");
 	option.innerHTML = "G (#)";
-	option.value="1:1";
+	option.value = "1:1";
 	keySel.appendChild(option);
 
-	option = document.createElement("option");	
+	option = document.createElement("option");
 	option.innerHTML = "D (##)";
-	option.value="2:1";
+	option.value = "2:1";
 	keySel.appendChild(option);
 
-	option = document.createElement("option");	
+	option = document.createElement("option");
 	option.innerHTML = "A (###)";
-	option.value="3:1";
+	option.value = "3:1";
 	keySel.appendChild(option);
 
-	option = document.createElement("option");	
+	option = document.createElement("option");
 	option.innerHTML = "E (####)";
-	option.value="4:1";
+	option.value = "4:1";
 	keySel.appendChild(option);
 
-	option = document.createElement("option");	
+	option = document.createElement("option");
 	option.innerHTML = "B (#####)";
-	option.value="5:1";
+	option.value = "5:1";
 	keySel.appendChild(option);
 
-	option = document.createElement("option");	
+	option = document.createElement("option");
 	option.innerHTML = "F# (######)";
-	option.value="6:1";
+	option.value = "6:1";
 	keySel.appendChild(option);
 
-	option = document.createElement("option");	
+	option = document.createElement("option");
 	option.innerHTML = "C# (#######)";
-	option.value="7:1";
+	option.value = "7:1";
 	keySel.appendChild(option);
 
 	formDiv.appendChild(keySel);
@@ -184,7 +184,7 @@ function changeKeyPop(bar) { // eslint-disable-line no-unused-vars
 	submitButton.classList.add("btn");
 	submitButton.classList.add("btn-primary");
 	submitButton.value = "Confirm";
-	submitButton.addEventListener("click", function() {
+	submitButton.addEventListener("click", function () {
 		var index = document.getElementById("keySel").selectedIndex;
 		var options = document.getElementById("keySel").options;
 		var value = options[index].value;
@@ -215,32 +215,32 @@ function changeKeyPop(bar) { // eslint-disable-line no-unused-vars
 
 
 function openHTMLDialog(contents) {
-	if(document.getElementById("dialog")) {
+	if (document.getElementById("dialog")) {
 		var dc = document.getElementById("dialogContainer");
 		dc.removeChild(dc.childNodes[0]);
 		return;
-	} 
+	}
 	var dialog = document.createElement("div");
-	dialog.style.width= "600px";
+	dialog.style.width = "600px";
 	//dialog.style.minHeight = '200px';
 
-	for(var content = 0; content < contents.length; content++) {
+	for (var content = 0; content < contents.length; content++) {
 		dialog.appendChild(contents[content]);
 	}
-	
+
 	dialog.style.zIndex = 5;
 	dialog.style.position = "fixed";
 	dialog.style.backgroundColor = "#F9F7F7";
 	dialog.classList.add("rounded-top");
 	dialog.classList.add("shadow");
 	dialog.id = "dialog";
-	dialog.style.top = window.innerHeight+"px";
-	dialog.style.left = (window.innerWidth/2- 300) + "px";
+	dialog.style.top = window.innerHeight + "px";
+	dialog.style.left = (window.innerWidth / 2 - 300) + "px";
 
 	document.getElementById("dialogContainer").appendChild(dialog);
 
 
-	document.getElementById("dialog").style.height = document.getElementById("dialog").scrollHeight+"px";
+	document.getElementById("dialog").style.height = document.getElementById("dialog").scrollHeight + "px";
 	slideElement(document.getElementById("dialog"));
 }
 
@@ -253,5 +253,262 @@ function slideElement(content) {
 }
 
 function moveElement() {
-	curContent.style.top=(window.innerHeight-curContent.scrollHeight)+"px";
+	curContent.style.top = (window.innerHeight - curContent.scrollHeight) + "px";
+}
+
+function menuDuration(menu, isShortcut) {
+	if (checkPlay()) return;
+	for (var b = 0; b <= 3; b++) {
+		document.getElementById("bar" + b).classList.remove("focus");
+	}
+	barTool = false;
+
+	for (var m = 0; m <= 6; m++) {
+		if (menu === m) {
+			if (gDurations[m] === curDuration && insertionTool) {
+				document.getElementById("duration" + m).classList.remove("focus");
+				insertionTool = false;
+				return;
+			}
+			document.getElementById("duration" + m).classList.add("focus");
+			insertionTool = true;
+		} else {
+			document.getElementById("duration" + m).classList.remove("focus");
+		}
+	}
+	curDuration = gDurations[menu];
+	if (document.getElementById("dialog")) {
+		var dc = document.getElementById("dialogContainer");
+		dc.removeChild(dc.childNodes[0]);
+	}
+
+	if (!selectedNotes[0]) return;
+
+	var inf = {
+		functionName: "changeDuration",
+		args: {
+			note: selectedNotes[0].note,
+			duration: curDuration,
+			iPage: curIPage,
+			bar: selectedNotes[0].bar
+		},
+		generate: false
+	};
+	changeDuration(inf.args);
+	sendData(JSON.stringify(inf));
+}
+
+function menuAccidental(value) {
+	if (checkPlay()) return;
+	if (!selectedNotes[0]) return;
+
+	var inf = {
+		functionName: "changeAccidental",
+		args: {
+			bar: selectedNotes[0].bar,
+			note: selectedNotes[0].note,
+			y: selectedNotes[0].pos,
+			value: value,
+			iPage: curIPage
+		},
+		generate: true
+	};
+	changeAccidental(inf.args);
+	sendData(JSON.stringify(inf));
+
+	generateAll();
+}
+
+function menuDot() {
+	if (checkPlay()) return;
+	if (!selectedNotes[0]) return;
+
+	var inf = {
+		functionName: "augment",
+		args: {
+			bar: selectedNotes[0].bar,
+			note: selectedNotes[0].note,
+			value: 1,
+			iPage: curIPage
+		},
+		generate: true
+	};
+	if (ctrlPress) {
+		inf.args.value = -1;
+	}
+	augment(inf.args);
+	sendData(JSON.stringify(inf));
+
+	generateAll();
+}
+
+function menuTie() {
+	if (checkPlay()) return;
+	if (!selectedNotes[0]) return;
+
+	var n = getNote(bars[selectedNotes[0].bar].notes[selectedNotes[0].note], y);
+	var inf;
+
+	if (n !== -1 && bars[selectedNotes[0].bar].notes[selectedNotes[0].note].noteGroups[n].tiesTo !== false) {
+		inf = {
+			functionName: "deleteTie",
+			args: {
+				iPage: curIPage,
+				note: selectedNotes[0].note,
+				bar: selectedNotes[0].bar,
+				y: selectedNotes[0].pos
+			},
+			generate: true
+		};
+
+		deleteTie(inf.args);
+	} else {
+		inf = {
+			functionName: "tieBeat",
+			args: {
+				iPage: curIPage,
+				note: selectedNotes[0].note,
+				tieTo: selectedNotes[0].note + 1,
+				bar: selectedNotes[0].bar,
+				y: selectedNotes[0].pos
+			},
+			generate: true
+		};
+
+		tieBeat(inf.args);
+	}
+
+	sendData(JSON.stringify(inf));
+
+	generateAll();
+}
+
+function menuDeleteNote() {
+	if (checkPlay()) return;
+	if (!selectedNotes[0]) return;
+
+	var inf = {
+		functionName: "deleteNote",
+		args: {
+			bar: selectedNotes[0].bar,
+			note: selectedNotes[0].note,
+			iPage: curIPage,
+			duration: bars[selectedNotes[0].bar].notes[selectedNotes[0].note].duration,
+			line: curLine,
+			y: selectedNotes[0].pos + 2
+		},
+		generate: true
+	};
+	deleteNote(inf.args);
+	sendData(JSON.stringify(inf));
+
+
+	generateAll();
+}
+
+function menuInsert() {
+	if (checkPlay()) return;
+	if (!selectedNotes[0]) return;
+
+	var inf = {
+		functionName: "insertBeat",
+		args: {
+			iPage: curIPage,
+			bar: selectedNotes[0].bar, note: selectedNotes[0].note, duration: curDuration,
+			line: curLine, y: selectedNotes[0].pos + 2
+		},
+		generate: true
+	};
+
+	insertBeat(inf.args);
+	sendData(JSON.stringify(inf));
+	generateAll();
+}
+
+function menuAdd(menu) {
+	if (checkPlay()) return;
+	for (var m = 0; m <= 6; m++) {
+		document.getElementById("duration" + m).classList.remove("focus");
+	}
+	insertionTool = false;
+
+	for (var b = 0; b <= 3; b++) {
+		if (menu === b) {
+			if (barFunction === b && barTool) {
+				document.getElementById("bar" + b).classList.remove("focus");
+				barTool = false;
+				return;
+			}
+			document.getElementById("bar" + b).classList.add("focus");
+			barTool = true;
+		} else {
+			document.getElementById("bar" + b).classList.remove("focus");
+		}
+	}
+	if (document.getElementById("dialog")) {
+		var dc = document.getElementById("dialogContainer");
+		dc.removeChild(dc.childNodes[0]);
+	}
+
+	barFunction = menu;
+}
+
+function menuPlay() {
+	if (!checkPlay()) {
+		playingBar = 0;
+		playingNote = 0;
+		playingTime = 0;
+
+		for (var i = 0; i < time.length; i++) {
+			clearTimeout(time[i]);
+		}
+		var audioContext = new AudioContextFunc();
+		changeInstrument("https://surikov.github.io/webaudiofontdata/sound/0000_FluidR3_GM_sf2_file.js", "_tone_0000_FluidR3_GM_sf2_file", audioContext);
+
+	} else {
+		for (var j = 0; j < time.length; j++) {
+			clearTimeout(time[j]);
+		}
+		restoreCanvas(); playing = false;
+		drawSelected();
+		generateAll();
+	}
+}
+
+function menuIPage(skip) {
+	if (curIPage + skip < iPages.length && curIPage + skip >= 0) curIPage += skip;
+	curNote = 0;
+	bars = iPages[curIPage].bars;
+	lines = iPages[curIPage].lines;
+
+	if (curBar >= bars.length) {
+		curBar = bars.length - 1;
+	}
+	delete selectedNotes[0];
+	selectNote(curNote, curBar, curIPage, y);
+
+	markerOutOfBounds();
+	sendAndUpdateMarker();
+
+	generateAll();
+}
+
+function menuNewIPage() {
+	addIPage();
+	curIPage = iPages.length - 1;
+	inf = {
+		functionName: "recieveIPage",
+		args: {
+			iPage: iPages[curIPage]
+		},
+		generate: false
+	};
+	sendData(JSON.stringify(inf));
+	curNote = 0;
+	bars = iPages[curIPage].bars;
+	lines = iPages[curIPage].lines;
+	selectNote(curNote, curBar, curIPage, y);
+	sendAndUpdateMarker();
+
+	generateAll();
 }

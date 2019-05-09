@@ -11,18 +11,9 @@ function changeInstrument(path,name, context){
 	});
 }
 
-window.onload = function () {
-	// setTimeout(function() {
-	// 	socket=io.connect();
-	// },200);
-};
-
-
 
 var c = document.getElementById("principal");
 var ctx = c.getContext("2d");
-c.width = window.innerWidth - 50;
-c.height = window.innerHeight - 20;
 ctx.translate(0.5, 0.5);
 var lastPos = 180;
 y=0;
@@ -39,12 +30,16 @@ var curDuration = 0.5; // eslint-disable-line no-unused-vars
 var curLine = 0; // eslint-disable-line no-unused-vars
 var extended = false; // eslint-disable-line no-unused-vars
 var markers=[];
+var selectedNotes=[];
 
 var time = []; // eslint-disable-line no-unused-vars
 var scrollValue=0; // eslint-disable-line no-unused-vars
 var accidentalOrder = [4, 1, 5, 2, 6, 3, 7]; // eslint-disable-line no-unused-vars
 var gDurations = [1, 0.5, 0.25, 0.125, 0.0625, 0.03125, 0.015625];
 var dots = [3, 3, 3, 3, 2, 1, 0];
+var insertionTool=true;
+var barTool=false;
+var barFunction=-1;
 
 function sendJSON(args) {
 	var inf={
@@ -90,13 +85,24 @@ function getJSON(args) {
 		generate: false
 	};
 	sendData(JSON.stringify(mInformation));
-
+	selectNote(curNote, curBar, curIPage, y);
 	generateAll();
 }
 
 function start(createNew) {
+	c=document.getElementById("principal");
 	//changeInstrument("https://surikov.github.io/webaudiofontdata/sound/0000_FluidR3_GM_sf2_file.js","_tone_0000_FluidR3_GM_sf2_file");
+	c.height = window.innerHeight-98;
+	c.width = window.innerWidth-70;
 
+	document.getElementById("principal").addEventListener('mousemove', debounce(function(event) {
+		if(!checkPlay()) checkMousePosition(event);
+	}, 8), false);
+	document.getElementById("principal").addEventListener('click', function(event) {
+		if(!checkPlay()) clickMouse();
+	}, false);
+	console.log("w");
+	
 	if(createNew) {
 		
 		lines.push(new Line());
@@ -144,7 +150,7 @@ function start(createNew) {
 		colorI=0;
 		bars=iPages[curIPage].bars;
 		lines = iPages[curIPage].lines;
-	
+		selectNote(curNote, curBar, curIPage, y);
 		generateAll();
 	} else {
 		colorI=0;
