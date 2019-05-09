@@ -51,6 +51,7 @@ function deleteNote(args) {
 			delete selectedNotes[0];
 			if (args.note !== 0 && args.note == curNote && args.iPage == curIPage && args.bar === curBar) {
 				curNote--;
+				selectNote(curNote, curBar, curIPage, y);
 			}
 		}
 
@@ -265,6 +266,7 @@ function moveRight(createBar) {
 			//this extends the bar, in other words, it pushes everything forward so the marker can be placed
 
 			markers[uIndex].extended = true;
+			delete selectedNotes[0];
 
 			curNote++;
 			sendAndUpdateMarker();
@@ -292,7 +294,7 @@ function insertBeat(args) {
 	//so that we don"t place a beat after we have extended, we check if the bar is extended
 	if (!args.extended) {
 		//if we aren"t at the first note of the bar or if we aren"t at the last note, the markers moves forward and everything with it
-		if ((args.note !== 0 || args.note < bars[args.bar].notes.length)) {
+		if (bars[args.bar].notes[note] && getSum(bars, args.bar)+curDuration<=bars[args.bar].upperSig/bars[args.bar].lowerSig) {
 			for (var nG = 0; nG < bars[args.bar].notes[args.note].noteGroups.length; nG++) {
 				var objNG = bars[args.bar].notes[args.note].noteGroups[nG];
 				if (objNG.tiesTo !== false) {
@@ -316,6 +318,8 @@ function insertBeat(args) {
 		};
 		placeNote(information.args);
 		sendAndUpdateMarker();
+
+		selectNote(curNote, curBar, curIPage, y);
 	}
 }
 
@@ -383,7 +387,6 @@ function setMarkerAndSend(isSpace, newGroup) {
 	placeNote(information.args);
 	sendData(JSON.stringify(information));
 	selectNote(curNote, curBar, curIPage, y);
-	console.log(curNote);
 	generateAll();
 }
 
@@ -420,16 +423,7 @@ function enterNotes() {
 		if (!bars[curBar].notes[curNote].isSpace) {
 			for (var n = 0; n < bars[curBar].notes[curNote].noteGroups.length; n++) {
 				if (bars[curBar].notes[curNote].noteGroups[n].pos === y + 2) {
-					if (selectedNotes[0] && selectedNotes[0].bar === curBar && selectedNotes[0].note === curNote && selectedNotes[0].pos === y) {
-						delete selectedNotes[0];
-					} else {
-						selectNote(curNote, curBar, curIPage, y);
-
-					}
-
-					restoreCanvas();
-					drawSelected();
-					drawMarker({ headerOffset: iPages[curIPage].headerOffset });
+					unselectNote();
 					return;
 
 				}
@@ -440,15 +434,6 @@ function enterNotes() {
 			return;
 		}
 	}
-
-
-	// markers[uIndex].extended = false;
-	// for(var marker in markers) {
-	// 	if(markers[marker].extended && curBar===markers[marker].bar && curNote===markers[marker].note && curIPage===markers[marker].page) {
-	// 		markers[marker].extended=false;	
-	// 		console.log("teste");
-	// 	} 
-	// }
 	setMarkerAndSend(false, false);
 }
 
@@ -520,7 +505,13 @@ document.addEventListener("keydown", function (event) {
 				generateAll();
 				break;
 			case "Enter":
-				enterNotes();
+				if(insertionTool) {
+					enterNotes();
+				} else {
+					console.log("hey");
+					unselectNote();
+				}
+				
 
 				break;
 			case "Backspace":
@@ -616,6 +607,8 @@ document.addEventListener("keydown", function (event) {
 					curNote = 0;
 					bars = iPages[curIPage].bars;
 					lines = iPages[curIPage].lines;
+					delete selectedNotes[0];
+					selectNote(curNote, curBar, curIPage, y);
 
 					markerOutOfBounds();
 					sendAndUpdateMarker();
@@ -651,6 +644,8 @@ document.addEventListener("keydown", function (event) {
 					curNote = 0;
 					bars = iPages[curIPage].bars;
 					lines = iPages[curIPage].lines;
+					delete selectedNotes[0];
+					selectNote(curNote, curBar, curIPage, y);
 
 					markerOutOfBounds();
 					sendAndUpdateMarker();
@@ -710,6 +705,7 @@ document.addEventListener("keydown", function (event) {
 					curNote = 0;
 					bars = iPages[curIPage].bars;
 					lines = iPages[curIPage].lines;
+					selectNote(curNote, curBar, curIPage, y);
 					sendAndUpdateMarker();
 				}
 

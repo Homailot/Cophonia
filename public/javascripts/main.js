@@ -83,7 +83,7 @@ function getJSON(args) {
 		generate: false
 	};
 	sendData(JSON.stringify(mInformation));
-
+	selectNote(curNote, curBar, curIPage, y);
 	generateAll();
 }
 
@@ -100,6 +100,7 @@ function start(createNew) {
 		if(!checkPlay()) clickMouse();
 	}, false);
 	console.log("w");
+	
 	if(createNew) {
 		
 		lines.push(new Line());
@@ -147,7 +148,7 @@ function start(createNew) {
 		colorI=0;
 		bars=iPages[curIPage].bars;
 		lines = iPages[curIPage].lines;
-	
+		selectNote(curNote, curBar, curIPage, y);
 		generateAll();
 	} else {
 		colorI=0;
@@ -160,5 +161,4 @@ function start(createNew) {
 		};
 		sendData(JSON.stringify(jInformation));
 	}
-	
 }

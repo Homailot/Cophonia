@@ -191,12 +191,19 @@ function clickMouse() {
     if (insertionTool) {
         enterNotes();
     } else if (bars[curBar].notes[curNote]) {
+        unselectNote();
+    }
+}
+
+function unselectNote() {
+    if (selectedNotes[0] && selectedNotes[0].bar === curBar && selectedNotes[0].note === curNote && selectedNotes[0].pos === y) {
+        delete selectedNotes[0];
+    } else {
         selectNote(curNote, curBar, curIPage, y);
 
-        restoreCanvas();
-        drawSelected();
-        drawMarker({ headerOffset: iPages[curIPage].headerOffset });
     }
 
-
+    restoreCanvas();
+    drawSelected();
+    drawMarker({ headerOffset: iPages[curIPage].headerOffset });
 }

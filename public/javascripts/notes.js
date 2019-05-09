@@ -93,7 +93,7 @@ function placeNote(args) { // eslint-disable-line no-unused-vars
 	var replacedPauseDuration=0;
 	
 	noteValue = getNoteValue(scalePos, sP, noteValue);
-	if(lBars[args.bar].notes[args.note] && lBars[args.bar].notes[args.note].isSpace) {
+	if(lBars[args.bar].notes[args.note] && lBars[args.bar].notes[args.note].isSpace && !args.isSpace) {
 		if(lBars[args.bar].notes[args.note].fullRest) {
 			replacedPauseDuration=lBars[barP].upperSig/lBars[barP].lowerSig;
 		} else {
@@ -112,7 +112,7 @@ function placeNote(args) { // eslint-disable-line no-unused-vars
 			lBars[barP].notes.splice(noteP, 0, note); 
 		} 
 		else if(sum+getNoteDuration(note)-replacedPauseDuration<=lBars[barP].upperSig/lBars[barP].lowerSig) {
-			if(lBars[args.bar].notes[args.note] && lBars[args.bar].notes[args.note].isSpace) {
+			if(lBars[args.bar].notes[args.note] && lBars[args.bar].notes[args.note].isSpace && !args.isSpace) {
 				lBars[barP].notes.splice(noteP, 1); 
 			}
 			lBars[barP].notes.splice(noteP, 0, note); 

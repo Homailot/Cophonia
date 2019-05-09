@@ -270,21 +270,17 @@ function menuDuration(menu, isShortcut) {
 			document.getElementById("duration" + m).classList.remove("focus");
 		}
 	}
+	curDuration = gDurations[menu];
 
 	if (!selectedNotes[0]) return;
-	curNote = selectedNotes[0].note;
-	curBar = selectedNotes[0].bar;
-	y = selectedNotes[0].pos;
-
-
-	curDuration = gDurations[menu];
+	
 	var inf = {
 		functionName: "changeDuration",
 		args: {
-			note: curNote,
+			note: selectedNotes[0].note,
 			duration: curDuration,
 			iPage: curIPage,
-			bar: curBar
+			bar: selectedNotes[0].bar
 		},
 		generate: false
 	};

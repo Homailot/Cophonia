@@ -343,6 +343,7 @@ function drawSelected() {
 			drawFigure(selectedNotes[0].bar, note);
 		} else {
 			var n = getNote(note, selectedNotes[0].pos);
+			if(n==-1) n=0;
 			drawIndividualHead(note, note.noteGroups, n, note.inverse);
 		}
 
