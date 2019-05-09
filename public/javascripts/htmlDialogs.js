@@ -257,6 +257,12 @@ function moveElement() {
 }
 
 function menuDuration(menu, isShortcut) {
+	if(checkPlay()) return;
+	for (var b = 0; b <= 3; b++) {
+		document.getElementById("bar" + b).classList.remove("focus");
+	}
+	barTool=false;
+
 	for (var m = 0; m <= 6; m++) {
 		if (menu === m) {
 			if (gDurations[m] === curDuration && insertionTool) {
@@ -271,6 +277,10 @@ function menuDuration(menu, isShortcut) {
 		}
 	}
 	curDuration = gDurations[menu];
+	if (document.getElementById("dialog")) {
+		var dc = document.getElementById("dialogContainer");
+		dc.removeChild(dc.childNodes[0]);
+	}
 
 	if (!selectedNotes[0]) return;
 	
@@ -289,6 +299,7 @@ function menuDuration(menu, isShortcut) {
 }
 
 function menuAccidental(value) {
+	if(checkPlay()) return;
 	if (!selectedNotes[0]) return;
 
 	var inf = {
@@ -309,6 +320,7 @@ function menuAccidental(value) {
 }
 
 function menuDot() {
+	if(checkPlay()) return;
 	if (!selectedNotes[0]) return;
 
 	var inf = {
@@ -331,6 +343,7 @@ function menuDot() {
 }
 
 function menuTie()  {
+	if(checkPlay()) return;
 	if (!selectedNotes[0]) return;
 
 	var n = getNote(bars[selectedNotes[0].bar].notes[selectedNotes[0].note], y);
@@ -371,6 +384,7 @@ function menuTie()  {
 }
 
 function menuDeleteNote() {
+	if(checkPlay()) return;
 	if (!selectedNotes[0]) return;
 
 	var inf = {
@@ -393,6 +407,7 @@ function menuDeleteNote() {
 }
 
 function menuInsert() {
+	if(checkPlay()) return;
 	if (!selectedNotes[0]) return;
 
 	var inf = {
@@ -408,4 +423,32 @@ function menuInsert() {
 	insertBeat(inf.args);
 	sendData(JSON.stringify(inf));
 	generateAll();
+}
+
+function menuAdd(menu) {
+	if(checkPlay()) return;
+	for (var m = 0; m <= 6; m++) {
+		document.getElementById("duration" + m).classList.remove("focus");
+	}
+	insertionTool=false;
+
+	for(var b=0; b<=3; b++) {
+		if (menu === b) {
+			if (barFunction===b && barTool) {
+				document.getElementById("bar" + b).classList.remove("focus");
+				barTool=false;
+				return;
+			}
+			document.getElementById("bar" + b).classList.add("focus");
+			barTool=true;
+		} else {
+			document.getElementById("bar" + b).classList.remove("focus");
+		}
+	}
+	if (document.getElementById("dialog")) {
+		var dc = document.getElementById("dialogContainer");
+		dc.removeChild(dc.childNodes[0]);
+	}
+
+	barFunction=menu;
 }

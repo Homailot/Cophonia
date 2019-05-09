@@ -14,14 +14,14 @@ var MouseSelection = function () {
 };
 
 function selectNote(note, bar, iPage, pos) {
-    if(!iPages[iPage].bars[bar].notes[note]) return;
-    if(getNote(iPages[iPage].bars[bar].notes[note], pos)===-1 && !iPages[iPage].bars[bar].notes[note].isSpace) {
-        if(selectedNotes[0]) return;
+    if (!iPages[iPage].bars[bar].notes[note]) return;
+    if (getNote(iPages[iPage].bars[bar].notes[note], pos) === -1 && !iPages[iPage].bars[bar].notes[note].isSpace) {
+        if (selectedNotes[0]) return;
         else {
-            pos = iPages[iPage].bars[bar].notes[note].noteGroups[0].pos-2;
+            pos = iPages[iPage].bars[bar].notes[note].noteGroups[0].pos - 2;
         }
-        
-    } 
+
+    }
 
     selectedNotes[0] = new MouseSelection();
     selectedNotes[0].note = note;
@@ -29,7 +29,7 @@ function selectNote(note, bar, iPage, pos) {
     selectedNotes[0].iPage = iPage;
     selectedNotes[0].pos = pos;
 
-    
+
 }
 
 
@@ -77,7 +77,7 @@ function mouseRight(mousePosition) {
         fillBar({ bar: curBar });
     }
 
-    if(bars[curBar].notes.length===0) return;
+    if (bars[curBar].notes.length === 0) return;
     var note = getClosestNote(mousePosition.x, curBar);
     curNote = note;
 
@@ -188,11 +188,55 @@ function moveMouseToLine(direction, mousePosition) {
 }
 
 function clickMouse() {
+    if(checkPlay()) return; 
+    
     if (insertionTool) {
         enterNotes();
+    } else if (barTool) {
+        executeBarFunctions();
     } else if (bars[curBar].notes[curNote]) {
         unselectNote();
     }
+}
+
+function executeBarFunctions() {
+    var information;
+    if (barFunction === 0) {
+        information = {
+            functionName: "insertBar",
+            args: {
+                bar: curBar,
+                iPage: curIPage,
+                line: curLine
+            },
+            generate: true
+            
+        };
+
+        insertBar(information.args);
+        sendData(JSON.stringify(information));
+    } else if(barFunction===1) {
+        inf = {
+            functionName: "deleteBar",
+            args: {
+                iPage: curIPage,
+                bar: curBar,
+                line: curLine,
+            },
+            generate: true
+        };
+
+        deleteBar(inf.args);
+
+        sendData(JSON.stringify(inf));
+    } else if(barFunction===2) {
+        fillBar({ bar: curBar });
+		changeTimeSigPop(curBar);
+    } else if(barFunction===3) {
+        changeKeyPop(curBar);
+    }
+
+    generateAll();
 }
 
 function unselectNote() {

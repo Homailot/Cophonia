@@ -92,9 +92,21 @@ function deleteBar(args) {
 	if (bars.length !== 1) {
 		keepChangedAtt(bars, args.bar);
 
+		if(bars[args.bar-1]) {
+			var lastNote = bars[args.bar-1].notes.length-1;
+
+			for (var nG = 0; nG < bars[args.bar-1].notes[lastNote].noteGroups.length; nG++) {
+				var objNG = bars[args.bar-1].notes[lastNote].noteGroups[nG];
+				if (objNG.tiesTo !== false) {
+					objNG.tiesTo = false;
+				}
+			}
+		}
+		
+
 		//removes the bar from the current array and effectively deletes it
 		bars.splice(args.bar, 1);
-		if (selectedNotes[0] && selectedNotes[0].bar === args.bar && selectedNotes[0].iPage === args.iPage) {
+		if (selectedNotes[0] && selectedNotes[0].bar >= args.bar && selectedNotes[0].iPage === args.iPage) {
 			delete selectedNotes[0];
 		}
 
@@ -179,6 +191,46 @@ function moveLeft() {
 	drawSelected();
 	sendAndUpdateMarker();
 	drawMarker({ headerOffset: iPages[curIPage].headerOffset });
+}
+
+function insertBar(args) {
+	var bars=iPages[args.iPage].bars;
+	var lastNote = bars[args.bar].notes.length-1;
+
+	for (var nG = 0; nG < bars[args.bar].notes[lastNote].noteGroups.length; nG++) {
+		var objNG = bars[args.bar].notes[lastNote].noteGroups[nG];
+		if (objNG.tiesTo !== false) {
+			result = getTied(bars, args.bar, lastNote + 1, objNG);
+			result.tiesToNG.tiedTo = false;
+			objNG.tiesTo = false;
+		}
+	}
+
+	var information = {
+		args: {
+			upperSig: bars[args.bar].upperSig,
+			lowerSig: bars[args.bar].lowerSig,
+			cS: false,
+			clef: 0,
+			cC: false,
+			iPage: args.iPage,
+			bar: args.bar+1,
+			line: args.line,
+			curLine: args.line,
+			cA: false,
+			acc: bars[args.bar].accidentals,
+			sof: bars[args.bar].sharpOrFlat,
+			rested: true
+		}
+	};
+	newBar(information.args);
+	if(curBar>=args.bar+1 && curIPage==args.iPage) {
+		curNote=0;
+	}
+	if(selectedNotes[0] && selectedNotes[0].bar >=args.bar  && curIPage==args.iPage) {
+		delete selectedNotes[0];
+	}
+	//sendData(JSON.stringify(information));
 }
 
 function moveRight(createBar) {
@@ -436,6 +488,17 @@ function enterNotes() {
 			return;
 		}
 	}
+	var lastNote = bars[curBar].notes.length-1;
+
+	for (var nG = 0; nG < bars[curBar].notes[lastNote].noteGroups.length; nG++) {
+		var objNG = bars[curBar].notes[lastNote].noteGroups[nG];
+		if (objNG.tiesTo !== false) {
+			result = getTied(bars, curBar, lastNote + 1, objNG);
+			result.tiesToNG.tiedTo = false;
+			objNG.tiesTo = false;
+		}
+	}
+
 	setMarkerAndSend(false, false);
 }
 
