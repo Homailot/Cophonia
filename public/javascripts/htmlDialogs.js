@@ -257,11 +257,11 @@ function moveElement() {
 }
 
 function menuDuration(menu, isShortcut) {
-	if(checkPlay()) return;
+	if (checkPlay()) return;
 	for (var b = 0; b <= 3; b++) {
 		document.getElementById("bar" + b).classList.remove("focus");
 	}
-	barTool=false;
+	barTool = false;
 
 	for (var m = 0; m <= 6; m++) {
 		if (menu === m) {
@@ -283,7 +283,7 @@ function menuDuration(menu, isShortcut) {
 	}
 
 	if (!selectedNotes[0]) return;
-	
+
 	var inf = {
 		functionName: "changeDuration",
 		args: {
@@ -299,7 +299,7 @@ function menuDuration(menu, isShortcut) {
 }
 
 function menuAccidental(value) {
-	if(checkPlay()) return;
+	if (checkPlay()) return;
 	if (!selectedNotes[0]) return;
 
 	var inf = {
@@ -320,7 +320,7 @@ function menuAccidental(value) {
 }
 
 function menuDot() {
-	if(checkPlay()) return;
+	if (checkPlay()) return;
 	if (!selectedNotes[0]) return;
 
 	var inf = {
@@ -342,14 +342,14 @@ function menuDot() {
 	generateAll();
 }
 
-function menuTie()  {
-	if(checkPlay()) return;
+function menuTie() {
+	if (checkPlay()) return;
 	if (!selectedNotes[0]) return;
 
 	var n = getNote(bars[selectedNotes[0].bar].notes[selectedNotes[0].note], y);
 	var inf;
 
-	if(n!==-1 && bars[selectedNotes[0].bar].notes[selectedNotes[0].note].noteGroups[n].tiesTo!==false) {
+	if (n !== -1 && bars[selectedNotes[0].bar].notes[selectedNotes[0].note].noteGroups[n].tiesTo !== false) {
 		inf = {
 			functionName: "deleteTie",
 			args: {
@@ -360,7 +360,7 @@ function menuTie()  {
 			},
 			generate: true
 		};
-	
+
 		deleteTie(inf.args);
 	} else {
 		inf = {
@@ -374,17 +374,17 @@ function menuTie()  {
 			},
 			generate: true
 		};
-	
+
 		tieBeat(inf.args);
 	}
-	
+
 	sendData(JSON.stringify(inf));
 
 	generateAll();
 }
 
 function menuDeleteNote() {
-	if(checkPlay()) return;
+	if (checkPlay()) return;
 	if (!selectedNotes[0]) return;
 
 	var inf = {
@@ -395,7 +395,7 @@ function menuDeleteNote() {
 			iPage: curIPage,
 			duration: bars[selectedNotes[0].bar].notes[selectedNotes[0].note].duration,
 			line: curLine,
-			y: selectedNotes[0].pos+2
+			y: selectedNotes[0].pos + 2
 		},
 		generate: true
 	};
@@ -407,7 +407,7 @@ function menuDeleteNote() {
 }
 
 function menuInsert() {
-	if(checkPlay()) return;
+	if (checkPlay()) return;
 	if (!selectedNotes[0]) return;
 
 	var inf = {
@@ -415,7 +415,7 @@ function menuInsert() {
 		args: {
 			iPage: curIPage,
 			bar: selectedNotes[0].bar, note: selectedNotes[0].note, duration: curDuration,
-			line: curLine, y: selectedNotes[0].pos+2
+			line: curLine, y: selectedNotes[0].pos + 2
 		},
 		generate: true
 	};
@@ -426,21 +426,21 @@ function menuInsert() {
 }
 
 function menuAdd(menu) {
-	if(checkPlay()) return;
+	if (checkPlay()) return;
 	for (var m = 0; m <= 6; m++) {
 		document.getElementById("duration" + m).classList.remove("focus");
 	}
-	insertionTool=false;
+	insertionTool = false;
 
-	for(var b=0; b<=3; b++) {
+	for (var b = 0; b <= 3; b++) {
 		if (menu === b) {
-			if (barFunction===b && barTool) {
+			if (barFunction === b && barTool) {
 				document.getElementById("bar" + b).classList.remove("focus");
-				barTool=false;
+				barTool = false;
 				return;
 			}
 			document.getElementById("bar" + b).classList.add("focus");
-			barTool=true;
+			barTool = true;
 		} else {
 			document.getElementById("bar" + b).classList.remove("focus");
 		}
@@ -450,5 +450,65 @@ function menuAdd(menu) {
 		dc.removeChild(dc.childNodes[0]);
 	}
 
-	barFunction=menu;
+	barFunction = menu;
+}
+
+function menuPlay() {
+	if (!checkPlay()) {
+		playingBar = 0;
+		playingNote = 0;
+		playingTime = 0;
+
+		for (var i = 0; i < time.length; i++) {
+			clearTimeout(time[i]);
+		}
+		var audioContext = new AudioContextFunc();
+		changeInstrument("https://surikov.github.io/webaudiofontdata/sound/0000_FluidR3_GM_sf2_file.js", "_tone_0000_FluidR3_GM_sf2_file", audioContext);
+
+	} else {
+		for (var j = 0; j < time.length; j++) {
+			clearTimeout(time[j]);
+		}
+		restoreCanvas(); playing = false;
+		drawSelected();
+		generateAll();
+	}
+}
+
+function menuIPage(skip) {
+	if (curIPage + skip < iPages.length && curIPage + skip >= 0) curIPage += skip;
+	curNote = 0;
+	bars = iPages[curIPage].bars;
+	lines = iPages[curIPage].lines;
+
+	if (curBar >= bars.length) {
+		curBar = bars.length - 1;
+	}
+	delete selectedNotes[0];
+	selectNote(curNote, curBar, curIPage, y);
+
+	markerOutOfBounds();
+	sendAndUpdateMarker();
+
+	generateAll();
+}
+
+function menuNewIPage() {
+	addIPage();
+	curIPage = iPages.length - 1;
+	inf = {
+		functionName: "recieveIPage",
+		args: {
+			iPage: iPages[curIPage]
+		},
+		generate: false
+	};
+	sendData(JSON.stringify(inf));
+	curNote = 0;
+	bars = iPages[curIPage].bars;
+	lines = iPages[curIPage].lines;
+	selectNote(curNote, curBar, curIPage, y);
+	sendAndUpdateMarker();
+
+	generateAll();
 }

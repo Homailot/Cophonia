@@ -540,6 +540,7 @@ document.addEventListener("keydown", function (event) {
 				menuDeleteNote();
 				break;
 			case "Space":
+				event.preventDefault();
 				menuInsert();
 				break;
 			case "Delete":
@@ -601,17 +602,7 @@ document.addEventListener("keydown", function (event) {
 
 					generateAll();
 				} else if (ctrlPress) {
-					if (curIPage + 1 < iPages.length) curIPage++;
-					curNote = 0;
-					bars = iPages[curIPage].bars;
-					lines = iPages[curIPage].lines;
-					delete selectedNotes[0];
-					selectNote(curNote, curBar, curIPage, y);
-
-					markerOutOfBounds();
-					sendAndUpdateMarker();
-
-					generateAll();
+					menuIPage(1);
 				} else {
 					moveRight(true);
 				}
@@ -640,17 +631,7 @@ document.addEventListener("keydown", function (event) {
 
 					generateAll();
 				} else if (ctrlPress) {
-					if (curIPage - 1 >= 0) curIPage--;
-					curNote = 0;
-					bars = iPages[curIPage].bars;
-					lines = iPages[curIPage].lines;
-					delete selectedNotes[0];
-					selectNote(curNote, curBar, curIPage, y);
-
-					markerOutOfBounds();
-					sendAndUpdateMarker();
-
-					generateAll();
+					menuIPage(-1);
 				} else {
 					moveLeft();
 				}
@@ -692,24 +673,9 @@ document.addEventListener("keydown", function (event) {
 			}
 			case "KeyN":
 				if (ctrlPress) {
-					addIPage();
-					curIPage = iPages.length - 1;
-					inf = {
-						functionName: "recieveIPage",
-						args: {
-							iPage: iPages[curIPage]
-						},
-						generate: false
-					};
-					sendData(JSON.stringify(inf));
-					curNote = 0;
-					bars = iPages[curIPage].bars;
-					lines = iPages[curIPage].lines;
-					selectNote(curNote, curBar, curIPage, y);
-					sendAndUpdateMarker();
+					menuNewIPage();
 				}
 
-				generateAll();
 				break;
 			case "KeyK":
 				if (ctrlPress) {
