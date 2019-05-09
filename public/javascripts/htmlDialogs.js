@@ -391,3 +391,21 @@ function menuDeleteNote() {
 
 	generateAll();
 }
+
+function menuInsert() {
+	if (!selectedNotes[0]) return;
+
+	var inf = {
+		functionName: "insertBeat",
+		args: {
+			iPage: curIPage,
+			bar: selectedNotes[0].bar, note: selectedNotes[0].note, duration: curDuration,
+			line: curLine, y: selectedNotes[0].pos+2
+		},
+		generate: true
+	};
+
+	insertBeat(inf.args);
+	sendData(JSON.stringify(inf));
+	generateAll();
+}

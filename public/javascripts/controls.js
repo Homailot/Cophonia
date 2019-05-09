@@ -477,19 +477,7 @@ document.addEventListener("keydown", function (event) {
 				menuDeleteNote();
 				break;
 			case "Space":
-				inf = {
-					functionName: "insertBeat",
-					args: {
-						iPage: curIPage,
-						bar: curBar, note: curNote, duration: curDuration,
-						line: curLine, y: y + 2
-					},
-					generate: true
-				};
-
-				insertBeat(inf.args);
-				sendData(JSON.stringify(inf));
-				generateAll();
+				menuInsert();
 				break;
 			case "Delete":
 				if (ctrlPress) {

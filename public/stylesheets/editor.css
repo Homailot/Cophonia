@@ -64,7 +64,7 @@ canvas.save {
     align-self: stretch;
     background-color: #2d2a2e;
     grid-template-columns: 50px;
-    grid-template-rows: 50px 50px 50px 50px 50px 50px 50px 50px 50px 50px 50px 50px;
+    grid-template-rows: 50px 50px 50px 50px 50px 50px 50px 50px 50px 50px 50px 50px 50px;
     grid-row-gap: 4px;
     overflow: auto;
 }
@@ -82,6 +82,12 @@ canvas.save {
     cursor: pointer;
     border: none;
     
+}
+
+.optn.rest span {
+    font-size: 40px;
+    position: relative;
+    bottom: 17px
 }
 
 .optn.dot {
@@ -130,4 +136,75 @@ canvas.save {
     justify-self: stretch;
     align-self: stretch;
     background-color: #3d373e;
+    font-family: "BravuraF";
+    display: grid;
+    grid-template-rows: 30px 50px;
+    grid-template-columns: 50px 65px 65px 65px 65px auto 40px 40px 40px 40px;
+    grid-column-gap: 4px;
+}
+
+.topbar > button > span {
+    position: relative;
+    bottom: 0
+}
+
+.optn.add {
+    grid-row: 2;
+    grid-column: 2; 
+}
+
+.optn.remove {
+    grid-row: 2;
+    grid-column: 3; 
+}
+
+.optn.remove span, .optn.add span, .optn.bar-acc span {
+    bottom: 2px;
+}
+
+.big {
+    font-size:50px;
+    bottom: -3px!important;
+}
+
+.optn.time-sig {
+    grid-row: 2;
+    grid-column: 4;
+}
+
+.optn.bar-acc {
+    grid-row: 2;
+    grid-column: 5;
+}
+
+.optn.right-arrow {
+    font-size: 25px;
+    grid-row:2;
+    grid-column: -2;
+}
+
+.optn.left-arrow {
+    font-size: 25px;
+    grid-row:2;
+    grid-column: -3;
+}
+
+.top-img {
+    grid-row:2;
+    grid-column: 1;
+    width: 40px;
+    align-self: center;
+    justify-self: center;
+}
+
+.optn.new {
+    font-size: 20px;
+    grid-row:2;
+    grid-column: -4;
+}
+
+.optn.play {
+    font-size: 20px;
+    grid-row:2;
+    grid-column: -5;
 }
