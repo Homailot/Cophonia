@@ -64,8 +64,9 @@ canvas.save {
     align-self: stretch;
     background-color: #2d2a2e;
     grid-template-columns: 50px;
-    grid-template-rows: 50px 50px 50px 50px 50px 50px 50px 50px 50px 50px 50px;
+    grid-template-rows: 50px 50px 50px 50px 50px 50px 50px 50px 50px 50px 50px 50px;
     grid-row-gap: 4px;
+    overflow: auto;
 }
 
 .optn{
@@ -85,6 +86,12 @@ canvas.save {
 
 .optn.dot {
     font-size: 50px;
+}
+
+.optn.cross span {
+    position: relative;
+    bottom:0;
+    margin: 0
 }
 
 .optn.dot span {

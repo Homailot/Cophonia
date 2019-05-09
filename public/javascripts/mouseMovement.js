@@ -77,7 +77,7 @@ function mouseRight(mousePosition) {
         fillBar({ bar: curBar });
     }
 
-
+    if(bars[curBar].notes.length===0) return;
     var note = getClosestNote(mousePosition.x, curBar);
     curNote = note;
 

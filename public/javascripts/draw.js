@@ -335,6 +335,8 @@ function drawSelected() {
 
 		var note = bars[selectedNotes[0].bar].notes[selectedNotes[0].note];
 		var yOffset = calculateYLine(note.line, iPages[curIPage].headerOffset);
+		var adjacent=false;
+		var faceRight=false;
 		ctx.translate(0, yOffset);
 
 		ctx.fillStyle = "#007acc";
@@ -343,8 +345,25 @@ function drawSelected() {
 			drawFigure(selectedNotes[0].bar, note);
 		} else {
 			var n = getNote(note, selectedNotes[0].pos);
+			var noteGroupOrder = bars[selectedNotes[0].bar].notes[selectedNotes[0].note].noteGroups;
+
 			if(n==-1) n=0;
-			drawIndividualHead(note, note.noteGroups, n, note.inverse);
+			for (var nG = 0; nG < noteGroupOrder.length; nG++) {
+				if(nG!==n) {
+					ctx.save();
+					result=getNoteFace(nG, noteGroupOrder, adjacent, faceRight, note.inverted);
+					ctx.restore();
+				} else {
+					result = drawIndividualHead(note, note.noteGroups, n, note.inverted, faceRight, adjacent);
+					
+					break;
+				}	
+
+				faceRight=result.faceRight;
+				adjacent=result.adjacent;
+				
+			}
+			
 		}
 
 
@@ -354,20 +373,7 @@ function drawSelected() {
 
 }
 
-function drawIndividualHead(note, noteGroupOrder, n, inverse, faceRight, adjacent) {
-	drawExtraStaff(note.xPos, noteGroupOrder[n].pos - 2, note.line);
-
-	ctx.save();
-	ctx.translate(note.xPos, noteGroupOrder[n].yPos);
-	ctx.font = "69px Musicaf";
-
-	var m = 1;
-	if (inverse) {
-		ctx.rotate(Math.PI);
-		ctx.translate(-20, -15);
-		m = -1;
-	}
-
+function getNoteFace(n, noteGroupOrder, adjacent, faceRight, m) {
 	if (n + 1 < noteGroupOrder.length) {
 		if (noteGroupOrder[n + 1].pos - noteGroupOrder[n].pos === -1) {
 			if (!adjacent) {
@@ -393,13 +399,32 @@ function drawIndividualHead(note, noteGroupOrder, n, inverse, faceRight, adjacen
 		}
 	}
 
+	return {adjacent: adjacent, faceRight: faceRight};
+}
+
+function drawIndividualHead(note, noteGroupOrder, n, inverse, faceRight, adjacent) {
+	drawExtraStaff(note.xPos, noteGroupOrder[n].pos - 2, note.line);
+
+	ctx.save();
+	ctx.translate(note.xPos, noteGroupOrder[n].yPos);
+	ctx.font = "69px Musicaf";
+
+	var m = 1;
+	if (inverse) {
+		ctx.rotate(Math.PI);
+		ctx.translate(-20, -15);
+		m = -1;
+	}
+
+	var result = getNoteFace(n, noteGroupOrder, adjacent, faceRight, m);
+	faceRight=result.faceRight;
+	adjacent=result.adjacent;
+
 	if (note.duration <= 0.25) ctx.fillText("\uD834\uDD58", 0, 0);
 	else if (note.duration === 0.5) ctx.fillText("\uD834\uDD57", 0, 0);
 	else if (note.duration === 1) ctx.fillText("\uD834\uDD5D", 0, 0);
 
-
 	ctx.restore();
-
 	return {adjacent: adjacent, faceRight: faceRight};
 }
 

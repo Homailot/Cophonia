@@ -32,6 +32,10 @@
 	<div class="overlay" id="p">
 		<div class="topbar"></div>
 		<div class="leftbar">
+			
+			<button class="optn cross" onclick="menuDeleteNote()">
+				<span>⨯</span>
+			</button>
 			<button class="optn" id="duration0" onclick="menuDuration(0, false)">
 				<span>𝅝</span>
 			</button>
@@ -53,16 +57,16 @@
 			<button class="optn" id="duration6"  onclick="menuDuration(6, false)">
 				<span>𝅘𝅥𝅱</span>
 			</button>
-			<button class="optn dot">
+			<button class="optn dot" onclick="menuDot()">
 				<span>𝅭</span>
 			</button>
-			<button class="optn tie">
+			<button class="optn tie" onclick="menuTie()">
 				<span>‿</span>
 			</button>
-			<button class="optn acc">
+			<button class="optn acc" onclick="menuAccidental(1)">
 				<span>♯</span>
 			</button>
-			<button class="optn acc">
+			<button class="optn acc" onclick="menuAccidental(-1)">
 				<span>♭</span>
 			</button>
 			

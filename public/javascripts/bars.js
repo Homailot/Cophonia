@@ -343,6 +343,10 @@ function moveExtraNotes(args) {
 			curNote = newNoteI;
 			curLine = bars[newBarI].line;
 		}
+
+		if(selectedNotes[0] && selectedNotes[0].iPage ===args.iPage) {
+			delete selectedNotes[0];
+		}
 		setNoteLines(bars, newBarI);
 		
 		oldNote++;

@@ -411,16 +411,11 @@ function tieBeat(args) { // eslint-disable-line no-unused-vars
 
 function deleteTie(args) {
 	var bars = iPages[args.iPage].bars;
-	var objNG = null;
-	for(var nG=0; nG<bars[args.bar].notes[args.note].noteGroups.length; nG++) {
-		if(bars[args.bar].notes[args.note].noteGroups[nG].pos===args.y+2) {
-			objNG = bars[args.bar].notes[args.note].noteGroups[nG];
-			break;
-		}
-	}
+	var n = getNote(bars[args.bar].notes[args.note], y);
+	var objNG = bars[args.bar].notes[args.note].noteGroups[n];
 	var result = null;
 
-	if(objNG!==null) {
+	if(n!==-1) {
 		if(objNG.tiesTo!==false) {
 			result = getTied(bars, args.bar, args.note+1, objNG);
 			result.tiesToNG.tiedTo=false;

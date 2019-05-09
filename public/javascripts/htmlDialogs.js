@@ -287,3 +287,107 @@ function menuDuration(menu, isShortcut) {
 	changeDuration(inf.args);
 	sendData(JSON.stringify(inf));
 }
+
+function menuAccidental(value) {
+	if (!selectedNotes[0]) return;
+
+	var inf = {
+		functionName: "changeAccidental",
+		args: {
+			bar: selectedNotes[0].bar,
+			note: selectedNotes[0].note,
+			y: selectedNotes[0].pos,
+			value: value,
+			iPage: curIPage
+		},
+		generate: true
+	};
+	changeAccidental(inf.args);
+	sendData(JSON.stringify(inf));
+
+	generateAll();
+}
+
+function menuDot() {
+	if (!selectedNotes[0]) return;
+
+	var inf = {
+		functionName: "augment",
+		args: {
+			bar: selectedNotes[0].bar,
+			note: selectedNotes[0].note,
+			value: 1,
+			iPage: curIPage
+		},
+		generate: true
+	};
+	if (ctrlPress) {
+		inf.args.value = -1;
+	}
+	augment(inf.args);
+	sendData(JSON.stringify(inf));
+
+	generateAll();
+}
+
+function menuTie()  {
+	if (!selectedNotes[0]) return;
+
+	var n = getNote(bars[selectedNotes[0].bar].notes[selectedNotes[0].note], y);
+	var inf;
+
+	if(n!==-1 && bars[selectedNotes[0].bar].notes[selectedNotes[0].note].noteGroups[n].tiesTo!==false) {
+		inf = {
+			functionName: "deleteTie",
+			args: {
+				iPage: curIPage,
+				note: selectedNotes[0].note,
+				bar: selectedNotes[0].bar,
+				y: selectedNotes[0].pos
+			},
+			generate: true
+		};
+	
+		deleteTie(inf.args);
+	} else {
+		inf = {
+			functionName: "tieBeat",
+			args: {
+				iPage: curIPage,
+				note: selectedNotes[0].note,
+				tieTo: selectedNotes[0].note + 1,
+				bar: selectedNotes[0].bar,
+				y: selectedNotes[0].pos
+			},
+			generate: true
+		};
+	
+		tieBeat(inf.args);
+	}
+	
+	sendData(JSON.stringify(inf));
+
+	generateAll();
+}
+
+function menuDeleteNote() {
+	if (!selectedNotes[0]) return;
+
+	var inf = {
+		functionName: "deleteNote",
+		args: {
+			bar: selectedNotes[0].bar,
+			note: selectedNotes[0].note,
+			iPage: curIPage,
+			duration: bars[selectedNotes[0].bar].notes[selectedNotes[0].note].duration,
+			line: curLine,
+			y: selectedNotes[0].pos+2
+		},
+		generate: true
+	};
+	deleteNote(inf.args);
+	sendData(JSON.stringify(inf));
+
+
+	generateAll();
+}

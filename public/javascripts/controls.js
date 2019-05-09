@@ -21,7 +21,7 @@ function deleteNote(args) {
 					nGD = nG;
 				}
 			}
-			if (nGD === null) return;
+			if (nGD === null) nGD = 0;
 
 
 			//deletes the note
@@ -45,7 +45,9 @@ function deleteNote(args) {
 				//if it was a note, it replaces it with a pause (hence the "true")
 
 				placeNote(information);
+
 			}
+			selectNote(curNote, curBar, curIPage, y);
 		} else {
 			bars[args.bar].notes.splice(args.note, 1);
 			delete selectedNotes[0];
@@ -294,7 +296,7 @@ function insertBeat(args) {
 	//so that we don"t place a beat after we have extended, we check if the bar is extended
 	if (!args.extended) {
 		//if we aren"t at the first note of the bar or if we aren"t at the last note, the markers moves forward and everything with it
-		if (bars[args.bar].notes[note] && getSum(bars, args.bar)+curDuration<=bars[args.bar].upperSig/bars[args.bar].lowerSig) {
+		if (bars[args.bar].notes[note] && getSum(bars, args.bar) + curDuration <= bars[args.bar].upperSig / bars[args.bar].lowerSig) {
 			for (var nG = 0; nG < bars[args.bar].notes[args.note].noteGroups.length; nG++) {
 				var objNG = bars[args.bar].notes[args.note].noteGroups[nG];
 				if (objNG.tiesTo !== false) {
@@ -449,89 +451,30 @@ document.addEventListener("keydown", function (event) {
 		if (dc.childNodes.length > 0) dc.removeChild(dc.childNodes[0]);
 		switch (event.key) {
 			case "+":
-				inf = {
-					functionName: "changeAccidental",
-					args: {
-						bar: curBar,
-						note: curNote,
-						y: y,
-						value: 1,
-						iPage: curIPage
-					},
-					generate: true
-				};
-				changeAccidental(inf.args);
-				sendData(JSON.stringify(inf));
-
-				generateAll();
+				menuAccidental(1);
 				break;
 			case "-":
-				inf = {
-					functionName: "changeAccidental",
-					args: {
-						bar: curBar,
-						note: curNote,
-						y: y,
-						value: -1,
-						iPage: curIPage
-					},
-					generate: true
-				};
-				changeAccidental(inf.args);
-				sendData(JSON.stringify(inf));
-
-				generateAll();
+				menuAccidental(-1);
 				break;
 
 		}
 		switch (event.code) {
 			case "Period":
-				inf = {
-					functionName: "augment",
-					args: {
-						bar: curBar,
-						note: curNote,
-						value: 1,
-						iPage: curIPage
-					},
-					generate: true
-				};
-				if (ctrlPress) {
-					inf.args.value = -1;
-				}
-				augment(inf.args);
-				sendData(JSON.stringify(inf));
-
-				generateAll();
+				menuDot();
 				break;
 			case "Enter":
-				if(insertionTool) {
+				event.preventDefault();
+				if (insertionTool) {
 					enterNotes();
-				} else {
-					console.log("hey");
+				} else if (bars[curBar].notes[curNote]) {
 					unselectNote();
 				}
-				
+
 
 				break;
 			case "Backspace":
-				inf = {
-					functionName: "deleteNote",
-					args: {
-						bar: curBar,
-						note: curNote,
-						iPage: curIPage,
-						duration: curDuration,
-						line: curLine,
-						y: y + 2
-					},
-					generate: true
-				};
-				deleteNote(inf.args);
-				sendData(JSON.stringify(inf));
-
-
-				generateAll();
+				event.preventDefault();
+				menuDeleteNote();
 				break;
 			case "Space":
 				inf = {
@@ -566,13 +509,15 @@ document.addEventListener("keydown", function (event) {
 
 					generateAll();
 				} else if (tPress) {
+					if (!selectedNotes[0]) break;
+
 					inf = {
 						functionName: "deleteTie",
 						args: {
 							iPage: curIPage,
-							note: curNote,
-							bar: curBar,
-							y: y
+							note: selectedNotes[0].note,
+							bar: selectedNotes[0].bar,
+							y: selectedNotes[0].pos
 						},
 						generate: true
 					};
@@ -586,14 +531,16 @@ document.addEventListener("keydown", function (event) {
 				break;
 			case "ArrowRight":
 				if (tPress) {
+					if (!selectedNotes[0]) break;
+
 					inf = {
 						functionName: "tieBeat",
 						args: {
 							iPage: curIPage,
-							note: curNote,
-							tieTo: curNote + 1,
-							bar: curBar,
-							y: y
+							note: selectedNotes[0].note,
+							tieTo:  selectedNotes[0].note + 1,
+							bar: selectedNotes[0].bar,
+							y: selectedNotes[0].pos
 						},
 						generate: true
 					};
@@ -623,14 +570,16 @@ document.addEventListener("keydown", function (event) {
 				break;
 			case "ArrowLeft":
 				if (tPress) {
+					if (!selectedNotes[0]) break;
+
 					inf = {
 						functionName: "tieBeat",
 						args: {
 							iPage: curIPage,
-							note: curNote,
-							tieTo: curNote - 1,
-							bar: curBar,
-							y: y
+							note: selectedNotes[0].note,
+							tieTo: selectedNotes[0].note - 1,
+							bar: selectedNotes[0].bar,
+							y: selectedNotes[0].pos
 						},
 						generate: true
 					};
