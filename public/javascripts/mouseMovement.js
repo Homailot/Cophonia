@@ -50,6 +50,8 @@ function checkMousePosition(evt) {
 
 function getClosestNote(x, bar) {
     var note;
+    if(bars[bar].notes.length===0) return 0;
+    
     var lowerBound = 0, upperBound = bars[bar].notes.length - 1, middlePos = (upperBound + lowerBound) / 2 >> 0;
     while (lowerBound <= upperBound) {
 
@@ -74,7 +76,22 @@ function getClosestNote(x, bar) {
 
 function mouseRight(mousePosition) {
     for (; curBar + 1 < bars.length && bars[curBar].xPos < mousePosition.x && bars[curBar + 1].line === curLine; curBar++ , curNote = 0, markers[uIndex].extended = false) {
-        fillBar({ bar: curBar });
+        if (bars[curBar].notes.length === 0) {
+			var information = {
+				functionName: "placeNote",
+				args: {
+					iPage: curIPage,
+					bar: curBar, note: 0, duration: 1,
+					line: curLine, pos: 0, isSpace: true, newGroup: false, fullRest: true
+				},
+				generate: true
+			};
+			placeNote(information.args);
+			sendData(JSON.stringify(information));
+			generateAll();
+		} else {
+            fillBar({ bar: curBar });
+        }
     }
 
     if (bars[curBar].notes.length === 0) return;
@@ -106,7 +123,22 @@ function mouseRight(mousePosition) {
 function mouseLeft(mousePosition) {
     if (curBar === 0 && curNote === 0 && !markers[uIndex].extended) return;
     for (; curBar - 1 >= 0 && bars[curBar].initPos > mousePosition.x && bars[curBar - 1].line === curLine; curBar-- , curNote = 0) {
-        fillBar({ bar: curBar });
+        if (bars[curBar].notes.length === 0) {
+			var information = {
+				functionName: "placeNote",
+				args: {
+					iPage: curIPage,
+					bar: curBar, note: 0, duration: 1,
+					line: curLine, pos: 0, isSpace: true, newGroup: false, fullRest: true
+				},
+				generate: true
+			};
+			placeNote(information.args);
+			sendData(JSON.stringify(information));
+			generateAll();
+		} else {
+            fillBar({ bar: curBar });
+        }
     }
     var note = getClosestNote(mousePosition.x, curBar);
 
