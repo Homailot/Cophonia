@@ -240,7 +240,7 @@ function fillWithTies(note, bars, bar, diff, iPage, n) {
 			for(dot=0; dot<result.nDots; dot++) {
 				inf = {
 					bar: bar,
-					note: n,
+					note: 0,
 					value: 1,
 					iPage: iPage
 				};
