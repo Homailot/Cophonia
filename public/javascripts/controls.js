@@ -46,6 +46,8 @@ function deleteNote(args) {
 
 				placeNote(information);
 
+			} else {
+				getAccWidth(args.note, bars[args.bar]);
 			}
 			selectNote(curNote, curBar, curIPage, y);
 		} else {
@@ -63,7 +65,7 @@ function deleteNote(args) {
 	}
 
 	//says the bar is not extended
-
+	
 	sendAndUpdateMarker();
 }
 
@@ -121,6 +123,7 @@ function deleteBar(args) {
 		if (curIPage === args.iPage) {
 			if (curBar >= bars.length) {
 				curBar--;
+				curNote=0;
 				tBar--;
 			}
 
@@ -154,6 +157,7 @@ function moveLeft() {
 		if (markers[uIndex].extended) {
 
 			markers[uIndex].extended = false;
+			selectNote(curNote, curBar, curIPage, y);
 			generateAll();
 
 			return;
@@ -211,7 +215,7 @@ function insertBar(args) {
 			upperSig: bars[args.bar].upperSig,
 			lowerSig: bars[args.bar].lowerSig,
 			cS: false,
-			clef: 0,
+			clef: bars[args.bar].clef,
 			cC: false,
 			iPage: args.iPage,
 			bar: args.bar+1,
@@ -238,6 +242,7 @@ function moveRight(createBar) {
 	var lowerSig = bars[curBar].lowerSig;
 	var acc = bars[curBar].accidentals;
 	var sof = bars[curBar].sharpOrFlat;
+	var clef = bars[curBar].clef;
 	var sum = getSum(bars, curBar);
 	var gen = false;
 
@@ -279,7 +284,7 @@ function moveRight(createBar) {
 					upperSig: upperSig,
 					lowerSig: lowerSig,
 					cS: false,
-					clef: 0,
+					clef: clef,
 					cC: false,
 					iPage: curIPage,
 					bar: curBar,
@@ -381,8 +386,8 @@ function insertBeat(args) {
 function changePitch(pitch) {
 	//this defines the y boundaries of the marker
 	y += pitch;
-	if (y > 6) y = 6;
-	if (y < -17) y = -17;
+	if (y > 8) y = 8;
+	if (y < -19) y = -19;
 	selectNote(curNote, curBar, curIPage, y);
 
 	restoreCanvas();
@@ -488,16 +493,20 @@ function enterNotes() {
 			return;
 		}
 	}
+	
 	var lastNote = bars[curBar].notes.length-1;
-
-	for (var nG = 0; nG < bars[curBar].notes[lastNote].noteGroups.length; nG++) {
-		var objNG = bars[curBar].notes[lastNote].noteGroups[nG];
-		if (objNG.tiesTo !== false) {
-			result = getTied(bars, curBar, lastNote + 1, objNG);
-			result.tiesToNG.tiedTo = false;
-			objNG.tiesTo = false;
+	if(bars[curBar].notes[lastNote]) {
+		for (var nG = 0; nG < bars[curBar].notes[lastNote].noteGroups.length; nG++) {
+			var objNG = bars[curBar].notes[lastNote].noteGroups[nG];
+			if (objNG.tiesTo !== false) {
+				result = getTied(bars, curBar, lastNote + 1, objNG);
+				result.tiesToNG.tiedTo = false;
+				objNG.tiesTo = false;
+			}
 		}
 	}
+
+	
 
 	setMarkerAndSend(false, false);
 }
@@ -509,9 +518,11 @@ function recieveIPage(args) {
 document.addEventListener("keydown", function (event) {
 	//simple code that checks what key was pressed and executes a function
 	var inf;
-	if (!checkPlay()) {
-		var dc = document.getElementById("dialogContainer");
-		if (dc.childNodes.length > 0) dc.removeChild(dc.childNodes[0]);
+	var dc = document.getElementById("dialogContainer");
+	if(document.getElementById("dialog") && event.code==="Escape") {
+		dc.removeChild(dc.childNodes[0]);
+	}
+	if (!playing && !document.getElementById("dialog")) {
 		switch (event.key) {
 			case "+":
 				menuAccidental(1);
@@ -529,10 +540,13 @@ document.addEventListener("keydown", function (event) {
 				event.preventDefault();
 				if (insertionTool) {
 					enterNotes();
+
+					
 				} else if (bars[curBar].notes[curNote]) {
 					unselectNote();
 				}
-
+				var audioContext = new AudioContextFunc();
+				changeInstrumentQuick(audioContext, curIPage, curBar, curNote);
 
 				break;
 			case "Backspace":
@@ -681,15 +695,9 @@ document.addEventListener("keydown", function (event) {
 				if (ctrlPress) {
 					changeKeyPop(curBar);
 				} else {
-					playingBar = 0;
-					playingNote = 0;
-					playingTime = 0;
-
-					for (var i = 0; i < time.length; i++) {
-						clearTimeout(time[i]);
-					}
+					if(timeTimeout)	clearTimeout(timeTimeout);
 					var audioContext = new AudioContextFunc();
-					changeInstrument("https://surikov.github.io/webaudiofontdata/sound/0000_FluidR3_GM_sf2_file.js", "_tone_0000_FluidR3_GM_sf2_file", audioContext);
+					changeInstrument(audioContext, 0);
 
 				}
 
@@ -704,6 +712,14 @@ document.addEventListener("keydown", function (event) {
 
 
 				break;
+			case "KeyC":
+				if(ctrlPress) {
+
+					changeClefPop(curBar);
+					generateAll();
+				}
+
+				break;
 			case "ShiftLeft":
 			case "ShiftRight":
 				event.preventDefault();
@@ -713,9 +729,7 @@ document.addEventListener("keydown", function (event) {
 	} else {
 		switch (event.code) {
 			case "KeyK":
-				for (var j = 0; j < time.length; j++) {
-					clearTimeout(time[j]);
-				}
+				if(timeTimeout) clearTimeout(timeTimeout);
 				restoreCanvas(); playing = false;
 				drawSelected();
 				generateAll();
@@ -741,7 +755,7 @@ document.addEventListener("keyup", function (event) {
 });
 
 document.addEventListener("mousewheel", function (event) {
-	if (!checkPlay()) {
+	if (!playing) {
 		var distance = -event.deltaY * 0.2;
 
 		if (scrollValue + event.deltaY * 0.2 < 0) {

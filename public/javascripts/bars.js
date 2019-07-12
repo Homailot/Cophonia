@@ -123,7 +123,7 @@ function changeTimeSig(args) { // eslint-disable-line no-unused-vars
 }
 
 function placeNotes(note, bars, bar, diff, iPage, n) {
-	var nG;
+	var nG=0;
 	var information = {
 		iPage: iPage,
 		bar: bar, note:n, duration: diff,
@@ -168,12 +168,15 @@ function checkForDots(diff) {
 function fillWithTies(note, bars, bar, diff, iPage, n) {
 	var newNote;
 	var lDiff = getNoteDuration(note);
-	var nG;
+	var nG=0;
 	var result = checkForDots(diff);
 	var dot;
 	var inf;
 
 	placeNotes(note, bars, bar, result.duration, iPage, n);
+	
+	bars[bar].notes[n].noteGroups[nG].tiedTo=note.noteGroups[nG].tiedTo;
+		bars[bar].notes[n].noteGroups[nG].tiesTo=note.noteGroups[nG].tiesTo;
 	for(dot=0; dot<result.nDots; dot++) {
 		inf = {
 			bar: bar,
@@ -289,14 +292,14 @@ function moveExtraNotes(args) {
 		}
 		durationAcum += noteDuration;
 
-		for(var nG=0; nG<ogNotes[note].noteGroups.length; nG++) {
-			var objNG=ogNotes[note].noteGroups[nG];
+		// for(var nG=0; nG<ogNotes[note].noteGroups.length; nG++) {
+		// 	var objNG=ogNotes[note].noteGroups[nG];
 			
-			if (objNG.tiesTo !== false) {
-				objNG.tiesTo=false;
-				objNG.tiedTo=false;
-			}
-		}
+		// 	if (objNG.tiesTo !== false) {
+		// 		objNG.tiesTo=false;
+		// 		objNG.tiedTo=false;
+		// 	}
+		// }
 		if (durationAcum > maxDuration) {
 			movedNote = ogNotes[note];
 
@@ -305,7 +308,7 @@ function moveExtraNotes(args) {
 				else createTies=true;
 				createBar=true;
 				difference=maxDuration;
-			} else {
+			} else  {
 				createTies = true;
 				createBar=false;
 				difference = maxDuration - (durationAcum - noteDuration);
@@ -361,6 +364,18 @@ function moveExtraNotes(args) {
 		
 		oldNote++;
 		newNoteI++;
+	}
+	if(getSum(bars, newBarI)!=maxDuration) {
+		for(var na = 0; na<bars[newBarI].notes[newNoteI-1].noteGroups.length; na++) {
+			bars[newBarI].notes[newNoteI-1].noteGroups[na].tiesTo=false;
+		}
+
+		if(newBarI+1<bars.length) {
+			for(na = 0; na<bars[newBarI+1].notes[0].noteGroups.length; na++) {
+				bars[newBarI+1].notes[0].noteGroups[na].tiedTo=false;
+			}
+		}
+		
 	}
 	fillBar({bar: newBarI});
 }
@@ -500,4 +515,21 @@ function addRests(rests, args) {
 		placeNote(information.args);
 		sendData(JSON.stringify(information));
 	}
+}
+
+function changeClef(args) {
+	var bars = iPages[args.iPage].bars;
+	bars[args.bar].clef = args.clef;
+
+	for(var b = args.bar-1; b<=args.bar; b++) {
+		if(b>=0 && b<bars.length-1) {
+			if(bars[b+1].clef===bars[b].clef) {
+				bars[b+1].changedClef=false;
+			} else {
+				bars[b+1].changedClef=true;
+			}
+		}
+	}
+
+	generateAll();
 }

@@ -3,13 +3,33 @@ var AudioContextFunc = window.AudioContext || window.webkitAudioContext;
 
 var player=new WebAudioFontPlayer();
 
-function changeInstrument(path,name, context){
-	player.loader.startLoad(context, path, name);
+function changeInstrument(context, p) {
+	var info = player.loader.instrumentInfo(instruments[iPages[p].instrument].var);
+
+	player.loader.startLoad(context, info.url, info.variable);
 	player.loader.waitLoad(function () {
-		instr=window[name];
-		play(context);
+		instruments[iPages[p].instrument].loaded = info.variable;
+
+		if(p === iPages.length-1) {
+			play(context);
+		} else {
+			changeInstrument(context, p+1);
+		}
+		
+	});	
+}
+
+function changeInstrumentQuick(context, p, bar, note) {
+	var info = player.loader.instrumentInfo(instruments[iPages[p].instrument].var);
+
+	player.loader.startLoad(context, info.url, info.variable);
+	player.loader.waitLoad(function () {
+
+		instr = window[name];
+		playBack(context, bar, note, p);
 	});
 }
+
 
 
 var c = document.getElementById("principal");

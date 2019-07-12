@@ -14,6 +14,7 @@ var MouseSelection = function () {
 };
 
 function selectNote(note, bar, iPage, pos) {
+    if(playing) return;
     if (!iPages[iPage].bars[bar].notes[note]) return;
     if (getNote(iPages[iPage].bars[bar].notes[note], pos) === -1 && !iPages[iPage].bars[bar].notes[note].isSpace) {
         if (selectedNotes[0]) return;
@@ -34,6 +35,8 @@ function selectNote(note, bar, iPage, pos) {
 
 
 function checkMousePosition(evt) {
+    if(playing) return;
+
     var mousePosition = getMousePos(c, evt);
 
     if (mousePosition.x > markers[uIndex].xPos + 20) {
@@ -51,7 +54,6 @@ function checkMousePosition(evt) {
 function getClosestNote(x, bar) {
     var note;
     if(bars[bar].notes.length===0) return 0;
-    
     var lowerBound = 0, upperBound = bars[bar].notes.length - 1, middlePos = (upperBound + lowerBound) / 2 >> 0;
     while (lowerBound <= upperBound) {
 
@@ -142,7 +144,7 @@ function mouseLeft(mousePosition) {
     }
     var note = getClosestNote(mousePosition.x, curBar);
 
-    if (Math.abs(markers[uIndex].xPos - mousePosition.x) > Math.abs(bars[curBar].notes[note].xPos - mousePosition.x) && markers[uIndex].extended) {
+    if (bars[curBar].notes.length!==0 && Math.abs(markers[uIndex].xPos - mousePosition.x) > Math.abs(bars[curBar].notes[note].xPos - mousePosition.x) && markers[uIndex].extended) {
         markers[uIndex].extended = false;
 
         curNote = note;
@@ -168,8 +170,8 @@ function mouseVertical(mousePosition) {
     var ogLine = curLine;
 
     while (true) {
-        if (mousePosition.y > markers[uIndex].yPos + 26) v = 1;
-        else if (mousePosition.y < markers[uIndex].yPos) v = -1;
+        if (mousePosition.y > markers[uIndex].yPos + 20) v = 1;
+        else if (mousePosition.y < markers[uIndex].yPos + 6) v = -1;
         else break;
 
         temporaryChangePitch(v);
@@ -220,10 +222,14 @@ function moveMouseToLine(direction, mousePosition) {
 }
 
 function clickMouse() {
-    if(checkPlay()) return; 
+    if(playing) return; 
     
     if (insertionTool) {
         enterNotes();
+
+        var audioContext = new AudioContextFunc();
+        changeInstrumentQuick(audioContext, curIPage, curBar, curNote);
+       
     } else if (barTool) {
         executeBarFunctions();
     } else if (bars[curBar].notes[curNote]) {
@@ -266,6 +272,8 @@ function executeBarFunctions() {
 		changeTimeSigPop(curBar);
     } else if(barFunction===3) {
         changeKeyPop(curBar);
+    } else if(barFunction===4) {
+        changeClefPop(curBar);
     }
 
     generateAll();
@@ -276,8 +284,10 @@ function unselectNote() {
         delete selectedNotes[0];
     } else {
         selectNote(curNote, curBar, curIPage, y);
+        var audioContext = new AudioContextFunc();
+        changeInstrumentQuick(audioContext, curIPage, curBar, curNote);
 
-    }
+    }   
 
     restoreCanvas();
     drawSelected();

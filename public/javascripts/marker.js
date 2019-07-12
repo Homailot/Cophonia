@@ -149,6 +149,7 @@ function updateCurMarker() {
 
 function updateAllXMarkers() {
 	for(var marker in markers) {
+		if(markers[marker].iPage>=iPages.length) continue;
 		markers[marker].xPos=setMarkerXPos(markers[marker].bar, markers[marker].note, iPages[markers[marker].iPage].bars, markers[marker].xPos, markers[marker].extended, markers[marker].iPage);
 	
 	}

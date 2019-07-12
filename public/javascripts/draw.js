@@ -30,8 +30,13 @@ function drawStaff(line, end, start) { // eslint-disable-line no-unused-vars
 }
 
 function drawClef(clef, xPos, line) {
+	var texto = "";
 	if (clef === 0) {
-		var texto = "\uD834\uDD1E"; //sol
+		texto = "\uD834\uDD1E"; //sol
+		ctx.font = "100px Musicaf";
+		ctx.fillText(texto, xPos + 70, (line + 1) * 144);
+	} else {
+		texto = "𝄢"; //fá
 		ctx.font = "100px Musicaf";
 		ctx.fillText(texto, xPos + 70, (line + 1) * 144);
 	}
@@ -157,6 +162,7 @@ function drawTies(bar, note, inverse) { // eslint-disable-line no-unused-vars
 			endAngle = 0.875 * Math.PI;
 
 			if (tiesTo.line != objN.line) {
+				
 				xCenter = bars[bar].xPos;
 				radius = bars[bar].xPos - (objN.xPos + 10);
 
@@ -193,26 +199,34 @@ function writeDots(note) {
 	}
 }
 
-function placeDots(note, noteGroupOrder, ngo, isSpace, occupied, inv) {
-	if (ngo !== 0 && occupied) {
-		writeDots(note);
-
-		ctx.translate(-note.dots * 10, -16);
-	} else {
-		ctx.restore();
-		ctx.save();
-
-		ctx.translate(note.xPos + 25, noteGroupOrder[ngo].yPos);
-		if (!isSpace) {
-			if (inv) ctx.translate(0, -8);
-			else ctx.translate(0, +8);
+function checkAdjacent(noteGroups) {
+	for(var n = 0; n+1<noteGroups.length; n++) {
+		if(noteGroups[n + 1].pos - noteGroups[n].pos === -1) {
+			return true;
 		}
-
-		writeDots(note);
-
-		ctx.translate(-note.dots * 10, -16);
 	}
 
+	return false;
+}
+
+function placeDots(note, noteGroupOrder, ngo, isSpace, occupied, inv) {
+	ctx.restore();
+	ctx.save();
+
+	ctx.translate(note.xPos + 25, noteGroupOrder[ngo].yPos);
+	if (!isSpace) {
+		if (inv) ctx.translate(0, -8);
+		else ctx.translate(0, +8);
+		
+	}
+	if(checkAdjacent(noteGroupOrder)) {
+		if(inv) ctx.translate(8, 0);
+		else ctx.translate(10, 0);
+	}
+
+	writeDots(note);
+
+	ctx.translate(-note.dots * 10, -16);
 }
 
 function determineDots(allocatedSpaces, note, noteGroupOrder, ngo, inv) {
@@ -231,7 +245,7 @@ function determineDots(allocatedSpaces, note, noteGroupOrder, ngo, inv) {
 	for (var s = 0; s < allocatedSpaces.length; s++) {
 		if (space === allocatedSpaces[s]) {
 			occupied = true;
-			space -= 1;
+			return;
 		} else if (occupied) {
 			break;
 		}
@@ -245,7 +259,7 @@ function drawDot(note, inv) {
 	if (note.dots > 0) {
 		if (note.isSpace) {
 			ctx.save();
-			ctx.translate(note.xPos + 25, note.noteGroups[0].yPos);
+			ctx.translate(note.xPos + 25, note.noteGroups[0].yPos - 56);
 
 			writeDots(note);
 
@@ -296,7 +310,7 @@ function drawNoteAccidental(n, m) {
 					text = ""; break;
 			}
 
-			ctx.font = "80px Musicaf";
+			ctx.font = "75px Musicaf";
 			ctx.fillText(text, 0, offset);
 		}
 		ctx.restore();
@@ -317,7 +331,7 @@ function drawStem(note, height, inverse, noteGroup) {
 	if (inverse) {
 		ctx.rotate(Math.PI);
 		ctx.translate(-21, 6);
-		height -= 12;
+		height -= 5;
 	}
 
 	if (note.duration <= 0.5) {
@@ -335,8 +349,8 @@ function drawSelected() {
 
 		var note = bars[selectedNotes[0].bar].notes[selectedNotes[0].note];
 		var yOffset = calculateYLine(note.line, iPages[curIPage].headerOffset);
-		var adjacent=false;
-		var faceRight=false;
+		var adjacent = false;
+		var faceRight = false;
 		ctx.translate(0, yOffset);
 
 		ctx.fillStyle = "#007acc";
@@ -347,23 +361,23 @@ function drawSelected() {
 			var n = getNote(note, selectedNotes[0].pos);
 			var noteGroupOrder = bars[selectedNotes[0].bar].notes[selectedNotes[0].note].noteGroups;
 
-			if(n==-1) n=0;
+			if (n == -1) n = 0;
 			for (var nG = 0; nG < noteGroupOrder.length; nG++) {
-				if(nG!==n) {
+				if (nG !== n) {
 					ctx.save();
-					result=getNoteFace(nG, noteGroupOrder, adjacent, faceRight, note.inverted);
+					result = getNoteFace(nG, noteGroupOrder, adjacent, faceRight, note.inverted);
 					ctx.restore();
 				} else {
 					result = drawIndividualHead(note, note.noteGroups, n, note.inverted, faceRight, adjacent);
-					
-					break;
-				}	
 
-				faceRight=result.faceRight;
-				adjacent=result.adjacent;
-				
+					break;
+				}
+
+				faceRight = result.faceRight;
+				adjacent = result.adjacent;
+
 			}
-			
+
 		}
 
 
@@ -399,7 +413,7 @@ function getNoteFace(n, noteGroupOrder, adjacent, faceRight, m) {
 		}
 	}
 
-	return {adjacent: adjacent, faceRight: faceRight};
+	return { adjacent: adjacent, faceRight: faceRight };
 }
 
 function drawIndividualHead(note, noteGroupOrder, n, inverse, faceRight, adjacent) {
@@ -417,28 +431,28 @@ function drawIndividualHead(note, noteGroupOrder, n, inverse, faceRight, adjacen
 	}
 
 	var result = getNoteFace(n, noteGroupOrder, adjacent, faceRight, m);
-	faceRight=result.faceRight;
-	adjacent=result.adjacent;
+	faceRight = result.faceRight;
+	adjacent = result.adjacent;
 
 	if (note.duration <= 0.25) ctx.fillText("\uD834\uDD58", 0, 0);
 	else if (note.duration === 0.5) ctx.fillText("\uD834\uDD57", 0, 0);
 	else if (note.duration === 1) ctx.fillText("\uD834\uDD5D", 0, 0);
 
 	ctx.restore();
-	return {adjacent: adjacent, faceRight: faceRight};
+	return { adjacent: adjacent, faceRight: faceRight };
 }
 
 function drawHead(note, inverse) {
 	var noteGroupOrder = note.noteGroups;
 	drawNoteAccidental(note, inverse);
-	var faceRight=false;
-	var adjacent=false;
+	var faceRight = false;
+	var adjacent = false;
 	var result;
 	for (var n = 0; n < noteGroupOrder.length; n++) {
 
 		result = drawIndividualHead(note, noteGroupOrder, n, inverse, faceRight, adjacent);
-		faceRight=result.faceRight;
-		adjacent=result.adjacent;
+		faceRight = result.faceRight;
+		adjacent = result.adjacent;
 	}
 }
 
@@ -535,10 +549,13 @@ function drawBar(bar, color) { // eslint-disable-line no-unused-vars
 	ctx.fillStyle = "#000000";
 	var timePos = bar.initPos;
 
-	if (bar.changedOrFirstClef) {
+	if (bar.changedOrFirstClef || bar.changedClef) {
 		drawClef(bar.clef, bar.initPos, bar.line);
 
 		timePos += 45;
+		if(bar.clef===2) {
+			timePos+=14;
+		}
 	}
 	var accidentalSum = bar.accidentals;
 	var acc;

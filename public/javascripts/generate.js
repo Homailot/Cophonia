@@ -77,7 +77,13 @@ function getSpace(line) {
 		if(bars[bar].line === line) {
 			var startWidth = 5;
 			if(bars[bar].changedAcc || bars[bar].firstAcc) startWidth+=(bars[bar].accidentals+bars[bar].naturals.length)*18;
-			if(bars[bar].changedOrFirstClef || bars[bar].changedClef) startWidth+=45;
+			if(bars[bar].changedOrFirstClef || bars[bar].changedClef) {
+				startWidth+=45;
+
+				if(bars[bar].clef===2) {
+					startWidth+=12;
+				}
+			} 
 			if(bars[bar].changedTimeSig) {
 				startWidth+=35;
 
@@ -255,6 +261,19 @@ function getBeamGroups(bar) {
 	var sigSum = 0;
 	for(var note = 0; note< objBar.notes.length; note++) { 
 		var objNote = objBar.notes[note];
+		var inverse;
+		for(var nG=0; nG<objNote.noteGroups.length; nG++) {
+			if(nG===0) inverse = objNote.noteGroups[0].pos;
+			else if(Math.abs(objNote.noteGroups[nG].pos - (-3)) > Math.abs(inverse - (-3))) {
+				inverse = objNote.noteGroups[nG].pos;
+			}
+		}
+		
+		if(inverse<-3) {
+			objNote.inverted=true;
+		} else {
+			objNote.inverted=false;
+		}
 		//add to the sum
 		sigSum+=getNoteDuration(objNote);
 		//if the bar is compound it makes the bar duration 3 times the lower signature
@@ -344,14 +363,17 @@ function getDirection(beamGroups, group) {
 function getYStart(bar, beamGroups, group, inverse, shortest) {
 	var beamOffset=-33;
 	var mult=-1;
+	
 	if(inverse) {
 		beamOffset=53;
+		
 		mult=1;
 	}
 	var proceed = false;
 	var yStart=0;
 
 	for(var note = 0; note < beamGroups[group].length; note++) {
+		beamGroups[group][note].inverted=inverse;
 		drawHead(beamGroups[group][note], inverse);
 		//finally, we define the y pos of the beam. in this case we check for the note farthest away from all the others, so that the beam isn't drawn on top of the head
 		for(var n=0; n<beamGroups[group][note].noteGroups.length; n++) {
@@ -449,7 +471,8 @@ function defineLowerBeams(beamGroups, group, line, inverse) {
 				var yStart = getYFromX(line.m, line.b+10*(beam+1)*m, startBeam[beam]);
 				var yEnd = getYFromX(line.m, line.b+10*(beam+1)*m, endBeam[beam]);
 
-				drawBeam(startBeam[beam], yStart, endBeam[beam], yEnd);
+				if(inverse) drawBeam(startBeam[beam], yStart+7, endBeam[beam], yEnd+7);
+				else drawBeam(startBeam[beam], yStart, endBeam[beam], yEnd);
 				startBeam[beam] =-1; endBeam[beam] = -1;
 			}
 		}
@@ -502,7 +525,9 @@ function defineBeams(bar, beamGroups) {
 			var line = new LineFunction(xStart, yStart, xEnd, yEnd);
 
 			//finally, we draw the beam
-			drawBeam(xStart, yStart, xEnd, yEnd);
+			if(inverse) drawBeam(xStart, yStart+7, xEnd, yEnd+7);
+			else drawBeam(xStart, yStart, xEnd, yEnd);
+			
 
 			defineLowerBeams(beamGroups, group, line, inverse);
 			
@@ -574,6 +599,7 @@ function generateAll() { // eslint-disable-line no-unused-vars
 	ctx.translate(0, headerOffset);
 	
 	var firstLine=0;
+
 	for(var bar = 0; bar < bars.length; bar++) {
 		//the beamGroups define the groups of eigth plus notes to be grouped with beams
 		var beamGroups = [];

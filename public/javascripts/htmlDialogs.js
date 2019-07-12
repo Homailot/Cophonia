@@ -10,7 +10,7 @@ function changeTimeSigPop(bar) { // eslint-disable-line no-unused-vars
 	sigSel.id = "upperSig";
 
 	var label = document.createElement("label");
-	label.innerHTML = "Upper Number:";
+	label.innerHTML = "Número de batidas:";
 	label.for = "upperSig";
 	formDiv.appendChild(label);
 	var option;
@@ -19,6 +19,7 @@ function changeTimeSigPop(bar) { // eslint-disable-line no-unused-vars
 		option = document.createElement("option");
 		option.innerHTML = num;
 		option.value = num;
+		if(bars[bar].upperSig === num) option.selected=true;
 		sigSel.appendChild(option);
 	}
 
@@ -34,7 +35,7 @@ function changeTimeSigPop(bar) { // eslint-disable-line no-unused-vars
 	sigSel.id = "lowerSig";
 
 	label = document.createElement("label");
-	label.innerHTML = "Lower Number:";
+	label.innerHTML = "Duração das batidas:";
 	label.for = "lowerSig";
 	formDiv.appendChild(label);
 
@@ -42,11 +43,12 @@ function changeTimeSigPop(bar) { // eslint-disable-line no-unused-vars
 		option = document.createElement("option");
 		option.innerHTML = nums;
 		option.value = nums;
+		if(bars[bar].lowerSig === nums) option.selected=true;
 		sigSel.appendChild(option);
 	}
 
 	var p = document.createElement("p");
-	p.innerHTML = "Warning, this operation may delete some notes on the measures selected";
+	p.innerHTML = "Cuidado, esta operação pode apagar algumas notas no compasso selecionado!";
 
 	formDiv.appendChild(sigSel);
 	formDiv.appendChild(p);
@@ -55,8 +57,7 @@ function changeTimeSigPop(bar) { // eslint-disable-line no-unused-vars
 	var submitButton = document.createElement("input");
 	submitButton.type = "button";
 	submitButton.classList.add("btn");
-	submitButton.classList.add("btn-primary");
-	submitButton.value = "Confirm";
+	submitButton.value = "Confirmar";
 	submitButton.addEventListener("click", function () {
 		var upperOptions = document.getElementById("upperSig").options;
 		var lowerOptions = document.getElementById("lowerSig").options;
@@ -97,7 +98,7 @@ function changeKeyPop(bar) { // eslint-disable-line no-unused-vars
 	keySel.id = "keySel";
 
 	var label = document.createElement("label");
-	label.innerHTML = "Key Signature:";
+	label.innerHTML = "Armação de clave:";
 	label.for = "keySel";
 	formDiv.appendChild(label);
 
@@ -182,8 +183,7 @@ function changeKeyPop(bar) { // eslint-disable-line no-unused-vars
 	var submitButton = document.createElement("input");
 	submitButton.type = "button";
 	submitButton.classList.add("btn");
-	submitButton.classList.add("btn-primary");
-	submitButton.value = "Confirm";
+	submitButton.value = "Confirmar";
 	submitButton.addEventListener("click", function () {
 		var index = document.getElementById("keySel").selectedIndex;
 		var options = document.getElementById("keySel").options;
@@ -213,6 +213,132 @@ function changeKeyPop(bar) { // eslint-disable-line no-unused-vars
 	openHTMLDialog([form]);
 }
 
+function addCollaborator() { // eslint-disable-line no-unused-vars
+	var form = document.createElement("form");
+	form.classList.add("m-3");
+
+	var formDiv = document.createElement("div");
+	formDiv.classList.add("form-group");
+
+	var colabText = document.createElement("input");
+	colabText.classList.add("form-control");
+	colabText.id = "colab";
+	colabText.addEventListener("load", function() {
+	});
+
+	var label = document.createElement("label");
+	label.innerHTML = "Nome do colaborador:";
+	label.for = "colab";
+	formDiv.appendChild(label);
+
+	form.style.height = "auto";
+	formDiv.appendChild(colabText);
+	form.appendChild(formDiv);
+
+	var submitButton = document.createElement("input");
+	submitButton.type = "button";
+	submitButton.classList.add("btn");
+	submitButton.value = "Confirmar";
+	submitButton.addEventListener("click", function () {
+		var userName = document.getElementById("colab").value;
+
+		socket.emit("add collab", userName, songId);
+
+		// var dc = document.getElementById("dialogContainer");
+		// dc.removeChild(dc.childNodes[0]);
+	});
+
+	form.appendChild(submitButton);
+
+	openHTMLDialog([form]);
+}
+
+
+function showMessage(message) { // eslint-disable-line no-unused-vars
+	var dc = document.getElementById("dialogContainer");
+
+	if(dc.childNodes.length>0) {
+		dc.removeChild(dc.childNodes[0]);
+	}
+	var form = document.createElement("form");
+	form.classList.add("m-3");
+
+	var formDiv = document.createElement("div");
+	formDiv.classList.add("form-group");
+
+	var label = document.createElement("p");
+	label.innerHTML = message;
+	formDiv.appendChild(label);
+
+	form.style.height = "auto";
+	form.appendChild(formDiv);
+
+	var submitButton = document.createElement("input");
+	submitButton.type = "button";
+	submitButton.classList.add("btn");
+	submitButton.value = "OK";
+	submitButton.addEventListener("click", function () {
+		if (document.getElementById("dialog")) {
+			var dc = document.getElementById("dialogContainer");
+			dc.removeChild(dc.childNodes[0]);
+		}
+	});
+
+	form.appendChild(submitButton);
+
+	openHTMLDialog([form]);
+}
+
+function showConf(message,id) { // eslint-disable-line no-unused-vars
+	var dc = document.getElementById("dialogContainer");
+
+	if(dc.childNodes.length>0) {
+		dc.removeChild(dc.childNodes[0]);
+	}
+	var form = document.createElement("form");
+	form.classList.add("m-3");
+
+	var formDiv = document.createElement("div");
+	formDiv.classList.add("form-group");
+
+	var label = document.createElement("p");
+	label.innerHTML = message;
+	formDiv.appendChild(label);
+
+	form.style.height = "auto";
+	form.appendChild(formDiv);
+
+	var submitButton = document.createElement("input");
+	submitButton.type = "button";
+	submitButton.classList.add("btn");
+	submitButton.value = "Sim";
+	submitButton.addEventListener("click", function () {
+		if (document.getElementById("dialog")) {
+			var dc = document.getElementById("dialogContainer");
+			dc.removeChild(dc.childNodes[0]);
+		}
+
+		document.forms["form"+id].submit();
+	});
+
+	var rejectButton = document.createElement("input");
+	rejectButton.type = "button";
+	rejectButton.style = "margin-left: 20px;";
+	rejectButton.classList.add("btn");
+	rejectButton.value = "Não";
+	rejectButton.addEventListener("click", function () {
+		if (document.getElementById("dialog")) {
+			var dc = document.getElementById("dialogContainer");
+			dc.removeChild(dc.childNodes[0]);
+		}
+	});
+
+
+	form.appendChild(submitButton);
+	form.appendChild(rejectButton);
+
+	openHTMLDialog([form]);
+}
 
 function openHTMLDialog(contents) {
 	if (document.getElementById("dialog")) {
@@ -230,7 +356,8 @@ function openHTMLDialog(contents) {
 
 	dialog.style.zIndex = 5;
 	dialog.style.position = "fixed";
-	dialog.style.backgroundColor = "#F9F7F7";
+	dialog.style.backgroundColor = "#3d373e";
+	dialog.style.color = "white";
 	dialog.classList.add("rounded-top");
 	dialog.classList.add("shadow");
 	dialog.id = "dialog";
@@ -242,6 +369,8 @@ function openHTMLDialog(contents) {
 
 	document.getElementById("dialog").style.height = document.getElementById("dialog").scrollHeight + "px";
 	slideElement(document.getElementById("dialog"));
+
+	if(document.getElementById("colab")) document.getElementById("colab").focus();
 }
 
 var curContent;
@@ -257,7 +386,11 @@ function moveElement() {
 }
 
 function menuDuration(menu, isShortcut) {
-	if (checkPlay()) return;
+	if (playing) return;
+	if (document.getElementById("dialog")) {
+		var dc = document.getElementById("dialogContainer");
+		dc.removeChild(dc.childNodes[0]);
+	}
 	for (var b = 0; b <= 3; b++) {
 		document.getElementById("bar" + b).classList.remove("focus");
 	}
@@ -277,10 +410,7 @@ function menuDuration(menu, isShortcut) {
 		}
 	}
 	curDuration = gDurations[menu];
-	if (document.getElementById("dialog")) {
-		var dc = document.getElementById("dialogContainer");
-		dc.removeChild(dc.childNodes[0]);
-	}
+	
 
 	if (!selectedNotes[0]) return;
 
@@ -299,7 +429,7 @@ function menuDuration(menu, isShortcut) {
 }
 
 function menuAccidental(value) {
-	if (checkPlay()) return;
+	if (playing) return;
 	if (!selectedNotes[0]) return;
 
 	var inf = {
@@ -314,13 +444,16 @@ function menuAccidental(value) {
 		generate: true
 	};
 	changeAccidental(inf.args);
+	var audioContext = new AudioContextFunc();
+	changeInstrumentQuick("https://surikov.github.io/webaudiofontdata/sound/0001_FluidR3_GM_sf2_file.js", "_tone_0001_FluidR3_GM_sf2_file", audioContext, curBar, curNote);
+
 	sendData(JSON.stringify(inf));
 
 	generateAll();
 }
 
 function menuDot() {
-	if (checkPlay()) return;
+	if (playing) return;
 	if (!selectedNotes[0]) return;
 
 	var inf = {
@@ -343,7 +476,7 @@ function menuDot() {
 }
 
 function menuTie() {
-	if (checkPlay()) return;
+	if (playing) return;
 	if (!selectedNotes[0]) return;
 
 	var n = getNote(bars[selectedNotes[0].bar].notes[selectedNotes[0].note], y);
@@ -384,7 +517,7 @@ function menuTie() {
 }
 
 function menuDeleteNote() {
-	if (checkPlay()) return;
+	if (playing) return;
 	if (!selectedNotes[0]) return;
 
 	var inf = {
@@ -400,6 +533,9 @@ function menuDeleteNote() {
 		generate: true
 	};
 	deleteNote(inf.args);
+	var audioContext = new AudioContextFunc();
+	changeInstrumentQuick("https://surikov.github.io/webaudiofontdata/sound/0001_FluidR3_GM_sf2_file.js", "_tone_0001_FluidR3_GM_sf2_file", audioContext, curBar, curNote);
+
 	sendData(JSON.stringify(inf));
 
 
@@ -407,7 +543,7 @@ function menuDeleteNote() {
 }
 
 function menuInsert() {
-	if (checkPlay()) return;
+	if (playing) return;
 	if (!selectedNotes[0]) return;
 
 	var inf = {
@@ -426,13 +562,17 @@ function menuInsert() {
 }
 
 function menuAdd(menu) {
-	if (checkPlay()) return;
+	if (document.getElementById("dialog")) {
+		var dc = document.getElementById("dialogContainer");
+		dc.removeChild(dc.childNodes[0]);
+	}
+	if (playing) return;
 	for (var m = 0; m <= 6; m++) {
 		document.getElementById("duration" + m).classList.remove("focus");
 	}
 	insertionTool = false;
 
-	for (var b = 0; b <= 3; b++) {
+	for (var b = 0; b <= 4; b++) {
 		if (menu === b) {
 			if (barFunction === b && barTool) {
 				document.getElementById("bar" + b).classList.remove("focus");
@@ -445,30 +585,20 @@ function menuAdd(menu) {
 			document.getElementById("bar" + b).classList.remove("focus");
 		}
 	}
-	if (document.getElementById("dialog")) {
-		var dc = document.getElementById("dialogContainer");
-		dc.removeChild(dc.childNodes[0]);
-	}
+	
 
 	barFunction = menu;
 }
 
 function menuPlay() {
-	if (!checkPlay()) {
-		playingBar = 0;
-		playingNote = 0;
-		playingTime = 0;
+	if (!playing) {
 
-		for (var i = 0; i < time.length; i++) {
-			clearTimeout(time[i]);
-		}
+		if(timeTimeout) clearTimeout(timeTimeout);
 		var audioContext = new AudioContextFunc();
-		changeInstrument("https://surikov.github.io/webaudiofontdata/sound/0000_FluidR3_GM_sf2_file.js", "_tone_0000_FluidR3_GM_sf2_file", audioContext);
+		changeInstrument(audioContext, 0);
 
 	} else {
-		for (var j = 0; j < time.length; j++) {
-			clearTimeout(time[j]);
-		}
+		if(timeTimeout) clearTimeout(timeTimeout);
 		restoreCanvas(); playing = false;
 		drawSelected();
 		generateAll();
@@ -489,6 +619,13 @@ function menuIPage(skip) {
 
 	markerOutOfBounds();
 	sendAndUpdateMarker();
+
+	if(playing) {
+		hOffset = iPages[curIPage].headerOffset;
+		for (var b = 0; b <= bars[curBar].line; b++) {
+			hOffset += lines[b].yOffset;
+		}
+	}
 
 	generateAll();
 }
@@ -511,4 +648,159 @@ function menuNewIPage() {
 	sendAndUpdateMarker();
 
 	generateAll();
+}
+
+function deleteIPage(args) {
+	if(iPages.length===1) return;
+
+	iPages.splice(args.page, 1);
+	if(curIPage===args.page) {
+		if(curIPage-1>=0) curIPage--;
+		else if(curIPage+1<iPages.length) curIPage++;
+	}
+	curNote = 0;
+	bars = iPages[curIPage].bars;
+	lines = iPages[curIPage].lines;
+	if (curBar >= bars.length) {
+		curBar = bars.length - 1;
+	}
+	delete selectedNotes[0];
+	selectNote(curNote, curBar, curIPage, y);
+
+	markerOutOfBounds();
+	sendAndUpdateMarker();
+
+	generateAll();
+}
+
+function menuDeleteIPage() {
+	
+	var inf= {
+		functionName: "deleteIPage",
+		args: {
+			page: curIPage
+		},
+		generate: false
+	};
+	deleteIPage(inf.args);
+
+	sendData(JSON.stringify(inf));
+}
+
+function changeClefPop(bar) {
+	var form = document.createElement("form");
+	form.classList.add("m-3");
+
+	var formDiv = document.createElement("div");
+	formDiv.classList.add("form-group");
+
+	var sigSel = document.createElement("select");
+	sigSel.classList.add("form-control");
+	sigSel.id = "upperSig";
+
+	var label = document.createElement("label");
+	label.innerHTML = "Clave do compasso:";
+	label.for = "upperSig";
+	formDiv.appendChild(label);
+	var option;
+
+	option = document.createElement("option");
+	option.innerHTML = "Clave de Sol (&nbsp; &nbsp;𝄞) 2ª linha";
+	option.value = 0;
+	sigSel.appendChild(option);
+
+	option = document.createElement("option");
+	option.innerHTML = "Clave de Fá (&nbsp; &nbsp;𝄢) 4ª linha";
+	option.value = 2;
+	sigSel.appendChild(option);
+
+	form.style.height = "auto";
+	formDiv.appendChild(sigSel);
+	form.appendChild(formDiv);
+
+	var submitButton = document.createElement("input");
+	submitButton.type = "button";
+	submitButton.classList.add("btn");
+	submitButton.value = "Confirmar";
+	submitButton.addEventListener("click", function () {
+		var upperOptions = document.getElementById("upperSig").options;
+		var upperSelected = document.getElementById("upperSig").selectedIndex;
+
+		inf = {
+			functionName: "changeClef",
+			args: {
+				bar: bar,
+				iPage: curIPage,
+				clef: parseInt(upperOptions[upperSelected].value)
+			},
+			generate: false
+		};
+		changeClef(inf.args);
+		sendData(JSON.stringify(inf));
+
+		var dc = document.getElementById("dialogContainer");
+		dc.removeChild(dc.childNodes[0]);
+	});
+
+	form.appendChild(submitButton);
+
+	openHTMLDialog([form]);
+}
+
+function menuChangeInstrument(page) {
+	var form = document.createElement("form");
+	form.classList.add("m-3");
+
+	var formDiv = document.createElement("div");
+	formDiv.classList.add("form-group");
+
+	var sigSel = document.createElement("select");
+	sigSel.classList.add("form-control");
+	sigSel.id = "upperSig";
+
+	var label = document.createElement("label");
+	label.innerHTML = "Instrumento da partitura:";
+	label.for = "upperSig";
+	formDiv.appendChild(label);
+	var option;
+
+	for(var instrument in instruments) {
+		option = document.createElement("option");
+		option.innerHTML = instruments[instrument].name;
+		option.value = instrument;
+		sigSel.appendChild(option);
+	}
+
+	form.style.height = "auto";
+	formDiv.appendChild(sigSel);
+	form.appendChild(formDiv);
+
+	var submitButton = document.createElement("input");
+	submitButton.type = "button";
+	submitButton.classList.add("btn");
+	submitButton.value = "Confirmar";
+	submitButton.addEventListener("click", function () {
+		var upperOptions = document.getElementById("upperSig").options;
+		var upperSelected = document.getElementById("upperSig").selectedIndex;
+
+		
+
+		inf = {
+			functionName: "changePageInstrument",
+			args: {
+				page: page,
+				instrument: upperOptions[upperSelected].value
+			},
+			generate: false
+		};
+		changePageInstrument(inf.args);
+		sendData(JSON.stringify(inf));
+
+		var dc = document.getElementById("dialogContainer");
+		dc.removeChild(dc.childNodes[0]);
+	});
+
+	form.appendChild(submitButton);
+
+	openHTMLDialog([form]);
 }

@@ -46,8 +46,12 @@ function getBarStart(bars, bar) {
 			startPos+=15;
 		}
 	} 
-	if(bars[bar].changedOrFirstClef) {
+	if(bars[bar].changedOrFirstClef || bars[bar].changedClef ) {
+		
 		startPos+=45;
+		if(bars[bar].clef==2) {
+			startPos+=12;
+		}
 	} 
 	if(bars[bar].firstAcc || bars[bar].changedAcc) {
 		startPos+=(bars[bar].accidentals+bars[bar].naturals.length)*18;

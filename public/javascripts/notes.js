@@ -41,12 +41,12 @@ function getNoteValue(scalePos, sP, noteValue) {
 		else if(!desc && (sP===1 || sP===4)) noteValue--;
 	}
 
-	return noteValue;
+	return {noteValue: noteValue, sP:sP};
 }
 
 function getAccidentalFromBar(bars, barP, sP, acc, pos) {
 	var note;
-	var found=false;
+	var found = false;
 	for(i = 0; i<bars[barP].notes.length; i++) {
 		var n=bars[barP];
 		for(note=0; note<n.notes[i].noteGroups.length; note++) {
@@ -62,11 +62,14 @@ function getAccidentalFromBar(bars, barP, sP, acc, pos) {
 	for(var i = 1; i<=bars[barP].accidentals; i++) {
 		var value = i-1;
 		if(bars[barP].sharpOrFlat===-1) value = 7-i;
-
-		if(sP === accidentalOrder[value]) {
+		var upper = sP+2;
+		if(upper>7) {
+			upper-=7;
+		}
+		if((upper === accidentalOrder[value] && bars[barP].clef===2 )||(sP === accidentalOrder[value] && bars[barP].clef!==2)) {
 			acc = bars[barP].sharpOrFlat;
 			break;
-		}
+		} 
 	}
 
 	return acc;
@@ -80,7 +83,7 @@ function placeNote(args) { // eslint-disable-line no-unused-vars
 	}
 	var xPos = 0;
 	var noteValue = 71;
-	if(args.iPage==1)noteValue-=12;
+	//if(args.iPage==1)noteValue-=12;
 	var pos = args.pos;
 	var scalePos = (pos+3)*-1+7;
 	var sP = 7;
@@ -92,7 +95,9 @@ function placeNote(args) { // eslint-disable-line no-unused-vars
 	var sum = getSum(lBars, barP);
 	var replacedPauseDuration=0;
 	
-	noteValue = getNoteValue(scalePos, sP, noteValue);
+	var result  = getNoteValue(scalePos, sP, noteValue);
+	sP = result.sP;
+	noteValue = result.noteValue;
 	if(lBars[args.bar].notes[args.note] && lBars[args.bar].notes[args.note].isSpace && !args.isSpace) {
 		if(lBars[args.bar].notes[args.note].fullRest) {
 			replacedPauseDuration=lBars[barP].upperSig/lBars[barP].lowerSig;
@@ -139,11 +144,11 @@ function placeNote(args) { // eslint-disable-line no-unused-vars
 	} else {
 		note.inverted=false;
 	}
-	if(markers[uIndex].extended && args.bar===curBar && args.note===curNote && args.iPage===curIPage) {
+	if(markers[uIndex] && markers[uIndex].extended && args.bar===curBar && args.note===curNote && args.iPage===curIPage) {
 		markers[uIndex].extended=false;
 	}
 	setNoteLines(lBars, barP);
-	sendAndUpdateMarker();
+	if(markers[uIndex]) sendAndUpdateMarker();
 }
 
 function updateAccidental (bar, n, j, bars) {
@@ -151,7 +156,7 @@ function updateAccidental (bar, n, j, bars) {
 	determineAccFromNotes(bars[bar], null, n, j);
 
 	getAccWidth(j, bars[bar]);
-};
+}
 
 function hideAccidental(nG, hide) {
 	if(hide) {
@@ -188,10 +193,17 @@ function determineAccFromBar(bar, note, n, j) {  // eslint-disable-line no-unuse
 		var value = i-1;
 		if(bar.sharpOrFlat===-1) value = 7-i;
 
-		if((n.scalePos === accidentalOrder[value] && n.accidental===bar.sharpOrFlat)) {
+		var sP=n.scalePos;
+
+		if(bar.clef==2) {
+			sP+=2;
+			if(sP>7) sP-=7;
+		}
+
+		if((sP === accidentalOrder[value] && n.accidental===bar.sharpOrFlat)) {
 			hideAccidental(n, true);
 			break;
-		} else if(n.scalePos === accidentalOrder[value] && n.accidental!==bar.sharpOrFlat) {
+		} else if(sP === accidentalOrder[value] && n.accidental!==bar.sharpOrFlat) {
 			hideAccidental(n, false);
 			break;
 		}
@@ -226,10 +238,6 @@ function determineAccFromNotes(bar, note, n, j) {
 					hideAccidental(subjectPlace, true);
 				}
 			}
-
-			if(i>j) {
-				getAccWidth(i, bar);	
-			}
 		}
 	}
 }
@@ -262,7 +270,7 @@ function changeAccidental(args) { // eslint-disable-line no-unused-vars
 function determineAccLocation(objNote, objGroup, maxLength, nG) {
 	var curLength=0;
 	while(curLength<objGroup.length) {
-		if(objNote.noteGroups[nG].pos-objGroup[curLength].pos<=5) {
+		if(objNote.noteGroups[nG].pos-objGroup[curLength].pos<=4) {
 			curLength++;		
 		} else {
 			objNote.noteGroups[nG].accIsOffset=curLength+1;
