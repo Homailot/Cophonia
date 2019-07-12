@@ -1,8 +1,13 @@
-function getSum(bar) { // eslint-disable-line no-unused-vars
+function getSum(bars, bar) { // eslint-disable-line no-unused-vars
 	var sum = 0;
 
 	for(var note = 0; note < bars[bar].notes.length; note++) {
-		sum += getNoteDuration(bars[bar].notes[note]);
+		if(bars[bar].notes[note].fullRest) {
+			sum = bars[bar].upperSig/bars[bar].lowerSig;
+			break;
+		} else {
+			sum += getNoteDuration(bars[bar].notes[note]);
+		}
 	}
 
 	return sum;
@@ -32,14 +37,37 @@ function moveNext(offset, note, bar, line) {
 	}
 }
 
+function getBarStart(bars, bar) {
+	var startPos=0;
+
+	if(bars[bar].changedTimeSig) {
+		startPos+=35;
+		if(bars[bar].upperSig>=10 || bars[bar].lowerSig>=10) {
+			startPos+=15;
+		}
+	} 
+	if(bars[bar].changedOrFirstClef || bars[bar].changedClef ) {
+		
+		startPos+=45;
+		if(bars[bar].clef==2) {
+			startPos+=12;
+		}
+	} 
+	if(bars[bar].firstAcc || bars[bar].changedAcc) {
+		startPos+=(bars[bar].accidentals+bars[bar].naturals.length)*18;
+	}
+
+	return startPos;
+}
+
 function getYFromX(m, b, x) { // eslint-disable-line no-unused-vars
 	return m*x+b;
 }
 
-function moveBars(bar, forward, line) { // eslint-disable-line no-unused-vars
+function moveBars(bars, bar, line) { // eslint-disable-line no-unused-vars
 	var movingLine = line;
 
-	for(bar=bar+1; bar < bars.length; bar++) {
+	for(bar=bar; bar < bars.length; bar++) {
 		var note;
 		if(bars[bar].line !== movingLine) {
 			movingLine++;
@@ -50,24 +78,7 @@ function moveBars(bar, forward, line) { // eslint-disable-line no-unused-vars
 			for(note = 0; note < bars[bar].notes.length; note++) {
 				bars[bar].notes[note].line-=1;
 			}
-		} else {
-			var difference = bars[bar].initPos;
-			var startPos = 0;
-
-			if(bars[bar-1].line !== movingLine) {
-				startPos = 8;
-				bars[bar].xPos = bars[bar].xPos-difference +  startPos;
-				bars[bar].initPos = startPos;
-				//startPos+=45
-			} else {
-				startPos = bars[bar-1].xPos;
-				bars[bar].xPos = bars[bar].xPos-difference +  startPos;			
-				bars[bar].initPos = startPos;
-			} 
-			for(note = 0; note< bars[bar].notes.length; note++) {
-				bars[bar].notes[note].xPos = bars[bar].notes[note].xPos-difference + startPos;
-			}
-		}
+		} 
 	}
 }
 
@@ -91,5 +102,21 @@ function markerOutOfBounds() {  // eslint-disable-line no-unused-vars
 
 function restoreCanvas() { // eslint-disable-line no-unused-vars
 	ctx.clearRect(0, 0, c.width, 100000);
-	ctx.drawImage(savedCanvas, -0.5, -0.5+scrollValue);
+	ctx.drawImage(savedCanvas, 0, scrollValue);
+	
+}
+
+function debounce(func, wait, immediate) {
+	var timeout;
+	return function() {
+		var context = this, args = arguments;
+		var later = function() {
+			timeout = null;
+			if (!immediate) func.apply(context, args);
+		};
+		var callNow = immediate && !timeout;
+		clearTimeout(timeout);
+		timeout = setTimeout(later, wait);
+		if (callNow) func.apply(context, args);
+	};
 }
