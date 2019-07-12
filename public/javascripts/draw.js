@@ -537,7 +537,7 @@ function drawMarkup() {
 	ctx.font = "20px BravuraF";
 	ctx.fillText(" = " + SheetDocument.tempo, 100, offset + 30);
 	ctx.textAlign = "end";
-	ctx.fillText("Piano - " + (curIPage + 1), c.width - 80, offset + 30);
+	ctx.fillText(instruments[iPages[curIPage].instrument].name + " - " + (curIPage + 1), c.width - 80, offset + 30);
 	ctx.textAlign = "start";
 	offset += 30;
 
