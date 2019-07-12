@@ -112,7 +112,7 @@ function getJSON(args) {
 function start(createNew) {
 	c=document.getElementById("principal");
 	//changeInstrument("https://surikov.github.io/webaudiofontdata/sound/0000_FluidR3_GM_sf2_file.js","_tone_0000_FluidR3_GM_sf2_file");
-	c.height = window.innerHeight-98;
+	c.height = window.innerHeight-72;
 	c.width = window.innerWidth-70;
 
 	document.getElementById("principal").addEventListener('mousemove', debounce(function(event) {

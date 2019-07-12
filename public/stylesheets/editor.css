@@ -25,12 +25,23 @@ html, body {
 }
 #dialog{
     transition: top 300ms ease-out;
+    color: #e8e8e8!important;
+    background-color: #3d373e!important;
+}
+
+#dialog select {
+    background-color: #e8e8e8;
+}
+
+#dialog input[type=button] {
+    background-color: #ffd866;
+    color: #19181a;
 }
 canvas.principal {
     z-index: 1;
     position: absolute;
     background-color: white;
-    margin-top: 90px;
+    margin-top: 70px;
     margin-left: 60px;
 }
 canvas.save {
@@ -51,7 +62,7 @@ canvas.save {
     width: 100%;
     height: 100%;
     grid-template-columns: 50px auto;
-    grid-template-rows: 80px auto;
+    grid-template-rows: 70px auto;
     grid-template-areas: "topbar topbar"
     "leftbar sheet"
 }
@@ -93,6 +104,7 @@ canvas.save {
 .optn.dot {
     font-size: 50px;
 }
+
 
 .optn.cross span {
     position: relative;
@@ -138,14 +150,20 @@ canvas.save {
     background-color: #3d373e;
     font-family: "BravuraF";
     display: grid;
-    grid-template-rows: 30px 50px;
-    grid-template-columns: 50px 65px 65px 65px 65px auto 40px 40px 40px 40px;
-    grid-column-gap: 4px;
+    grid-template-rows: 10px 50px;
+    grid-template-columns: 50px 65px 65px 65px 65px 65px auto 40px 40px 40px 40px 40px 40px;
+    grid-column-gap: 1px;
+    grid-row-gap: 10px;
 }
 
 .topbar > button > span {
     position: relative;
     bottom: 0
+}
+
+.optn.save {
+    grid-row: 2;
+    grid-column: 1;
 }
 
 .optn.add {
@@ -158,7 +176,7 @@ canvas.save {
     grid-column: 3; 
 }
 
-.optn.remove span, .optn.add span, .optn.bar-acc span {
+.optn.remove span, .optn.add span, .optn.bar-acc span, .optn.cross2 span, .optn.new span {
     bottom: 2px;
 }
 
@@ -169,12 +187,17 @@ canvas.save {
 
 .optn.time-sig {
     grid-row: 2;
+    grid-column: 5;
+}
+
+.optn.clef {
+    grid-row: 2;
     grid-column: 4;
 }
 
 .optn.bar-acc {
     grid-row: 2;
-    grid-column: 5;
+    grid-column: 6;
 }
 
 .optn.right-arrow {
@@ -189,15 +212,19 @@ canvas.save {
     grid-column: -3;
 }
 
-.top-img {
-    grid-row:2;
-    grid-column: 1;
-    width: 40px;
-    align-self: center;
-    justify-self: center;
-}
+
 
 .optn.new {
+    grid-row:2;
+    grid-column: -6;
+}
+
+.topbar  .cross2 {
+    grid-row:2;
+    grid-column: -5;
+}
+
+.topbar  .instrument {
     font-size: 20px;
     grid-row:2;
     grid-column: -4;
@@ -206,5 +233,64 @@ canvas.save {
 .optn.play {
     font-size: 20px;
     grid-row:2;
-    grid-column: -5;
+    grid-column: -7;
+}
+
+.top-options {
+    display: flex;
+    grid-column: 1 /14;
+    grid-row: 1 ;
+    background-color: rgb(73, 73, 64);
+    color: white;
+}
+
+.top-options div, .special {
+    align-self: center;
+    font-family: 'Montserrat', sans-serif;
+    cursor: pointer;
+    height: 100%;
+    color:#F5F5DC;
+    text-decoration: none;
+    font-weight: 1000;
+    cursor: pointer;
+    padding-bottom: 10px;
+    padding-top: 25px;
+    padding-left: 20px;
+    padding-right: 20px;
+}
+
+.top-songs {
+    order:1;
+}
+
+.top-options a, .top-options a:hover, .top-options a:active, .top-options a:visited{
+    text-decoration: none;
+    color:#F5F5DC;
+}
+
+.top-options div:hover {
+    color: white;
+    -webkit-transition:  0.1s;
+    -o-transition:  0.1s;
+    transition:  0.1s;
+}
+
+.top-img {
+    order: 0;
+    width: 100px;
+}
+
+.top-img img {
+   height: 80%;
+   vertical-align: middle;
+}
+
+.top-img {
+    padding-top: 16px!important;
+    padding-bottom: 0!important;
+}
+
+.top-collab {
+    order: 3;
+    margin-left: auto;
 }

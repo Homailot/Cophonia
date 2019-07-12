@@ -357,6 +357,7 @@ body {
         -ms-grid-row-align: center;
         align-self: center;
     padding: 20px;
+    padding: 20px 70px 20px 70px;
     font-size: 1.5rem;
     text-align:center;
 }
@@ -451,11 +452,12 @@ body {
     display: grid;
     -ms-grid-columns: 290px 290px;
     grid-template-columns: 290px 290px;
-    -ms-grid-rows: 120px auto;
-    grid-template-rows: 120px auto;
+    -ms-grid-rows: 120px auto auto;
+    grid-template-rows: 120px auto auto;
         grid-template-areas: 
         "header header"
-        "register login";
+        "register login"
+        "warning warning";
     -ms-grid-row-align: center;
         align-self: center;
     -ms-grid-column-align: center;
@@ -463,7 +465,7 @@ body {
     border-radius: 4px;
 }
 
-.r-header {
+.r-header, .r-header2 {
     -ms-grid-row: 1;
     -ms-grid-column: 1;
     -ms-grid-column-span: 2;
@@ -475,6 +477,10 @@ body {
         justify-self: center;
     text-align: center;
     border-bottom: 1px solid rgb(209, 209, 209);
+}
+
+.r-header2 {
+    border: none;
 }
 
 .r-register > .r-header {
@@ -512,7 +518,7 @@ body {
         justify-self: center;
 }
 
-.r-info input {
+.r-info input, .nsong-info input {
     width: 200px;
     height: 40px;
     border: none;
@@ -520,18 +526,20 @@ body {
     border-bottom: 1px dashed rgb(209, 209, 209);
 }
 
-.r-info input[type="submit"] {
+.r-info input[type="submit"], .nsong-info input[type="submit"] {
     border-radius: 1px;
     cursor: pointer;
     border: none;
 }
 
-.r-info input[type="submit"]:disabled {
+.r-info input[type="submit"]:disabled, .nsong-info input[type="submit"]:disabled {
     cursor: default;
 }
 
 .r-info input[type="text"]:active, .r-info input[type="password"]:active,
-.r-info input[type="text"]:focus, .r-info input[type="password"]:focus {
+.nsong-info input[type="text"]:active, .r-info input[type="password"]:active,
+.r-info input[type="text"]:focus, .r-info input[type="password"]:focus,
+.nsong-info input[type="text"]:focus, .r-info input[type="password"]:focus {
     border-bottom-color: black;
     border-bottom-style: solid;
     transition: 0.5s;
@@ -603,6 +611,156 @@ body {
         align-self: top;
     -ms-grid-column-align: center;
         justify-self: center;
+}
+
+.r-warning {
+    grid-area: warning;
+    -ms-grid-row: 3;
+    -ms-grid-column: 1;
+    -ms-grid-column-span: 2;
+    font-size: 1.5rem;
+    color: red;
+    text-align: center;
+    padding-bottom: 10px;
+}
+
+.song-container {
+    display: grid;
+    padding: 20px;
+}
+
+.song-header{
+    display: flex;
+    justify-content: space-between;
+    margin-bottom: 10px;
+}
+
+.song-btn input{
+        background-color: #c41d1d;
+        color: #f5f5dc;
+        font-weight: 700;
+        cursor: pointer;
+        border: none;
+        border-radius: 5px;
+        width: 200px;
+        height: 60px;
+}
+
+.songD-btn input{
+    background-color: #c41d1d;
+    color: #f5f5dc;
+    font-weight: 700;
+    cursor: pointer;
+    border: none;
+    border-radius: 5px;
+    width: 40px;
+    height: 30px;
+}
+
+.song-header h2, .nsong-header h2 {
+    font-weight: 1000;
+}
+
+.song-container table {
+    padding: 10px;
+    border-collapse: collapse;
+}
+
+.song-container td, .song-container th {
+    padding: 15px;
+}
+
+.song-container thead tr {
+    border-bottom: 1px solid #838388;
+}
+
+.song-container tbody tr {
+    border-top: 1px solid #838388;
+    cursor: pointer;
+}
+
+.song-table-2 {
+    width: 300px;
+}
+
+.song-table-3 {
+    width: 30px;
+}
+
+#dialog{
+    transition: top 300ms ease-out;
+    color: #e8e8e8!important;
+    background-color: #3d373e!important;
+}
+
+#dialog select {
+    background-color: #e8e8e8;
+}
+
+#dialog input[type=button] {
+    background-color: #ffd866;
+    color: #19181a;
+}
+
+.nsong-info {
+    width: 580px;
+    display: -ms-grid;
+    display: grid;
+    -ms-grid-columns: 580px;
+    grid-template-columns: 580px;
+    -ms-grid-rows: 120px auto auto;
+    grid-template-rows: 120px auto auto;
+        grid-template-areas: 
+        "header"
+        "input"
+        "submit";
+    -ms-grid-row-align: center;
+        align-self: center;
+    -ms-grid-column-align: center;
+        justify-self: center;
+    border-radius: 4px;
+}
+
+.nsong-header{
+    -ms-grid-row: 1;
+    -ms-grid-column: 1;
+    grid-area: header;
+    -ms-flex-item-align: center;
+        -ms-grid-row-align: center;
+        align-self: center;
+    -ms-grid-column-align: center;
+        justify-self: center;
+    text-align: center;
+    border-bottom: 1px solid rgb(209, 209, 209);
+}
+
+.nsong-name {
+    -ms-grid-row: 2;
+    -ms-grid-column: 1;
+    grid-area: input;
+    -ms-flex-item-align: center;
+        -ms-grid-row-align: center;
+        align-self: center;
+    -ms-grid-column-align: center;
+        justify-self: center;
+        margin-bottom: 30px;
+}
+
+.nsong-submit {
+    -ms-grid-row: 3;
+    -ms-grid-column: 1;
+    grid-area: submit;
+    -ms-flex-item-align: center;
+        -ms-grid-row-align: center;
+        align-self: center;
+    -ms-grid-column-align: center;
+        justify-self: center;
+        margin-bottom: 30px;
+}
+
+.nsong-name input {
+    width: 400px;
+    text-align: center;
 }
 
 /* ---------MEDIA QUERIES--------- */
@@ -789,7 +947,8 @@ body {
             grid-template-areas: 
             "header"
             "login"
-            "register";
+            "register"
+            "warning";
         -ms-grid-row-align: center;
             align-self: center;
         -ms-grid-column-align: stretch;
@@ -806,12 +965,22 @@ body {
         -ms-grid-column: 1;
         -ms-grid-row: 3;
     }
+
+    .r-warning{
+        -ms-grid-row: 4;
+        -ms-grid-column: 1;
+        -ms-grid-column-span: 1;
+    }
 }  
 
 @media(max-width: 500px), (max-height: 300px) {
     /* ---------MAIN PAGE--------- */
     .c-description, .co-description, .read-title {
         font-size: 1.1rem;
+    }
+
+    .co-description {
+        padding: 0;
     }
 
     .c-description h1, .co-title h1, .read-title h1 {
@@ -896,3 +1065,4 @@ body {
         font-size: 2.1rem;
     }
 }
+
