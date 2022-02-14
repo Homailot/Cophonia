@@ -10,9 +10,9 @@ var MySQLStore = require("express-mysql-session")(session);
 
 var indexRouter = require("./routes/index");
 var usersRouter = require("./routes/users");
-var mainRouter = require("./routes/siteRoute/main");
-var aboutRouter = require("./routes/siteRoute/about");
-var loginRouter = require("./routes/siteRoute/login");
+//var mainRouter = require("./routes/siteRoute/main");
+//var aboutRouter = require("./routes/siteRoute/about");
+//var loginRouter = require("./routes/siteRoute/login");
 
 var app = express();
 
@@ -29,9 +29,9 @@ app.use(express.static(path.join(__dirname, "public")));
 
 app.use("/", indexRouter);
 app.use("/users", usersRouter);
-app.use("/site", mainRouter);
-app.use("/site/about", aboutRouter);
-app.use("/site", loginRouter);
+//app.use("/site", mainRouter);
+//app.use("/site/about", aboutRouter);
+////app.use("/site", loginRouter);
 
 // catch 404 and forward to error handler
 app.use(function(req, res, next) {
